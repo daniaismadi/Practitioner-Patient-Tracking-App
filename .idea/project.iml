@@ -10,5 +10,16 @@
     <orderEntry type="library" name="ca.uhn.hapi.fhir:hapi-fhir-base:4.2.0" level="project" />
     <orderEntry type="library" name="ca.uhn.hapi.fhir:hapi-fhir-structures-r4:4.1.0" level="project" />
     <orderEntry type="library" name="ca.uhn.hapi.fhir:hapi-fhir-client:4.1.0" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../java-json.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../java-json.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>
