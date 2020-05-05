@@ -1,4 +1,11 @@
 out/
-.idea/
 *.class
-*.xml
+*.ppt
+*.jpg
+*.vpp
+*.pptx
+*.xlsx
+*.doc
+*.pdf
+*.o
+*.jar
