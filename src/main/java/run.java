@@ -1,5 +1,7 @@
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Patient;
 
 public class run {
@@ -21,20 +23,6 @@ public class run {
         // Print the output
         String string = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
         System.out.println(string);
-
-        /*
-         * Some more things to try:
-         *
-         * Search for Patient resources with the name “Test” and print the results
-         *   Bonus: Load the second page
-         *
-         * Create a new Patient resource and upload it to the server
-         *   Bonus: Log the ID that the server assigns to your resource
-         *
-         * Read a resource from the server
-         *   Bonus: Display an error if it has been deleted
-         *   Hint for Bonus- See this page: http://hapifhir.io/apidocs/ca/uhn/fhir/rest/server/exceptions/package-summary.html
-         */
 
     }
 
