@@ -79,6 +79,8 @@ public class JsonRead {
                 String patientName = resource.getJSONObject("subject").getString("display");
 
                 System.out.println(patientID + " " + patientName);
+                // Add patient to patientList with "+" separator so it will be easy to extract later.
+                patientList.add(patientID + "+" + patientName);
             }
 
         }
