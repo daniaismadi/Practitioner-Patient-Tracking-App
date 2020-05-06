@@ -9,5 +9,5 @@ out/
 *.pdf
 *.o
 *.jar
-*/.idea/misc.xml
-*/.idea/workspace.xml
+/.idea/misc.xml
+/.idea/workspace.xml

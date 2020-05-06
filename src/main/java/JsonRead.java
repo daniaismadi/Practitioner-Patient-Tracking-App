@@ -25,7 +25,7 @@ public class JsonRead {
         return sb.toString();
     }
 
-    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+    private static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         InputStream is = new URL(url).openStream();
         try {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
@@ -95,7 +95,7 @@ public class JsonRead {
                 "&_format=json";
     }
 
-    public static String retrievePractitionerPatients(String identifier) {
+    private static String retrievePractitionerPatients(String identifier) {
         String url = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter." +
                 "patient&participant.identifier=http%3A%2F%2Fhl7.org%2Ffhir%2Fsid%2Fus-npi%7C" +
                 identifier + "&_format=json";
