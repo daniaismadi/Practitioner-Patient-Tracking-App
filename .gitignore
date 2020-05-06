@@ -9,3 +9,5 @@ out/
 *.pdf
 *.o
 *.jar
+misc.xml
+workspace.xml
