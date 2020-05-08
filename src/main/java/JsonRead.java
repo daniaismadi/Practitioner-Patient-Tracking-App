@@ -7,7 +7,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
+import org.hl7.fhir.r4.model.Patient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,14 +42,29 @@ public class JsonRead {
     public static void main(String[] args) throws IOException, JSONException {
         // JSONObject json = readJsonFromUrl("https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?_count=13&code=2093-3&patient=3689&_sort=date&_format=json");
 
-        String encountersUrl = retrievePractitionerPatients("500");
+        System.out.println(retrievePractitionerPatients("500"));
+    }
+
+    public static String retrievePatient(String id) {
+        return rootUrl + "Patient/" + id + "?_format=json";
+    }
+
+    public static String retrievePractitioner(String identifier) {
+        return rootUrl + "Practitioner?identifier=http%3A%2F%2Fhl7.org%2Ffhir%2Fsid%2Fus-npi%7C" + identifier +
+                "&_format=json";
+    }
+
+    private static HashMap<String, String> retrievePractitionerPatients(String identifier) throws IOException, JSONException {
+        String encountersUrl = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter." +
+                "patient&participant.identifier=http%3A%2F%2Fhl7.org%2Ffhir%2Fsid%2Fus-npi%7C" +
+                identifier + "&_format=json";
 
         // Declare required variables
         boolean nextPage = true;
         String nextUrl = encountersUrl;
         int pageCount = 0;
         int patientCount = 0;
-        ArrayList<String> patientList = new ArrayList<>();
+        HashMap<String, String> patientMap = new HashMap<>();
 
         while (nextPage) {
             // Get all encounters on this page
@@ -75,30 +92,22 @@ public class JsonRead {
             for (int i = 0; i < encounterData.length(); i++) {
                 JSONObject entry = encounterData.getJSONObject(i);
                 JSONObject resource = entry.getJSONObject("resource");
+                // Get Patient ID and then parse.
                 String patientID = resource.getJSONObject("subject").getString("reference");
+                patientID = patientID.split("/")[1];
+
+                // Get Patient Name.
                 String patientName = resource.getJSONObject("subject").getString("display");
 
                 System.out.println(patientID + " " + patientName);
-                // Add patient to patientList with "+" separator so it will be easy to extract later.
-                patientList.add(patientID + "+" + patientName);
+                // If patient not already in patientList, add, otherwise do not add.
+                if (!patientMap.containsKey(patientID)) {
+                    patientMap.put(patientID, patientName);
+                }
             }
 
         }
-    }
 
-    public static String retrievePatient(String identifier) {
-        return rootUrl + "Patient/" + identifier + "?_format=json";
-    }
-
-    public static String retrievePractitioner(String identifier) {
-        return rootUrl + "Practitioner?identifier=http%3A%2F%2Fhl7.org%2Ffhir%2Fsid%2Fus-npi%7C" + identifier +
-                "&_format=json";
-    }
-
-    private static String retrievePractitionerPatients(String identifier) {
-        String url = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter." +
-                "patient&participant.identifier=http%3A%2F%2Fhl7.org%2Ffhir%2Fsid%2Fus-npi%7C" +
-                identifier + "&_format=json";
-        return url;
+        return patientMap;
     }
 }
