@@ -11,3 +11,5 @@ out/
 *.jar
 /.idea/misc.xml
 /.idea/workspace.xml
+/.idea/libraries/
+/.idea/compiler.xml
