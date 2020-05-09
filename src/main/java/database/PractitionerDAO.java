@@ -24,9 +24,9 @@ public class PractitionerDAO {
     // TODO: Get rid of this association.
     private PatientDAO patientDAO;
 
-    public PractitionerDAO(MongoDatabase db) {
-        this.db = db;
-        patientDAO = new PatientDAO(db);
+    public PractitionerDAO() {
+        this.db = Mongo.db;
+        patientDAO = new PatientDAO();
     }
 
     /***

@@ -15,9 +15,9 @@ public class DatabaseDriver {
         Mongo.connect();
 
         // Create instances.
-        patientDAO = new PatientDAO(Mongo.db);
-        practitionerDAO = new PractitionerDAO(Mongo.db);
-        observationDAO = new ObservationDAO(Mongo.db);
+        patientDAO = new PatientDAO();
+        practitionerDAO = new PractitionerDAO();
+        observationDAO = new ObservationDAO();
 
 
         String practitionerId = "500";

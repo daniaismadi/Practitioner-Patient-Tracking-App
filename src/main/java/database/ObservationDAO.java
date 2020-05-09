@@ -27,8 +27,8 @@ public class ObservationDAO {
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
     MongoDatabase db;
 
-    public ObservationDAO(MongoDatabase db) {
-        this.db = db;
+    public ObservationDAO() {
+        this.db = Mongo.db;
     }
 
     /***

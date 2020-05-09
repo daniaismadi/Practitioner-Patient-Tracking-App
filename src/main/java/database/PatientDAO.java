@@ -21,8 +21,8 @@ public class PatientDAO {
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
     MongoDatabase db;
 
-    public PatientDAO(MongoDatabase db) {
-        this.db = db;
+    public PatientDAO() {
+        this.db = Mongo.db;
     }
 
     /***
