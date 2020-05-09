@@ -158,7 +158,7 @@ public class ObservationDAO {
             }
         }
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
         String strDate = dateFormat.format(latestDate);
 
         return new String[]{strDate, String.valueOf(cholesVal)};

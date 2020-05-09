@@ -27,18 +27,20 @@ public class DatabaseDriver {
         // practitionerDAO.insertPractitionerPatients(practitionerId);
 
         // Get all names of patients of the practitioner with this id.
-        practitionerDAO.getPracPatientNames(practitionerId);
+        System.out.println(practitionerDAO.getPracPatientNames(practitionerId));
 
         // Get latest cholesterol value and effective date time of the patient with this id.
-        observationDAO.getLatestCholesValues(patientId);
+        // TODO: There's a bug in this.
+        String[] values = observationDAO.getLatestCholesValues(patientId);
+        System.out.println("Date: " + values[0] + " Cholesterol: " + values[1]);
 
         // Get patient's birth date.
-        patientDAO.getPatientBirthdate(patientId);
+        System.out.println(patientDAO.getPatientBirthdate(patientId));
 
         // Get patient's gender.
-        patientDAO.getPatientGender(patientId);
+        System.out.println(patientDAO.getPatientGender(patientId));
 
         // Get patient's address with city, state and country.
-        patientDAO.getPatientAddress(patientId);
+        System.out.println(patientDAO.getPatientAddress(patientId));
     }
 }
