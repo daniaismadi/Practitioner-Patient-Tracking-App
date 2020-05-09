@@ -30,10 +30,5 @@
     <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver:3.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:bson:3.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-core:3.7.0" level="project" />
-    <orderEntry type="library" name="Maven: org.jongo:jongo:1.4.1" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.10" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.10.3" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.10" level="project" />
-    <orderEntry type="library" name="Maven: de.undercouch:bson4jackson:2.9.2" level="project" />
   </component>
 </module>
