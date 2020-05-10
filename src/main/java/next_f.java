@@ -1,27 +1,39 @@
 import javax.swing.*;
+import java.util.ArrayList;
 
 public class next_f {
     JPanel panel1;
     private JLabel labelid;
     private JPanel northPanel;
-    //    private JTextPane textPane1;
-//    JTextField textField1;
-//    JTextField txtfield;
+    private JList list1;
+    private JPanel westPanel;
+    private JPanel eastPanel;
+    DefaultListModel<String> patientList = new DefaultListModel();
     String id;
 
     public next_f(String text){
         this.id = text;
         labelid.setText(this.id);
-        fml();
+        showList();
     }
 
-    public static void fml(){
-        System.out.println("nsnsn");
+    public void showList(){
+        patientList.addElement("Kit Kat");
+        patientList.addElement("Toblerone");
+        patientList.addElement("Snickers");
+        list1.setModel(patientList);
+
     }
 
 
-    public void main(String[] args) {
 
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame();
+        frame.setContentPane(new next_f("500").panel1);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
     }
 
 }
