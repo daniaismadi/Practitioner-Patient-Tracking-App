@@ -24,7 +24,7 @@ public class DatabaseDriver {
         String patientId = "93991";
 
         // Populate database (do this once to populate your local database.
-        // practitionerDAO.insertPractitionerPatients(practitionerId);
+         practitionerDAO.insertPractitionerPatients(practitionerId);
 
         // Get all names of patients of the practitioner with this id.
         System.out.println(practitionerDAO.getPracPatientNames(practitionerId));

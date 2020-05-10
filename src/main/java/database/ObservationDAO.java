@@ -37,7 +37,7 @@ public class ObservationDAO {
      * @param patientId     The patient ID.
      * @throws IOException
      */
-    void insertObservations(String patientId) throws IOException {
+    void insertObservations(String patientId) throws IOException, JSONException {
         String obsUrl = rootUrl + "Observation?_count=13&code=2093-3&patient=" + patientId + "&_sort=date&_format=json";
         JSONObject observationBundle = JsonReader.readJsonFromUrl(obsUrl);
 
