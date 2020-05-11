@@ -1,8 +1,11 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class nextPage {
@@ -24,7 +27,7 @@ public class nextPage {
     private DefaultTableModel tableModel = new DefaultTableModel();
     private String arg;
     private JFrame currentFrame;
-    private int removeRow;
+    private int average;
 
 
     public nextPage(String identification) {
@@ -36,6 +39,7 @@ public class nextPage {
         tableModel.addColumn("TIME");
         tableModel.setRowCount(0);
 
+
         monBttn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -43,8 +47,20 @@ public class nextPage {
                 for (Patient patient: p){
                     tableModel.addRow(new Object[]{patient.toString(), String.valueOf(patient.getTotalCholesterol()), "Time"});
                 }
+                List<String> cholesterolValuesStr = new ArrayList<String>();
+                for (int r=0; r<tableModel.getRowCount(); r++){
+                    cholesterolValuesStr.add((String) tableModel.getValueAt(r,1));
+                }
+
+                int total = 0;
+                for (String value: cholesterolValuesStr) {
+//                    cholesterolValuesInt.add(Integer.parseInt(value));
+                    total = total + Integer.parseInt(value);
+                }
+                average = total/cholesterolValuesStr.size();
             }
         });
+//        monTable.setDefaultRenderer(String.class, new TableTest.CustomTableRenderer());
 
         remBttn.addActionListener(new ActionListener() {
             @Override
@@ -59,9 +75,7 @@ public class nextPage {
             }
         });
 
-
     }
-
 
 
     public void searchId(String id){
