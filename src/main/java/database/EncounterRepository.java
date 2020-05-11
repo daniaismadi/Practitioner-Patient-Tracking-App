@@ -13,22 +13,19 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Indexes.ascending;
 import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Sorts.orderBy;
 
 public class EncounterRepository implements  EncounterDAO {
 
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
-    private MongoDatabase db;
-    private MongoCollection<Document> encounters ;
-    private PatientRepository patientRepository;
-    private PractitionerRepository practitionerRepository;
+    private MongoDatabase db = Mongo.db;
+    private MongoCollection<Document> encounters = db.getCollection("Encounter");
 
     public EncounterRepository() {
-        db = Mongo.db;
-        encounters = db.getCollection("Encounter");
-        patientRepository = new PatientRepository();
-        practitionerRepository = new PractitionerRepository();
     }
 
     @Override
@@ -40,7 +37,6 @@ public class EncounterRepository implements  EncounterDAO {
                 .projection(fields(include("subject.reference"), excludeId()));
 
         for (Document doc : results) {
-            System.out.println(doc.toJson());
             Document subject = doc.get("subject", Document.class);
             String patientId = subject.get("reference", String.class);
             patientId = patientId.replace("Patient/", "");
@@ -49,6 +45,12 @@ public class EncounterRepository implements  EncounterDAO {
             }
         }
         return patientIds;
+    }
+
+
+    public String getPatientId(int position, ArrayList<String> hPracIds) {
+        ArrayList<String> patientIds = getPatientsByHPracId(hPracIds);
+        return patientIds.get(position);
     }
 
     @Override
@@ -74,7 +76,7 @@ public class EncounterRepository implements  EncounterDAO {
     }
 
     @Override
-    public void insertEncountersByPrac(String identifier) {
+    public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO) {
         String encountersUrl = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter" +
                 ".patient&participant.identifier=http%3A%2F%2Fhl7.org%2Ffhir%2Fsid%2Fus-npi%7C" + identifier
                 + "&_format=json";
@@ -125,7 +127,7 @@ public class EncounterRepository implements  EncounterDAO {
                     patientID = patientID.split("/")[1];
 
                     // Add patient.
-                    patientRepository.insertPatient(patientID);
+                    patientDAO.insertPatient(patientID);
 
                     // Get Patient Name to print so we know it's working.
                     String patientName = resource.getJSONObject("subject").getString("display");
@@ -139,7 +141,7 @@ public class EncounterRepository implements  EncounterDAO {
                         String hPracId = participant.getJSONObject("individual").getString("reference");
                         hPracId = hPracId.replace("Practitioner/", "");
                         System.out.println(hPracId);
-                        practitionerRepository.insertPracById(hPracId);
+                        practitionerDAO.insertPracById(hPracId);
                     }
 
                 }

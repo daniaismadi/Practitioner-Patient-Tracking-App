@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -144,6 +145,7 @@ public class PatientRepository implements PatientDAO {
      * @param patientIds        ArrayList of patient IDs represented in string.
      * @return                  ArrayList of strings containing patient names.
      */
+    @Override
     public ArrayList<String> getPatientNamesByIds(ArrayList<String> patientIds) {
         MongoCollection<Document> collection = db.getCollection("Patient");
         Bson filter = in("id", patientIds);
@@ -160,6 +162,29 @@ public class PatientRepository implements PatientDAO {
         }
 
         return names;
+    }
+
+    public ArrayList<Document> getPatientsSorted(ArrayList<String> patientIds) {
+        MongoCollection<Document> collection = db.getCollection("Patient");
+        Bson filter = in("id", patientIds);
+        // Sort by _id so position can be found later.
+        FindIterable<Document> result = collection.find(filter, Document.class)
+                .sort(orderBy(ascending("_id")))
+                .projection(fields(include("id"), excludeId()));
+
+        ArrayList<Document> patients = new ArrayList<>();
+
+        for (Document doc : result) {
+            patients.add(doc);
+        }
+
+        return patients;
+    }
+
+    @Override
+    public String getPatientId(int position, ArrayList<String> patientIds) {
+        Document doc = getPatientsSorted(patientIds).get(position);
+        return doc.get("id", String.class);
     }
 
     /***
