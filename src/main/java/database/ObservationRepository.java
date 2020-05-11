@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
 
@@ -35,23 +36,31 @@ public class ObservationRepository implements ObservationDAO {
      * Insert all observations of the patient with this patient ID into the database.
      *
      * @param patientId     The patient ID.
-     * @throws IOException
      */
-    void insertPatientObservations(String patientId) throws IOException {
+    public void insertPatientObservations(String patientId) {
         String obsUrl = rootUrl + "Observation?_count=13&code=2093-3&patient=" + patientId + "&_sort=date&_format=json";
-        JSONObject observationBundle = JsonReader.readJsonFromUrl(obsUrl);
+        JSONObject observationBundle = null;
+        try {
+            observationBundle = JsonReader.readJsonFromUrl(obsUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        JSONArray observations = observationBundle.getJSONArray("entry");
-        for (int i = 0; i < observations.length(); i++) {
-            // get current entry
-            JSONObject entry = observations.getJSONObject(i);
-            // get resource
-            JSONObject resource = entry.getJSONObject("resource");
-            // get observation id
-            String obsId = resource.getString("id");
+        try {
+            JSONArray observations = observationBundle.getJSONArray("entry");
+            for (int i = 0; i < observations.length(); i++) {
+                // get current entry
+                JSONObject entry = observations.getJSONObject(i);
+                // get resource
+                JSONObject resource = entry.getJSONObject("resource");
+                // get observation id
+                String obsId = resource.getString("id");
 
-            // insert observation to database
-            insertObs(obsId);
+                // insert observation to database
+                insertObs(obsId);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -62,9 +71,15 @@ public class ObservationRepository implements ObservationDAO {
      * @throws IOException
      * @throws JSONException
      */
-    void insertObs(String obsId) throws IOException, JSONException {
+    public void insertObs(String obsId) {
         String obsUrl = rootUrl + "Observation/" + obsId + "?_format=json";
-        JSONObject json = JsonReader.readJsonFromUrl(obsUrl);
+        JSONObject json = null;
+        try {
+            json = JsonReader.readJsonFromUrl(obsUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Document doc = Document.parse(json.toString());
 
         Bson filter = Filters.eq("id", obsId);
@@ -72,6 +87,25 @@ public class ObservationRepository implements ObservationDAO {
         UpdateOptions options = new UpdateOptions().upsert(true);
 
         db.getCollection("Observation").updateOne(filter, update, options);
+    }
+
+    @Override
+    public ArrayList<String> getAllCholesObs(String patientId) {
+        MongoCollection<Document> collection = db.getCollection("Observation");
+        Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
+        Bson filterType = eq("code.text", "Total Cholesterol");
+        Bson filter = and(filterPatient, filterType);
+
+        FindIterable<Document> result = collection.find(filter, Document.class)
+                .projection(fields(include("id"), excludeId()));
+
+        ArrayList<String> observations = new ArrayList<>();
+
+        for (Document doc : result) {
+            observations.add(doc.get("id", String.class));
+        }
+
+        return observations;
     }
 
     /***
@@ -134,18 +168,18 @@ public class ObservationRepository implements ObservationDAO {
      * @param patientId     The patient id.
      * @return              A list of strings containing {date, cholesterol value}.
      */
-    String[] getLatestCholesDateVals(String patientId) {
-        MongoCollection<Document> collection = db.getCollection("Observation");
-        Bson filter = eq("subject.reference", "Patient/" + patientId);
-        FindIterable<Document> result = collection.find(filter, Document.class)
-                .projection(fields(include("id"), excludeId()));
+    public String[] getLatestCholesDateVals(String patientId) {
+        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
+
+        if (allCholesObs.size() == 0) {
+            // Patient does not have any cholesterol observations.
+            return null;
+        }
 
         Date latestDate = new Date(Long.MIN_VALUE);
         double cholesVal = 0;
 
-        for (Document doc: result) {
-            String obsId = doc.get("id", String.class);
-
+        for (String obsId : allCholesObs) {
             try {
                 // this means that getEffectiveDate occurs after latestDate
                 if (getEffectiveDate(obsId).compareTo(latestDate) > 0) {

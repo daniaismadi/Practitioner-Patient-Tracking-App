@@ -6,7 +6,8 @@ public interface EncounterDAO {
 
     ArrayList<String> getPatientsByHPracId(ArrayList<String> hPracIds);
     void insertEncounter(String encounterId);
-    void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO);
+    void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO,
+                                ObservationDAO observationDAO);
     void insertEncountersByPatient(String patientId);
 
 }

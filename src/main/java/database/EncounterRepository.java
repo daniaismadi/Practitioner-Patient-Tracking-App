@@ -47,12 +47,6 @@ public class EncounterRepository implements  EncounterDAO {
         return patientIds;
     }
 
-
-    public String getPatientId(int position, ArrayList<String> hPracIds) {
-        ArrayList<String> patientIds = getPatientsByHPracId(hPracIds);
-        return patientIds.get(position);
-    }
-
     @Override
     public void insertEncounter(String encounterId) {
         String encounterUrl = rootUrl + "/Encounter/" + encounterId + "?_format=json";
@@ -76,7 +70,8 @@ public class EncounterRepository implements  EncounterDAO {
     }
 
     @Override
-    public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO) {
+    public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO,
+                                       ObservationDAO observationDAO) {
         String encountersUrl = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter" +
                 ".patient&participant.identifier=http%3A%2F%2Fhl7.org%2Ffhir%2Fsid%2Fus-npi%7C" + identifier
                 + "&_format=json";
@@ -84,6 +79,8 @@ public class EncounterRepository implements  EncounterDAO {
         // Declare required variables
         boolean nextPage = true;
         String nextUrl = encountersUrl;
+        ArrayList<String> patientsInserted = new ArrayList<>();
+        ArrayList<String> practitionersInserted = new ArrayList<>();
 
         while (nextPage) {
             // Get all encounters on this page
@@ -126,8 +123,16 @@ public class EncounterRepository implements  EncounterDAO {
                     String patientID = resource.getJSONObject("subject").getString("reference");
                     patientID = patientID.split("/")[1];
 
-                    // Add patient.
-                    patientDAO.insertPatient(patientID);
+                    if (!patientsInserted.contains(patientID)){
+                        // Add patient.
+                        patientDAO.insertPatient(patientID);
+                        // Insert all observation values of patient.
+                        observationDAO.insertPatientObservations(patientID);
+                        patientsInserted.add(patientID);
+                    }
+
+                    // Insert all observation values of patient.
+                    observationDAO.insertPatientObservations(patientID);
 
                     // Get Patient Name to print so we know it's working.
                     String patientName = resource.getJSONObject("subject").getString("display");
@@ -141,7 +146,10 @@ public class EncounterRepository implements  EncounterDAO {
                         String hPracId = participant.getJSONObject("individual").getString("reference");
                         hPracId = hPracId.replace("Practitioner/", "");
                         System.out.println(hPracId);
-                        practitionerDAO.insertPracById(hPracId);
+                        if (!practitionersInserted.contains(hPracId)) {
+                            practitionerDAO.insertPracById(hPracId);
+                            practitionersInserted.add(hPracId);
+                        }
                     }
 
                 }
