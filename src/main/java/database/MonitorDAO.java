@@ -1,4 +1,4 @@
 package database;
 
-public class MonitorDAO {
+public interface MonitorDAO {
 }
