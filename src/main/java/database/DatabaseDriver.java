@@ -1,46 +1,100 @@
 package database;
 
+import org.bson.Document;
 import org.json.JSONException;
 
+import javax.management.monitor.Monitor;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class DatabaseDriver {
     // To test queries.
-    static PatientDAO patientDAO;
-    static PractitionerDAO practitionerDAO;
-    static ObservationDAO observationDAO;
+    private static PatientRepository patientDAO;
+    private static PractitionerDAO practitionerDAO;
+    private static ObservationRepository observationRepository;
+    private static EncounterDAO encounterDAO;
+    private static MonitorDAO monitorDAO;
 
     public static void main(String[] args) throws IOException, JSONException {
         // Establish connection with database.
         Mongo.connect();
 
         // Create instances.
-        patientDAO = new PatientDAO();
-        practitionerDAO = new PractitionerDAO();
-        observationDAO = new ObservationDAO();
+        patientDAO = new PatientRepository();
+        encounterDAO = new EncounterRepository();
+        practitionerDAO = new PractitionerRepository();
+        observationRepository = new ObservationRepository();
+        monitorDAO = new MonitorRepository();
 
-
-        String practitionerId = "500";
         String patientId = "93991";
+        int position = 0;
 
-        // Populate database (do this once to populate your local database.
-         practitionerDAO.insertPractitionerPatients(practitionerId);
+        // Step 1: Log in with practitioner id.
+        String hPracId = "29175";
 
-        // Get all names of patients of the practitioner with this id.
-        System.out.println(practitionerDAO.getPracPatientNames(practitionerId));
+        // Step 2: Return a list of names of this practitioner's patients.
+        // ArrayList<String> patientNames = onLogIn(hPracId);
+        // System.out.println(patientNames);
 
-        // Get latest cholesterol value and effective date time of the patient with this id.
-        // TODO: There's a bug in this.
-        String[] values = observationDAO.getLatestCholesValues(patientId);
-        System.out.println("Date: " + values[0] + " Cholesterol: " + values[1]);
+        // Step 3: Practitioner selects a patient to monitor. Gets position of list view clicked from UI which
+        // corresponds to the position of the patient in the array returned in step 2. Add patient to monitor list.
+        // monitorNewPatient(position, hPracId);
 
-        // Get patient's birth date.
-        System.out.println(patientDAO.getPatientBirthdate(patientId));
+        // Step 4: Ability to remove patient.
+        // removeMonitoredPatient(position, hPracId);
 
-        // Get patient's gender.
-        System.out.println(patientDAO.getPatientGender(patientId));
+        // Step 5: Get monitored patients.
+        ArrayList<String> monitoredPatients = monitorDAO.getMonitoredPatients(hPracId);
+        System.out.println(monitoredPatients);
 
-        // Get patient's address with city, state and country.
-        System.out.println(patientDAO.getPatientAddress(patientId));
+//        // Get latest cholesterol value and effective date time of the patient with this id.
+//        // TODO: There's a bug in this.
+//        String[] values = observationRepository.getLatestCholesDateVals(patientId);
+//        System.out.println("Date: " + values[0] + " Cholesterol: " + values[1]);
+
+    }
+
+    static ArrayList<String> onLogIn(String hPracId) {
+        // Log in with practitioner ID (NOT IDENTIFIER).
+        // 1. Add practitioner to database.
+        practitionerDAO.insertPracById(hPracId);
+        // 2. Query database for practitioner identifier.
+        String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
+        // 3. Populate database with encounters, patients and practitioners based on this identifier.
+        System.out.println("Searching for encounters.");
+        encounterDAO.insertEncountersByPrac(hPracIdentifier, patientDAO, practitionerDAO);
+
+        // Get all names of patients of the practitioner with this ID.
+        // 1. Get Practitioner Identifier.
+        hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
+        // System.out.println(hPracIdentifier);
+
+        // 2. Query database for all practitioners with this identifier and return their ids.
+        ArrayList<String> hPracIds = practitionerDAO.getHPracIds(hPracIdentifier);
+        // System.out.println(hPracIds);
+
+        // 3. Query database for all encounters that match these ids and return list of patient ids.
+        ArrayList<String> patientIds = encounterDAO.getPatientsByHPracId(hPracIds);
+        // System.out.println(patientIds);
+
+        // 4. Return sorted list of patients.
+        ArrayList<String> patientNames = patientDAO.getPatientNamesByIds(patientIds);
+        return patientNames;
+    }
+
+    static void monitorNewPatient(int position, String hPracId) {
+        String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
+        ArrayList<String> hPracIds = practitionerDAO.getHPracIds(hPracIdentifier);
+        ArrayList<String> patientIds = encounterDAO.getPatientsByHPracId(hPracIds);
+        String patient = patientDAO.getPatientId(position, patientIds);
+        monitorDAO.insertPatient(hPracId, hPracIdentifier, patient);
+    }
+
+    static void removeMonitoredPatient(int position, String hPracId) {
+        String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
+        ArrayList<String> hPracIds = practitionerDAO.getHPracIds(hPracIdentifier);
+        ArrayList<String> patientIds = encounterDAO.getPatientsByHPracId(hPracIds);
+        String patient = patientDAO.getPatientId(position, patientIds);
+        monitorDAO.removePatient(hPracId, patient);
     }
 }

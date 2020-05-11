@@ -11,5 +11,6 @@ public class Mongo {
         MongoClient mongoClient = new MongoClient();
         System.out.println("Server connected!");
         db = mongoClient.getDatabase(DATABASE_NAME);
+        System.out.println("Connected to database successfully!");
     }
 }
