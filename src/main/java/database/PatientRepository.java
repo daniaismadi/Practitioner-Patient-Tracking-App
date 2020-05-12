@@ -75,9 +75,10 @@ public class PatientRepository implements PatientDAO {
 
         for (int i = 0; i < name.length - 1; i++) {
             fname.append(name[i]);
+            fname.append(" ");
         }
 
-        return fname.toString();
+        return fname.toString().substring(0, fname.length()-1);
     }
 
     public String getPatientLName(String patientId) {

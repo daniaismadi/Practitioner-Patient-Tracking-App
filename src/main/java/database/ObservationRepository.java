@@ -192,9 +192,6 @@ public class ObservationRepository implements ObservationDAO {
             }
         }
 
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
-        String strDate = dateFormat.format(latestDate);
-
         return latestDate;
     }
 

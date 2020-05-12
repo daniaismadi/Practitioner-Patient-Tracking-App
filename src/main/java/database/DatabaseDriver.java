@@ -80,35 +80,4 @@ public class DatabaseDriver {
         ArrayList<String> patientNames = patientDAO.getPatientNamesByIds(patientIds);
         return patientNames;
     }
-
-    static void monitorNewPatient(int position, String hPracId) {
-        String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
-        ArrayList<String> hPracIds = practitionerDAO.getHPracIds(hPracIdentifier);
-        ArrayList<String> patientIds = encounterDAO.getPatientsByHPracId(hPracIds);
-        String patient = patientDAO.getPatientId(position, patientIds);
-        monitorDAO.insertPatient(hPracId, hPracIdentifier, patient);
-    }
-
-    static void removeMonitoredPatient(int position, String hPracId) {
-        String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
-        ArrayList<String> hPracIds = practitionerDAO.getHPracIds(hPracIdentifier);
-        ArrayList<String> patientIds = encounterDAO.getPatientsByHPracId(hPracIds);
-        String patient = patientDAO.getPatientId(position, patientIds);
-        monitorDAO.removePatient(hPracId, patient);
-    }
-
-
-//    static HashMap<String, String[]> getCholesMonitoredPatients(String hPracId) {
-//        HashMap<String, String[]> cholesValues = new HashMap<>();
-//
-//        ArrayList<String> patients = monitorDAO.getMonitoredPatients(hPracId);
-//        for (String patientId : patients) {
-//            String[] choles = observationDAO.getLatestCholesDateVals(patientId);
-//            if (choles != null) {
-//                cholesValues.put(patientId, choles);
-//            }
-//        }
-//
-//        return cholesValues;
-//    }
 }
