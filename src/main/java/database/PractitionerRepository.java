@@ -27,9 +27,10 @@ import static com.mongodb.client.model.Sorts.orderBy;
 public class PractitionerRepository implements PractitionerDAO {
 
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
-    private MongoDatabase db = Mongo.db;
+    private MongoDatabase db;
 
     public PractitionerRepository() {
+        this.db = Mongo.db;
     }
 
     public String getHPracIdentifier(String hPracId) {
@@ -56,11 +57,10 @@ public class PractitionerRepository implements PractitionerDAO {
 
         MongoCollection<Document> hPracs = db.getCollection("Practitioner");
         // Get all identifiers
-        Bson filter = eq("value", hPracIdentifier);
-        Bson projection = Projections.fields(excludeId(), include("id"),
-                elemMatch("identifier", filter));
+        Bson filter = eq("identifier.value", hPracIdentifier);
+        Bson projection = Projections.fields(excludeId(), include("id"));
 
-        FindIterable<Document> result = hPracs.find().projection(projection);
+        FindIterable<Document> result = hPracs.find(filter, Document.class).projection(projection);
 
         for (Document doc : result) {
             String id = doc.get("id", String.class);
@@ -70,26 +70,17 @@ public class PractitionerRepository implements PractitionerDAO {
         return hPracIds;
     }
 
-    public void insertPracById(String pracId) {
+    public void insertPracById(String pracId) throws IOException {
         String pracUrl = rootUrl + "Practitioner/" + pracId + "?_format=json";
 
-        JSONObject json = null;
-        try {
-            json = JsonReader.readJsonFromUrl(pracUrl);
-        } catch (FileNotFoundException e) {
-            System.out.println("Practitioner not found. Please try again.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        JSONObject json = JsonReader.readJsonFromUrl(pracUrl);
 
-        if (json != null) {
-            Document doc = Document.parse(json.toString());
+        Document doc = Document.parse(json.toString());
 
-            Bson filter = Filters.eq("id", pracId);
-            Bson update =  new Document("$set", doc);
-            UpdateOptions options = new UpdateOptions().upsert(true);
+        Bson filter = Filters.eq("id", pracId);
+        Bson update =  new Document("$set", doc);
+        UpdateOptions options = new UpdateOptions().upsert(true);
 
-            db.getCollection("Practitioner").updateOne(filter, update, options);
-        }
+        Mongo.db.getCollection("Practitioner").updateOne(filter, update, options);
     }
 }

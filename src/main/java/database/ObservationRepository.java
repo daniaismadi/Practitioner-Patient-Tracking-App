@@ -38,6 +38,7 @@ public class ObservationRepository implements ObservationDAO {
      * @param patientId     The patient ID.
      */
     public void insertPatientObservations(String patientId) {
+        System.out.println("Updating observations for: " + patientId);
         String obsUrl = rootUrl + "Observation?_count=13&code=2093-3&patient=" + patientId + "&_sort=date&_format=json";
         JSONObject observationBundle = null;
         try {
@@ -60,6 +61,8 @@ public class ObservationRepository implements ObservationDAO {
                 insertObs(obsId);
             }
         } catch (JSONException e) {
+            // This means this person has no observations yet.
+            System.out.println(patientId + " currently has no observations.");
             e.printStackTrace();
         }
     }
@@ -89,8 +92,7 @@ public class ObservationRepository implements ObservationDAO {
         db.getCollection("Observation").updateOne(filter, update, options);
     }
 
-    @Override
-    public ArrayList<String> getAllCholesObs(String patientId) {
+    private ArrayList<String> getAllCholesObs(String patientId) {
         MongoCollection<Document> collection = db.getCollection("Observation");
         Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
         Bson filterType = eq("code.text", "Total Cholesterol");
@@ -115,7 +117,7 @@ public class ObservationRepository implements ObservationDAO {
      * @param obsId
      * @return
      */
-    double getCholesterol(String obsId) {
+    private double getCholesterol(String obsId) {
         MongoCollection<Document> collection = db.getCollection("Observation");
         Bson filter = eq("id", obsId);
         FindIterable<Document> result = collection.find(filter, Document.class)
@@ -145,7 +147,7 @@ public class ObservationRepository implements ObservationDAO {
      * @return                  The effective date time of this observation.
      * @throws ParseException
      */
-    Date getEffectiveDate(String obsId) throws ParseException {
+    private Date getEffectiveDate(String obsId) throws ParseException {
         MongoCollection<Document> collection = db.getCollection("Observation");
         Bson filter = eq("id", obsId);
         FindIterable<Document> result = collection.find(filter, Document.class)
@@ -168,12 +170,41 @@ public class ObservationRepository implements ObservationDAO {
      * @param patientId     The patient id.
      * @return              A list of strings containing {date, cholesterol value}.
      */
-    public String[] getLatestCholesDateVals(String patientId) {
+    public Date getLatestCholesDate(String patientId) {
         ArrayList<String> allCholesObs = getAllCholesObs(patientId);
 
         if (allCholesObs.size() == 0) {
             // Patient does not have any cholesterol observations.
             return null;
+        }
+
+        Date latestDate = new Date(Long.MIN_VALUE);
+
+        for (String obsId : allCholesObs) {
+            try {
+                // this means that getEffectiveDate occurs after latestDate
+                if (getEffectiveDate(obsId).compareTo(latestDate) > 0) {
+                    // update latestDate
+                    latestDate = getEffectiveDate(obsId);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+        String strDate = dateFormat.format(latestDate);
+
+        return latestDate;
+    }
+
+    @Override
+    public double getLatestCholesVal(String patientId) {
+        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
+
+        if (allCholesObs.size() == 0) {
+            // Patient does not have any cholesterol observations.
+            return 0;
         }
 
         Date latestDate = new Date(Long.MIN_VALUE);
@@ -192,9 +223,6 @@ public class ObservationRepository implements ObservationDAO {
             }
         }
 
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
-        String strDate = dateFormat.format(latestDate);
-
-        return new String[]{strDate, String.valueOf(cholesVal)};
+        return cholesVal;
     }
 }

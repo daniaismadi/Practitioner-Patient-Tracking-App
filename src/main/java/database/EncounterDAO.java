@@ -1,5 +1,6 @@
 package database;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public interface EncounterDAO {
@@ -7,7 +8,7 @@ public interface EncounterDAO {
     ArrayList<String> getPatientsByHPracId(ArrayList<String> hPracIds);
     void insertEncounter(String encounterId);
     void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO,
-                                ObservationDAO observationDAO);
+                                ObservationDAO observationDAO) throws IOException;
     void insertEncountersByPatient(String patientId);
 
 }

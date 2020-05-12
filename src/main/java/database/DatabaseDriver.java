@@ -32,8 +32,8 @@ public class DatabaseDriver {
         String hPracId = "29175";
 
         // Step 2: Return a list of names of this practitioner's patients.
-        // ArrayList<String> patientNames = onLogIn(hPracId);
-        // System.out.println(patientNames);
+        ArrayList<String> patientNames = onLogIn(hPracId);
+        System.out.println(patientNames);
 
         // Step 3: Practitioner selects a patient to monitor. Gets position of list view clicked from UI which
         // corresponds to the position of the patient in the array returned in step 2. Add patient to monitor list.
@@ -47,13 +47,13 @@ public class DatabaseDriver {
         System.out.println(monitoredPatients);
 
         // Step 6: Get cholesterol level of all monitored patients.
-        HashMap<String, String[]> cholesValues = getCholesMonitoredPatients(hPracId);
+        // HashMap<String, String[]> cholesValues = getCholesMonitoredPatients(hPracId);
 
-        cholesValues.forEach((k, v) -> System.out.println(k + " : " + (v[1]) + " collected during " + v[0]));
+        // cholesValues.forEach((k, v) -> System.out.println(k + " : " + (v[1]) + " collected during " + v[0]));
 
     }
 
-    static ArrayList<String> onLogIn(String hPracId) {
+    static ArrayList<String> onLogIn(String hPracId) throws IOException {
         // Log in with practitioner ID (NOT IDENTIFIER).
         // 1. Add practitioner to database.
         practitionerDAO.insertPracById(hPracId);
@@ -61,7 +61,7 @@ public class DatabaseDriver {
         String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
         // 3. Populate database with encounters, patients and practitioners based on this identifier.
         System.out.println("Searching for encounters.");
-        encounterDAO.insertEncountersByPrac(hPracIdentifier, patientDAO, practitionerDAO, observationDAO);
+        // encounterDAO.insertEncountersByPrac(hPracIdentifier, patientDAO, practitionerDAO, observationDAO);
 
         // Get all names of patients of the practitioner with this ID.
         // 1. Get Practitioner Identifier.
@@ -97,17 +97,18 @@ public class DatabaseDriver {
         monitorDAO.removePatient(hPracId, patient);
     }
 
-    static HashMap<String, String[]> getCholesMonitoredPatients(String hPracId) {
-        HashMap<String, String[]> cholesValues = new HashMap<>();
 
-        ArrayList<String> patients = monitorDAO.getMonitoredPatients(hPracId);
-        for (String patientId : patients) {
-            String[] choles = observationDAO.getLatestCholesDateVals(patientId);
-            if (choles != null) {
-                cholesValues.put(patientId, choles);
-            }
-        }
-
-        return cholesValues;
-    }
+//    static HashMap<String, String[]> getCholesMonitoredPatients(String hPracId) {
+//        HashMap<String, String[]> cholesValues = new HashMap<>();
+//
+//        ArrayList<String> patients = monitorDAO.getMonitoredPatients(hPracId);
+//        for (String patientId : patients) {
+//            String[] choles = observationDAO.getLatestCholesDateVals(patientId);
+//            if (choles != null) {
+//                cholesValues.put(patientId, choles);
+//            }
+//        }
+//
+//        return cholesValues;
+//    }
 }

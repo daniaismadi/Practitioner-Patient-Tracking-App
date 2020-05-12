@@ -1,3 +1,5 @@
+import database.Mongo;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +44,7 @@ public class UI2 {
         frame.pack();
         frame.setVisible(true);
 
+        Mongo.connect();
 
     }
 }

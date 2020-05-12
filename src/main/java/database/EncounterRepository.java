@@ -23,13 +23,14 @@ public class EncounterRepository implements  EncounterDAO {
 
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
     private MongoDatabase db = Mongo.db;
-    private MongoCollection<Document> encounters = db.getCollection("Encounter");
+    private MongoCollection<Document> encounters;
 
     public EncounterRepository() {
     }
 
     @Override
     public ArrayList<String> getPatientsByHPracId(ArrayList<String> hPracIds) {
+        MongoCollection<Document> encounters = db.getCollection("Encounter");
         ArrayList<String> patientIds = new ArrayList<>();
 
         Bson filter = in("participant.individual.reference", hPracIds);
@@ -49,6 +50,7 @@ public class EncounterRepository implements  EncounterDAO {
 
     @Override
     public void insertEncounter(String encounterId) {
+        MongoCollection<Document> encounters = db.getCollection("Encounter");
         String encounterUrl = rootUrl + "/Encounter/" + encounterId + "?_format=json";
         JSONObject json = null;
         try {
@@ -71,7 +73,9 @@ public class EncounterRepository implements  EncounterDAO {
 
     @Override
     public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO,
-                                       ObservationDAO observationDAO) {
+                                       ObservationDAO observationDAO) throws IOException {
+        MongoCollection<Document> encounters = db.getCollection("Encounter");
+
         String encountersUrl = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter" +
                 ".patient&participant.identifier=http%3A%2F%2Fhl7.org%2Ffhir%2Fsid%2Fus-npi%7C" + identifier
                 + "&_format=json";
@@ -131,13 +135,10 @@ public class EncounterRepository implements  EncounterDAO {
                         patientsInserted.add(patientID);
                     }
 
-                    // Insert all observation values of patient.
-                    observationDAO.insertPatientObservations(patientID);
-
                     // Get Patient Name to print so we know it's working.
                     String patientName = resource.getJSONObject("subject").getString("display");
 
-                    // System.out.println(patientID + " " + patientName);
+                    System.out.println(patientID + " " + patientName);
 
                     // Add involved practitioner.
                     JSONArray arParticipants = resource.getJSONArray("participant");
@@ -145,10 +146,10 @@ public class EncounterRepository implements  EncounterDAO {
                         JSONObject participant = arParticipants.getJSONObject(j);
                         String hPracId = participant.getJSONObject("individual").getString("reference");
                         hPracId = hPracId.replace("Practitioner/", "");
-                        System.out.println(hPracId);
                         if (!practitionersInserted.contains(hPracId)) {
                             practitionerDAO.insertPracById(hPracId);
                             practitionersInserted.add(hPracId);
+                            System.out.println(hPracId);
                         }
                     }
 
@@ -160,6 +161,8 @@ public class EncounterRepository implements  EncounterDAO {
 
     @Override
     public void insertEncountersByPatient(String patientId) {
+        MongoCollection<Document> encounters = db.getCollection("Encounter");
+
         String encountersUrl = rootUrl + "Encounter?patient=Patient%2F" + patientId + "&_format=json";
 
         // Declare required variables

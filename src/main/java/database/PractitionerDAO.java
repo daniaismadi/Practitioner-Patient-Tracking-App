@@ -10,6 +10,6 @@ public interface PractitionerDAO {
 
     String getHPracIdentifier(String hPracId);
     ArrayList<String> getHPracIds(String hPracIdentifier);
-    void insertPracById(String hPracId);
+    void insertPracById(String hPracId) throws IOException;
 
 }

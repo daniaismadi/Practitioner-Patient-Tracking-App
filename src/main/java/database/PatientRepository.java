@@ -69,6 +69,22 @@ public class PatientRepository implements PatientDAO {
         return null;
     }
 
+    public String getPatientFName(String patientId) {
+        String[] name = getPatientName(patientId).split(" ");
+        StringBuilder fname = new StringBuilder();
+
+        for (int i = 0; i < name.length - 1; i++) {
+            fname.append(name[i]);
+        }
+
+        return fname.toString();
+    }
+
+    public String getPatientLName(String patientId) {
+        String[] name = getPatientName(patientId).split(" ");
+        return name[name.length - 1];
+    }
+
 
     /***
      * Return the patient's gender.
@@ -115,13 +131,13 @@ public class PatientRepository implements PatientDAO {
         return name;
     }
 
-    public String getPatientAddress(String patientId) {
+    public String[] getPatientAddress(String patientId) {
         MongoCollection<Document> collection = db.getCollection("Patient");
         Bson filter = eq("id", patientId);
         FindIterable<Document> result = collection.find(filter, Document.class)
                 .projection(fields(include("address"), excludeId()));
 
-        ArrayList<String> addresses = new ArrayList<>();
+        String[] addresses = new String[3];
 
         for (Document doc : result) {
             ArrayList<Document> arAddresses = doc.get("address", ArrayList.class);
@@ -131,12 +147,30 @@ public class PatientRepository implements PatientDAO {
                 String state = address.get("state", String.class);
                 String country = address.get("country", String.class);
 
-                String patientAddress = city + ", " + state + ", " + country;
-                addresses.add(patientAddress);
+                addresses[0] = city;
+                addresses[1] = state;
+                addresses[2] = country;
+
+                break;
             }
         }
 
-        return addresses.get(0);
+        return addresses;
+    }
+
+    @Override
+    public String getPatientAddressCity(String patientId) {
+        return getPatientAddress(patientId)[0];
+    }
+
+    @Override
+    public String getPatientAddressState(String patientId) {
+        return getPatientAddress(patientId)[1];
+    }
+
+    @Override
+    public String getPatientAddressCountry(String patientId) {
+        return getPatientAddress(patientId)[2];
     }
 
     /***
@@ -162,6 +196,24 @@ public class PatientRepository implements PatientDAO {
         }
 
         return names;
+    }
+
+    public ArrayList<String> getPatientIdsSorted(ArrayList<String> patientIds) {
+        MongoCollection<Document> collection = db.getCollection("Patient");
+        Bson filter = in("id", patientIds);
+        // Sort by _id so position can be found later.
+        FindIterable<Document> result = collection.find(filter, Document.class)
+                .sort(orderBy(ascending("_id")))
+                .projection(fields(include("id"), excludeId()));
+
+        ArrayList<String> ids = new ArrayList<>();
+
+        for (Document doc : result) {
+            String patientId = doc.get("id", String.class);
+            ids.add(patientId);
+        }
+
+        return ids;
     }
 
     public ArrayList<Document> getPatientsSorted(ArrayList<String> patientIds) {

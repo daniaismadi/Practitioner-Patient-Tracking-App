@@ -1,3 +1,5 @@
+import database.DBModel;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -28,6 +30,7 @@ public class nextPage {
     private String arg;
     private JFrame currentFrame;
     private int average;
+    private DBModel dbModel = new DBModel();
 
 
     public nextPage(String identification) {
@@ -45,19 +48,22 @@ public class nextPage {
             public void actionPerformed(ActionEvent e) {
                 List<Patient> p = patientList.getSelectedValuesList();
                 for (Patient patient: p){
-                    tableModel.addRow(new Object[]{patient.toString(), String.valueOf(patient.getTotalCholesterol()), "Time"});
+                    double choles = patient.getTotalCholesterol();
+                    if (choles != 0) {
+                        tableModel.addRow(new Object[]{patient.toString(), String.valueOf(choles), "Time"});
+                    }
                 }
-                List<String> cholesterolValuesStr = new ArrayList<String>();
-                for (int r=0; r<tableModel.getRowCount(); r++){
-                    cholesterolValuesStr.add((String) tableModel.getValueAt(r,1));
-                }
-
-                int total = 0;
-                for (String value: cholesterolValuesStr) {
-//                    cholesterolValuesInt.add(Integer.parseInt(value));
-                    total = total + Integer.parseInt(value);
-                }
-                average = total/cholesterolValuesStr.size();
+//                List<String> cholesterolValuesStr = new ArrayList<String>();
+//                for (int r=0; r<tableModel.getRowCount(); r++){
+//                    cholesterolValuesStr.add((String) tableModel.getValueAt(r,1));
+//                }
+//
+//                int total = 0;
+//                for (String value: cholesterolValuesStr) {
+////                    cholesterolValuesInt.add(Integer.parseInt(value));
+//                    total = total + Integer.parseInt(value);
+//                }
+//                average = total/cholesterolValuesStr.size();
             }
         });
 //        monTable.setDefaultRenderer(String.class, new TableTest.CustomTableRenderer());
@@ -82,18 +88,25 @@ public class nextPage {
         /*
         This is a temporary method
          */
-//        System.out.println(id);
+
         patientList.setModel(toPut);
-        for (int i=0; i<6; i++){
+        ArrayList<String> patientIds = dbModel.getPatientList(id);
+        for (int i = 0; i < patientIds.size(); i++) {
+
+            String patientId = patientIds.get(i);
+
+            // Initialise new patient.
             Patient patient = new Patient();
-            patient.setGivenName("Junaid"+i);
-            patient.setFamilyName("Althaf"+i);
-            patient.setBirthDate("18th May"+i);
-            patient.setGender("Male"+i);
-            patient.setCountry("Sri Lanka"+i);
-            patient.setCity("Colombo"+i);
-            patient.setState("Western Province"+i);
-            patient.setTotalCholesterol(14+i);
+
+            // Set variables.
+            patient.setGivenName(dbModel.getPatientFName(patientId));
+            patient.setFamilyName(dbModel.getPatientLName(patientId));
+            patient.setBirthDate(dbModel.getPatientBirthdate(patientId));
+            patient.setGender(dbModel.getPatientGender(patientId));
+            patient.setCountry(dbModel.getPatientAddressCountry(patientId));
+            patient.setCity(dbModel.getPatientAddressCity(patientId));
+            patient.setState(dbModel.getPatientAddressState(patientId));
+            patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patientId));
             toPut.addElement(patient);
         }
 
@@ -109,7 +122,7 @@ public class nextPage {
         String city;
         String state;
         String country;
-        int totalCholesterol;
+        double totalCholesterol;
 
         public Patient(){
         }
@@ -170,11 +183,11 @@ public class nextPage {
             this.country = country;
         }
 
-        public int getTotalCholesterol() {
+        public double getTotalCholesterol() {
             return totalCholesterol;
         }
 
-        public void setTotalCholesterol(int totalCholesterol) {
+        public void setTotalCholesterol(double totalCholesterol) {
             this.totalCholesterol = totalCholesterol;
         }
 
