@@ -7,6 +7,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,6 +28,24 @@ public class PatientRepository implements PatientDAO {
 
     public PatientRepository() {
         this.db = Mongo.db;
+    }
+
+    @Override
+    public ArrayList<String> getAllPatientIds() {
+        MongoCollection<Document> collection = db.getCollection("Patient");
+        FindIterable<Document> result = collection.find().projection(fields(include("id"), excludeId()));
+
+        ArrayList<String> patientIds = new ArrayList<>();
+
+        for (Document doc : result) {
+            String patientId = doc.getString("id");
+
+            if (!patientIds.contains(patientId)) {
+                patientIds.add(patientId);
+            }
+        }
+
+        return patientIds;
     }
 
     /***
@@ -264,6 +283,29 @@ public class PatientRepository implements PatientDAO {
             UpdateOptions options = new UpdateOptions().upsert(true);
 
             db.getCollection("Patient").updateOne(filter, update, options);
+        }
+    }
+
+    public void insertPatientsByGender(String gender) {
+        // insert the first 50 patients only
+        String patientUrl = rootUrl + "Patient?_count=50&gender=" + gender + "&_format=json";
+
+        JSONObject patientsByGender = null;
+        try {
+            patientsByGender = JsonReader.readJsonFromUrl(patientUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (patientsByGender != null) {
+            // loop through all patients
+            JSONArray patients = patientsByGender.getJSONArray("entry");
+            for (int i = 0; i < patients.length(); i++) {
+                // get patient
+                JSONObject patient = patients.getJSONObject(i);
+                String patientId = patient.getJSONObject("resource").getString("id");
+                insertPatient(patientId);
+            }
         }
     }
 

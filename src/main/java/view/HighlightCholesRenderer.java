@@ -22,7 +22,6 @@ public class HighlightCholesRenderer extends DefaultTableCellRenderer {
         try {
             double choles = Double.valueOf(cholesStr);
 
-            System.out.println(cholesAvg);
             if (choles > cholesAvg) {
                 cell.setForeground(new Color(255, 99, 71));
             } else {

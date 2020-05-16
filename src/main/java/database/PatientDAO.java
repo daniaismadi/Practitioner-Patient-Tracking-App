@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public interface PatientDAO {
 
+    ArrayList<String> getAllPatientIds();
     String getPatientName(String patientId);
     String getPatientLName(String patientId);
     String getPatientFName(String patientId);
@@ -27,6 +28,7 @@ public interface PatientDAO {
     String getPatientId(int position, ArrayList<String> patientIds);
 
     void insertPatient(String patientId);
+    void insertPatientsByGender(String patientId);
 
     ArrayList<String> getPatientIdsSorted(ArrayList<String> patientIds);
 

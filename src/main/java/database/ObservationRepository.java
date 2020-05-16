@@ -32,14 +32,12 @@ public class ObservationRepository implements ObservationDAO {
         this.db = Mongo.db;
     }
 
-    /***
-     * Insert all observations of the patient with this patient ID into the database.
-     *
-     * @param patientId     The patient ID.
-     */
-    public void insertPatientObservations(String patientId) {
+    @Override
+    public void insertPatientObservationsByCode(String patientId, String code) {
+        // Adds all patient observations.
         System.out.println("Updating observations for: " + patientId);
-        String obsUrl = rootUrl + "Observation?_count=13&code=2093-3&patient=" + patientId + "&_sort=date&_format=json";
+        // just get the latest observation
+        String obsUrl = rootUrl + "Observation?code=" + code + "&patient=" + patientId + "&_sort=-date&_format=json";
         JSONObject observationBundle = null;
         try {
             observationBundle = JsonReader.readJsonFromUrl(obsUrl);
@@ -50,30 +48,153 @@ public class ObservationRepository implements ObservationDAO {
         try {
             JSONArray observations = observationBundle.getJSONArray("entry");
             for (int i = 0; i < observations.length(); i++) {
-                // get current entry
                 JSONObject entry = observations.getJSONObject(i);
                 // get resource
                 JSONObject resource = entry.getJSONObject("resource");
                 // get observation id
                 String obsId = resource.getString("id");
-
                 // insert observation to database
                 insertObs(obsId);
+                System.out.println("Successfully added observations for " + patientId);
             }
         } catch (JSONException e) {
             // This means this person has no observations yet.
             System.out.println(patientId + " currently has no observations.");
-            e.printStackTrace();
         }
     }
 
-    /***
-     * Insert observation with observation ID into database.
-     *
-     * @param obsId             The observation ID.
-     * @throws IOException
-     * @throws JSONException
-     */
+    public void insertCholesObsByCodes(ArrayList<String> codes, String count, int pageCount) {
+        String obsUrl = rootUrl + "Observation?_count=" + count + "&_sort=-date&code=http%3A%2F%2Floinc.org%7C2093-3" +
+                "&_format=json";
+        JSONObject observationBundle = null;
+
+        // Declare required variables
+        boolean nextPage = true;
+        String nextUrl = obsUrl;
+
+        // go to the desired page
+        for (int i = 0; i < pageCount; i++) {
+            if (!nextPage) {
+                break;
+            }
+
+            nextPage = false;
+            try {
+                observationBundle = JsonReader.readJsonFromUrl(nextUrl);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (observationBundle != null) {
+                // Check if there is a next page
+                // Get all related links
+                JSONArray links = observationBundle.getJSONArray("link");
+                for (int j = 0; j < links.length(); j++) {
+                    // Get current link
+                    JSONObject link = links.getJSONObject(j);
+                    // Check if relation is next, this means there is a next page
+                    String relation = link.getString("relation");
+                    if (relation.equalsIgnoreCase("next")) {
+                        // Update variables accordingly
+                        System.out.println(i);
+                        nextPage = true;
+                        nextUrl = link.getString("url");
+                    }
+                }
+            }
+        }
+
+        // retrieve data from this page
+        try {
+            observationBundle = JsonReader.readJsonFromUrl(nextUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JSONArray observations = observationBundle.getJSONArray("entry");
+            for (int i = 0; i < observations.length(); i++) {
+                JSONObject entry = observations.getJSONObject(i);
+                // get resource
+                JSONObject resource = entry.getJSONObject("resource");
+                // get observation id
+                String obsId = resource.getString("id");
+                // insert observation to database
+                insertObs(obsId);
+
+                JSONObject subject = resource.getJSONObject("subject");
+                String patientId = subject.getString("reference");
+                patientId = patientId.replace("Patient/", "");
+
+                // get patient observations of other measures
+                for (String code : codes) {
+                    insertPatientLatestObsByCode(patientId, code);
+                }
+
+                System.out.println("Retrieved observation " + obsId);
+            }
+        } catch (JSONException e) {
+            System.out.println("Failed to retrieve observations.");
+        }
+    }
+
+    public void insertLatestCholesObs(String patientId) {
+        String cholesCode = "2093-3";
+        insertPatientLatestObsByCode(patientId, cholesCode);
+    }
+
+    @Override
+    public void insertLatestBMIObs(String patientId) {
+        String bmiCode = "39156-5";
+        insertPatientLatestObsByCode(patientId, bmiCode);
+    }
+
+    @Override
+    public void insertLatestHRObs(String patientId) {
+        String HRCode = "8867-4";
+        insertPatientLatestObsByCode(patientId, HRCode);
+    }
+
+    @Override
+    public void insertLatestBodyWeightObs(String patientId) {
+        String bodyWeightCode = "29463-7";
+        insertPatientLatestObsByCode(patientId, bodyWeightCode);
+    }
+
+    @Override
+    public void insertLatestRespHRObs(String patientId) {
+        String respHRCode = "9279-1";
+        insertPatientLatestObsByCode(patientId, respHRCode);
+    }
+
+    @Override
+    public void insertPatientLatestObsByCode(String patientId, String code) {
+        System.out.println("Updating observations for: " + patientId);
+        // just get the latest observation
+        String obsUrl = rootUrl + "Observation?code=" + code + "&patient=" + patientId + "&_sort=-date&_count=1&_format=json";
+        JSONObject observationBundle = null;
+        try {
+            observationBundle = JsonReader.readJsonFromUrl(obsUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JSONArray observations = observationBundle.getJSONArray("entry");
+            JSONObject entry = observations.getJSONObject(0);
+            // get resource
+            JSONObject resource = entry.getJSONObject("resource");
+            // get observation id
+            String obsId = resource.getString("id");
+            // insert observation to database
+            insertObs(obsId);
+            System.out.println("Successfully added observations for " + patientId);
+            } catch (JSONException e) {
+            // This means this person has no observations yet.
+            System.out.println(patientId + " currently has no observations.");
+        }
+    }
+
     public void insertObs(String obsId) {
         String obsUrl = rootUrl + "Observation/" + obsId + "?_format=json";
         JSONObject json = null;
@@ -92,10 +213,10 @@ public class ObservationRepository implements ObservationDAO {
         db.getCollection("Observation").updateOne(filter, update, options);
     }
 
-    private ArrayList<String> getAllCholesObs(String patientId) {
+    private ArrayList<String> getAllObsByCode(String patientId, String code) {
         MongoCollection<Document> collection = db.getCollection("Observation");
         Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
-        Bson filterType = eq("code.text", "Total Cholesterol");
+        Bson filterType = eq("code.coding.code", code);
         Bson filter = and(filterPatient, filterType);
 
         FindIterable<Document> result = collection.find(filter, Document.class)
@@ -110,14 +231,12 @@ public class ObservationRepository implements ObservationDAO {
         return observations;
     }
 
-    /***
-     * Return the cholesterol value of this observation.
-     * TODO: Have to check that this observation is a cholesterol type.
-     *
-     * @param obsId
-     * @return
-     */
-    private double getCholesterol(String obsId) {
+    private ArrayList<String> getAllCholesObs(String patientId) {
+        String cholesCode = "2093-3";
+        return getAllObsByCode(patientId, cholesCode);
+    }
+
+    private double getObsValue(String obsId) {
         MongoCollection<Document> collection = db.getCollection("Observation");
         Bson filter = eq("id", obsId);
         FindIterable<Document> result = collection.find(filter, Document.class)
@@ -140,13 +259,6 @@ public class ObservationRepository implements ObservationDAO {
         return value;
     }
 
-    /***
-     * Return the effective date time of the observation, given observation ID.
-     *
-     * @param obsId             The observation ID.
-     * @return                  The effective date time of this observation.
-     * @throws ParseException
-     */
     private Date getEffectiveDate(String obsId) throws ParseException {
         MongoCollection<Document> collection = db.getCollection("Observation");
         Bson filter = eq("id", obsId);
@@ -164,23 +276,15 @@ public class ObservationRepository implements ObservationDAO {
         return format.parse(dateStr);
     }
 
-    /***
-     * Return latest cholesterol value and the effective date time for this patient, if any.
-     *
-     * @param patientId     The patient id.
-     * @return              A list of strings containing {date, cholesterol value}.
-     */
-    public Date getLatestCholesDate(String patientId) {
-        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
-
-        if (allCholesObs.size() == 0) {
-            // Patient does not have any cholesterol observations.
+    private Date getLatestObsDate(ArrayList<String> obsIds) {
+        if (obsIds.size() == 0) {
+            // Patient does not have any observations.
             return null;
         }
 
         Date latestDate = new Date(Long.MIN_VALUE);
 
-        for (String obsId : allCholesObs) {
+        for (String obsId : obsIds) {
             try {
                 // this means that getEffectiveDate occurs after latestDate
                 if (getEffectiveDate(obsId).compareTo(latestDate) > 0) {
@@ -195,31 +299,39 @@ public class ObservationRepository implements ObservationDAO {
         return latestDate;
     }
 
-    @Override
-    public double getLatestCholesVal(String patientId) {
-        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
-
-        if (allCholesObs.size() == 0) {
+    private double getLatestObsVal(ArrayList<String> obsIds) {
+        if (obsIds.size() == 0) {
             // Patient does not have any cholesterol observations.
             return 0;
         }
 
         Date latestDate = new Date(Long.MIN_VALUE);
-        double cholesVal = 0;
+        double val = 0;
 
-        for (String obsId : allCholesObs) {
+        for (String obsId : obsIds) {
             try {
                 // this means that getEffectiveDate occurs after latestDate
                 if (getEffectiveDate(obsId).compareTo(latestDate) > 0) {
                     // update latestDate
                     latestDate = getEffectiveDate(obsId);
-                    cholesVal = getCholesterol(obsId);
+                    val = getObsValue(obsId);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        return cholesVal;
+        return val;
+    }
+
+    public Date getLatestCholesDate(String patientId) {
+        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
+        return getLatestObsDate(allCholesObs);
+    }
+
+    @Override
+    public double getLatestCholesVal(String patientId) {
+        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
+        return getLatestObsVal(allCholesObs);
     }
 }

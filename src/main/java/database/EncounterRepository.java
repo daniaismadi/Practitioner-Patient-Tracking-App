@@ -131,7 +131,7 @@ public class EncounterRepository implements  EncounterDAO {
                         // Add patient.
                         patientDAO.insertPatient(patientID);
                         // Insert all observation values of patient.
-                        observationDAO.insertPatientObservations(patientID);
+                        observationDAO.insertLatestCholesObs(patientID);
                         patientsInserted.add(patientID);
                     }
 

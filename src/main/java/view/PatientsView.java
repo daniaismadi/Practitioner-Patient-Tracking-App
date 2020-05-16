@@ -27,10 +27,11 @@ public class PatientsView extends JFrame{
     private DefaultTableModel tableModel;
     private String arg;
     private JFrame currentFrame;
-    private DBModel theModel = new DBModel();
     private String hPracId;
     private double avgCholes;
     private int queryTime = 10;
+
+    private ArrayList<Patient> monitoredPatients;
 
     public PatientsView(String hPracId) {
 
@@ -41,6 +42,7 @@ public class PatientsView extends JFrame{
 
         this.defaultPatientList = new DefaultListModel<Patient>();
         this.tableModel = new DefaultTableModel();
+        this.monitoredPatients = new ArrayList<Patient>();
 
         // onStart(hPracId);
 
@@ -50,6 +52,18 @@ public class PatientsView extends JFrame{
         tableModel.addColumn("TIME");
         tableModel.setRowCount(0);
 
+    }
+
+    public ArrayList<Patient> getMonitoredPatients() {
+        return monitoredPatients;
+    }
+
+    public void addMonitoredPatient(Patient patient) {
+        this.monitoredPatients.add(patient);
+    }
+
+    public void removeMonitoredPatient(int position) {
+        this.monitoredPatients.remove(position);
     }
 
     public DefaultTableModel getTableModel() {

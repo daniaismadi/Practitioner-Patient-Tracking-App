@@ -36,7 +36,6 @@ public class LogInController {
 
                 // Move to next page.
                 PatientsView newView = new PatientsView(hPracId);
-                System.out.println(hPracId);
                 PatientsController patientsController = new PatientsController(newView, theModel);
                 patientsController.onStart(hPracId);
 

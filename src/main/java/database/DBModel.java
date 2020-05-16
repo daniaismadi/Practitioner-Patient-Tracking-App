@@ -1,7 +1,6 @@
 package database;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -18,6 +17,7 @@ public class DBModel {
         this.encounterDAO = new EncounterRepository();
         this.observationDAO = new ObservationRepository();
         this.practitionerDAO = new PractitionerRepository();
+        this.monitorDAO = new MonitorRepository();
     }
 
     public void onStart(String hPracId) throws IOException {
@@ -44,15 +44,12 @@ public class DBModel {
         // Get all names of patients of the practitioner with this ID.
         // 1. Get Practitioner Identifier.
         String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
-        System.out.println(hPracIdentifier);
 
         // 2. Query database for all practitioners with this identifier and return their ids.
         ArrayList<String> hPracIds = practitionerDAO.getHPracIds(hPracIdentifier);
-        System.out.println(hPracIds.size());
 
         // 3. Query database for all encounters that match these ids and return list of patient ids.
         ArrayList<String> patientIds = encounterDAO.getPatientsByHPracId(hPracIds);
-        System.out.println(patientIds);
 
         // 4. Return sorted list of patients.
         ArrayList<String> finalList = patientDAO.getPatientIdsSorted(patientIds);
@@ -60,8 +57,8 @@ public class DBModel {
         return finalList;
     }
 
-    public void updateObservations(String patientId) {
-        observationDAO.insertPatientObservations(patientId);
+    public void updateCholesObs(String patientId) {
+        observationDAO.insertLatestCholesObs(patientId);
     }
 
     public String getPatientFName(String patientId) {
@@ -98,6 +95,24 @@ public class DBModel {
 
     public Date getPatientLatestCholesDate(String patientId) {
         return observationDAO.getLatestCholesDate(patientId);
+    }
+
+    public void insertMonitorPatient(String hPracId, String patientId) {
+        String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
+        monitorDAO.insertPatient(hPracId, hPracIdentifier, patientId);
+    }
+
+    public void removeMonitorPatient(String hPracId, String patientId) {
+        monitorDAO.removePatient(hPracId, patientId);
+    }
+
+    public ArrayList<String> getMonitoredPatients(String hPracId) {
+
+        try {
+            return monitorDAO.getMonitoredPatients(hPracId);
+        } catch (NullPointerException ex) {
+            return new ArrayList<>();
+        }
     }
 
 }

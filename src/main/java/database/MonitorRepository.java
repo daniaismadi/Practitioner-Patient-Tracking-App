@@ -26,6 +26,7 @@ public class MonitorRepository implements MonitorDAO {
 
     @Override
     public void insertPatient(String hPracId, String hPracIdentifier, String patientId) {
+        MongoCollection<Document> monitor = db.getCollection("Monitor");
         Bson filter = Filters.eq("PractitionerID", hPracId);
         Bson update = new Document()
                 .append("PractitionerID", hPracId)
@@ -35,8 +36,8 @@ public class MonitorRepository implements MonitorDAO {
         Bson add = addToSet("patients", patientId);
 
         UpdateOptions options = new UpdateOptions().upsert(true);
-        db.getCollection("Monitor").updateOne(filter, set, options);
-        db.getCollection("Monitor").updateOne(filter, add, options);
+        monitor.updateOne(filter, set, options);
+        monitor.updateOne(filter, add, options);
 
     }
 
@@ -54,8 +55,15 @@ public class MonitorRepository implements MonitorDAO {
         MongoCollection<Document> monitor = db.getCollection("Monitor");
         FindIterable<Document> result = monitor.find(filter, Document.class);
 
-        for (Document doc : result) {
-            return doc.get("patients", ArrayList.class);
+        ArrayList<String> monitoredPatients = new ArrayList<>();
+
+        try {
+            for (Document doc : result) {
+                ArrayList<String> patients = (ArrayList<String>) doc.get("patients");
+                return patients;
+            }
+        } catch (ClassCastException ex) {
+            ex.printStackTrace();
         }
 
         return new ArrayList<>();

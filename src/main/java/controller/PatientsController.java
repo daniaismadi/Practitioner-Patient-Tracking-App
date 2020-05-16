@@ -7,6 +7,7 @@ import view.PatientsView;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,7 +19,8 @@ public class PatientsController{
 
     private PatientsView theView;
     private DBModel theModel;
-    private java.util.Timer timer;
+    private java.util.Timer queryTimer;
+    private java.util.Timer autosave;
 
     public PatientsController(PatientsView theView, DBModel theModel) {
         this.theView = theView;
@@ -31,12 +33,27 @@ public class PatientsController{
 
     public void onStart(String hPracId) {
 
-        timer = new java.util.Timer();
         theView.setAvgCholes(Double.POSITIVE_INFINITY);
         theView.setPatientListModel(theView.getDefaultPatientList());
 
+        // update patient list
         ArrayList<String> patientIds = theModel.getPatientList(hPracId);
-        System.out.println(patientIds);
+        createPatients(patientIds);
+
+        // update monitored table
+        List<Patient> monitoredPatients = theView.getMonitoredPatients();
+        addToMonitoredPatientTable(monitoredPatients);
+
+        // new autosave timer, save every 5 minutes
+        autosave = new java.util.Timer();
+        autosave.schedule(new AutoSave(), 0, 5*10000);
+
+        // new query timer
+        queryTimer = new java.util.Timer();
+    }
+
+    private void createPatients(List<String> patientIds) {
+        ArrayList<String> monitoredIds = theModel.getMonitoredPatients(theView.gethPracId());
 
         for (int i = 0; i < patientIds.size(); i++) {
             String patientId = patientIds.get(i);
@@ -58,6 +75,11 @@ public class PatientsController{
 
             // Add to default model list.
             theView.addToPutList(patient);
+
+            // if id is in monitored list, add to monitored list
+            if (monitoredIds.contains(patientId) && !checkPatientAdded(patient)) {
+                theView.addMonitoredPatient(patient);
+            }
         }
     }
 
@@ -89,48 +111,59 @@ public class PatientsController{
         }
     }
 
-    private boolean checkPatientAdded(String patientName) {
+    private boolean checkPatientAdded(Patient patient) {
         // Return true if patient has already been added to the monitor list.
-        List<String> monitoredPatients = new ArrayList<>();
-        int size = theView.getMonTableRowCount();
-
-        for (int i = 0; i < size; i ++) {
-            String name = (String) theView.getMonTableValueAt(i, 0);
-            monitoredPatients.add(name);
+        List<Patient> patients = theView.getMonitoredPatients();
+        for (Patient p : patients) {
+            if (p.equals(patient)) {
+                return true;
+            }
         }
+        return false;
 
-        return monitoredPatients.contains(patientName);
+    }
 
+    private void addToMonitoredPatientTable(List<Patient> p) {
+        String choles;
+        String strDate = "No Value Collected Yet";
+
+        for (int i = 0; i < p.size(); i++) {
+            Patient patient = p.get(i);
+            try {
+                choles = String.valueOf(patient.getTotalCholesterol());
+
+                DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+                Date cholesDate = patient.getLatestCholesterolDate();
+                strDate = dateFormat.format(cholesDate);
+            } catch (NullPointerException ex) {
+                ex.printStackTrace();
+                choles = "No Value Collected Yet";
+            }
+
+            theView.addRowToTableModel(new Object[]{patient.toString(), choles, strDate});
+            // add monitored patient
+            // theView.addMonitoredPatient(patient);
+        }
+        calculateCholesAverage();
+        theView.updateColumnRenderer();
     }
 
     private class MonitorBtnListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            String choles;
-            String strDate = "No Value Collected Yet";
 
             // Update the view.
             List<Patient> p = theView.getPatientList().getSelectedValuesList();
-            for (int i = 0; i < p.size(); i++) {
-                Patient patient = p.get(i);
-                if (!checkPatientAdded(patient.toString())) {
-                    try {
-                        choles = String.valueOf(patient.getTotalCholesterol());
-
-                        DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
-                        Date cholesDate = patient.getLatestCholesterolDate();
-                        strDate = dateFormat.format(cholesDate);
-                    } catch (NullPointerException ex) {
-                        ex.printStackTrace();
-                        choles = "No Value Collected Yet";
-                    }
-
-                    theView.addRowToTableModel(new Object[]{patient.toString(), choles, strDate});
+            List<Patient> toAdd = new ArrayList<>();
+            for (Patient patient : p) {
+                if (!checkPatientAdded(patient)) {
+                    theView.addMonitoredPatient(patient);
+                    toAdd.add(patient);
                 }
             }
-            calculateCholesAverage();
-            theView.updateColumnRenderer();
+            System.out.println(theView.getMonitoredPatients());
+            addToMonitoredPatientTable(toAdd);
         }
     }
 
@@ -143,6 +176,8 @@ public class PatientsController{
                 theView.getTableModel().removeRow(row);
                 calculateCholesAverage();
                 theView.updateColumnRenderer();
+                // remove monitored patient
+                theView.removeMonitoredPatient(row);
             }
             catch (Exception k){
             }
@@ -154,15 +189,14 @@ public class PatientsController{
         @Override
         public void actionPerformed(ActionEvent e) {
             // cancel previous time
-            timer.cancel();
-            timer = new java.util.Timer();
+            queryTimer.cancel();
+            queryTimer = new java.util.Timer();
 
             try {
-                System.out.println(theView.getQueryTimeTxt());
                 int n = Integer.valueOf(theView.getQueryTimeTxt());
 
                 // update time
-                timer.schedule(new QueryObs(), 0, n*1000);
+                queryTimer.schedule(new QueryObs(), 0, n*1000);
 
             } catch (NumberFormatException ex){
                 theView.displayErrorMessage("Please enter a valid input for query time.");
@@ -177,7 +211,6 @@ public class PatientsController{
         @Override
         public void run() {
             System.out.println("Getting new observations.");
-
             ListModel patients = theView.getPatientList().getModel();
             for (int i = 0; i < patients.getSize(); i++) {
                 Patient p = (Patient) patients.getElementAt(i);
@@ -185,7 +218,7 @@ public class PatientsController{
                 String patientId = p.getId();
 
                 // update observations
-                theModel.updateObservations(patientId);
+                theModel.updateCholesObs(patientId);
 
                 // update latest cholesterol value
                 double latestCholes = theModel.getPatientLatestCholes(patientId);
@@ -200,6 +233,37 @@ public class PatientsController{
 
             // update table
             theView.updateColumnRenderer();
+        }
+    }
+
+    private class AutoSave extends TimerTask {
+
+        @Override
+        public void run() {
+            System.out.println("Autosave executed");
+            ArrayList<Patient> monitorPatients = theView.getMonitoredPatients();
+            ArrayList<String> monitorIds = new ArrayList<>();
+
+            // find unique patients to add
+            ArrayList<String> toAdd = new ArrayList<>();
+            for (Patient p : monitorPatients) {
+                monitorIds.add(p.getId());
+
+                if (!toAdd.contains(p.getId())) {
+                    toAdd.add(p.getId());
+                    theModel.insertMonitorPatient(theView.gethPracId(), p.getId());
+                }
+            }
+
+            ArrayList<String> patientsInDB = theModel.getMonitoredPatients(theView.gethPracId());
+
+            // remove patients
+            for (String p : patientsInDB) {
+                if (!monitorIds.contains(p)) {
+                    theModel.removeMonitorPatient(theView.gethPracId(), p);
+                }
+            }
+
         }
     }
 }

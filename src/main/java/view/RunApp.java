@@ -7,6 +7,7 @@ import database.Mongo;
 public class RunApp {
 
     public static void main(String[] args) {
+
         Mongo.connect();
         LogInView theView = new LogInView();
         DBModel theModel = new DBModel();

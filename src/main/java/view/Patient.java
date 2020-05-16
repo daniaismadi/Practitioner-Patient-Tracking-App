@@ -86,6 +86,21 @@ public class Patient {
         return getGivenName()+" "+getFamilyName();
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        Patient otherPatient = (Patient)other;
+        String otherId = otherPatient.getId();
+        return this.id.equalsIgnoreCase(otherId);
+    }
+
     public Date getLatestCholesterolDate() {
         return latestCholesterolDate;
     }
