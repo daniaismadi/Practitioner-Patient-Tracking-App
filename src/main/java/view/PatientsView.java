@@ -18,11 +18,15 @@ public class PatientsView extends JFrame{
     private JPanel southEastPanel;
     private JList<Patient> patientList;
     private JTable monTable;
-    private JLabel extraInfo;
     private JButton monBttn;
     private JButton remBttn;
     private JTextField queryTimeTxt;
     private JButton queryBtn;
+    private JLabel dob;
+    private JLabel gender;
+    private JLabel country;
+    private JLabel city;
+    private JLabel state;
     private DefaultListModel<Patient> defaultPatientList;
     private DefaultTableModel tableModel;
     private String arg;
@@ -98,6 +102,14 @@ public class PatientsView extends JFrame{
 
     public void addRowToTableModel(Object[] objects) {
         this.tableModel.addRow(objects);
+    }
+
+    public void addExtraInfo(String dob, String gender, String country, String city, String state){
+        this.dob.setText(dob);
+        this.gender.setText(gender);
+        this.country.setText(country);
+        this.city.setText(city);
+        this.state.setText(state);
     }
 
     void addRowSelectionInterval(int i, int j) {
