@@ -242,7 +242,7 @@ public class PatientRepository implements PatientDAO {
         JSONObject json = null;
         try {
             json = JsonReader.readJsonFromUrl(patientUrl);
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
@@ -257,27 +257,27 @@ public class PatientRepository implements PatientDAO {
         }
     }
 
-    private void insertPatientsByGender(String gender) {
-        // insert the first 50 patients only
-        String patientUrl = rootUrl + "Patient?_count=50&gender=" + gender + "&_format=json";
-
-        JSONObject patientsByGender = null;
-        try {
-            patientsByGender = JsonReader.readJsonFromUrl(patientUrl);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (patientsByGender != null) {
-            // loop through all patients
-            JSONArray patients = patientsByGender.getJSONArray("entry");
-            for (int i = 0; i < patients.length(); i++) {
-                // get patient
-                JSONObject patient = patients.getJSONObject(i);
-                String patientId = patient.getJSONObject("resource").getString("id");
-                insertPatient(patientId);
-            }
-        }
-    }
+//    private void insertPatientsByGender(String gender) {
+//        // insert the first 50 patients only
+//        String patientUrl = rootUrl + "Patient?_count=50&gender=" + gender + "&_format=json";
+//
+//        JSONObject patientsByGender = null;
+//        try {
+//            patientsByGender = JsonReader.readJsonFromUrl(patientUrl);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (patientsByGender != null) {
+//            // loop through all patients
+//            JSONArray patients = patientsByGender.getJSONArray("entry");
+//            for (int i = 0; i < patients.length(); i++) {
+//                // get patient
+//                JSONObject patient = patients.getJSONObject(i);
+//                String patientId = patient.getJSONObject("resource").getString("id");
+//                insertPatient(patientId);
+//            }
+//        }
+//    }
 
 }

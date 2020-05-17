@@ -8,6 +8,7 @@ import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class EncounterRepository implements  EncounterDAO {
         JSONObject json = null;
         try {
             json = JsonReader.readJsonFromUrl(encounterUrl);
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
@@ -91,7 +92,7 @@ public class EncounterRepository implements  EncounterDAO {
             JSONObject allEncounters = null;
             try {
                 allEncounters = JsonReader.readJsonFromUrl(nextUrl);
-            } catch (IOException e) {
+            } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }
 
@@ -173,7 +174,7 @@ public class EncounterRepository implements  EncounterDAO {
             JSONObject allEncounters = null;
             try {
                 allEncounters = JsonReader.readJsonFromUrl(nextUrl);
-            } catch (IOException e) {
+            } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }
 

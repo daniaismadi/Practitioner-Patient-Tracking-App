@@ -40,7 +40,7 @@ public class ObservationRepository implements ObservationDAO {
         JSONObject observationBundle = null;
         try {
             observationBundle = JsonReader.readJsonFromUrl(obsUrl);
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
@@ -81,7 +81,7 @@ public class ObservationRepository implements ObservationDAO {
             nextPage = false;
             try {
                 observationBundle = JsonReader.readJsonFromUrl(nextUrl);
-            } catch (IOException e) {
+            } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }
 
@@ -107,7 +107,7 @@ public class ObservationRepository implements ObservationDAO {
         // retrieve data from this page
         try {
             observationBundle = JsonReader.readJsonFromUrl(nextUrl);
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
@@ -152,7 +152,7 @@ public class ObservationRepository implements ObservationDAO {
         JSONObject observationBundle = null;
         try {
             observationBundle = JsonReader.readJsonFromUrl(obsUrl);
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
@@ -178,7 +178,7 @@ public class ObservationRepository implements ObservationDAO {
         JSONObject json = null;
         try {
             json = JsonReader.readJsonFromUrl(obsUrl);
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
