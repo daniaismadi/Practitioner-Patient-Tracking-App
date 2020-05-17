@@ -17,7 +17,6 @@ import org.json.JSONObject;
 
 
 public class JsonReader {
-    static String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
 
     static String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();

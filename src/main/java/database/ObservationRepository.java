@@ -32,8 +32,7 @@ public class ObservationRepository implements ObservationDAO {
         this.db = Mongo.db;
     }
 
-    @Override
-    public void insertPatientObservationsByCode(String patientId, String code) {
+    private void insertPatientObservationsByCode(String patientId, String code) {
         // Adds all patient observations.
         System.out.println("Updating observations for: " + patientId);
         // just get the latest observation
@@ -63,6 +62,7 @@ public class ObservationRepository implements ObservationDAO {
         }
     }
 
+    @Override
     public void insertCholesObsByCodes(ArrayList<String> codes, String count, int pageCount) {
         String obsUrl = rootUrl + "Observation?_count=" + count + "&_sort=-date&code=http%3A%2F%2Floinc.org%7C2093-3" +
                 "&_format=json";
@@ -138,33 +138,10 @@ public class ObservationRepository implements ObservationDAO {
         }
     }
 
+    @Override
     public void insertLatestCholesObs(String patientId) {
         String cholesCode = "2093-3";
         insertPatientLatestObsByCode(patientId, cholesCode);
-    }
-
-    @Override
-    public void insertLatestBMIObs(String patientId) {
-        String bmiCode = "39156-5";
-        insertPatientLatestObsByCode(patientId, bmiCode);
-    }
-
-    @Override
-    public void insertLatestHRObs(String patientId) {
-        String HRCode = "8867-4";
-        insertPatientLatestObsByCode(patientId, HRCode);
-    }
-
-    @Override
-    public void insertLatestBodyWeightObs(String patientId) {
-        String bodyWeightCode = "29463-7";
-        insertPatientLatestObsByCode(patientId, bodyWeightCode);
-    }
-
-    @Override
-    public void insertLatestRespHRObs(String patientId) {
-        String respHRCode = "9279-1";
-        insertPatientLatestObsByCode(patientId, respHRCode);
     }
 
     @Override
@@ -195,6 +172,7 @@ public class ObservationRepository implements ObservationDAO {
         }
     }
 
+    @Override
     public void insertObs(String obsId) {
         String obsUrl = rootUrl + "Observation/" + obsId + "?_format=json";
         JSONObject json = null;
@@ -211,6 +189,18 @@ public class ObservationRepository implements ObservationDAO {
         UpdateOptions options = new UpdateOptions().upsert(true);
 
         db.getCollection("Observation").updateOne(filter, update, options);
+    }
+
+    @Override
+    public Date getLatestCholesDate(String patientId) {
+        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
+        return getLatestObsDate(allCholesObs);
+    }
+
+    @Override
+    public double getLatestCholesVal(String patientId) {
+        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
+        return getLatestObsVal(allCholesObs);
     }
 
     private ArrayList<String> getAllObsByCode(String patientId, String code) {
@@ -322,16 +312,5 @@ public class ObservationRepository implements ObservationDAO {
         }
 
         return val;
-    }
-
-    public Date getLatestCholesDate(String patientId) {
-        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
-        return getLatestObsDate(allCholesObs);
-    }
-
-    @Override
-    public double getLatestCholesVal(String patientId) {
-        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
-        return getLatestObsVal(allCholesObs);
     }
 }

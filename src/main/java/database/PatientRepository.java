@@ -30,8 +30,7 @@ public class PatientRepository implements PatientDAO {
         this.db = Mongo.db;
     }
 
-    @Override
-    public ArrayList<String> getAllPatientIds() {
+    private ArrayList<String> getAllPatientIds() {
         MongoCollection<Document> collection = db.getCollection("Patient");
         FindIterable<Document> result = collection.find().projection(fields(include("id"), excludeId()));
 
@@ -48,12 +47,7 @@ public class PatientRepository implements PatientDAO {
         return patientIds;
     }
 
-    /***
-     * Return patient name, given patient id.
-     *
-     * @param patientId     The patient's unique id.
-     * @return              The patient's name.
-     */
+    @Override
     public String getPatientName(String patientId) {
 
         // query database
@@ -88,6 +82,7 @@ public class PatientRepository implements PatientDAO {
         return null;
     }
 
+    @Override
     public String getPatientFName(String patientId) {
         String[] name = getPatientName(patientId).split(" ");
         StringBuilder fname = new StringBuilder();
@@ -100,18 +95,13 @@ public class PatientRepository implements PatientDAO {
         return fname.toString().substring(0, fname.length()-1);
     }
 
+    @Override
     public String getPatientLName(String patientId) {
         String[] name = getPatientName(patientId).split(" ");
         return name[name.length - 1];
     }
 
-
-    /***
-     * Return the patient's gender.
-     *
-     * @param patientId     The patient id.
-     * @return              The gender.
-     */
+    @Override
     public String getPatientGender(String patientId) {
         MongoCollection<Document> collection = db.getCollection("Patient");
         Bson filter = eq("id", patientId);
@@ -130,12 +120,7 @@ public class PatientRepository implements PatientDAO {
         return gender;
     }
 
-    /***
-     * Return the patient's birthdate.
-     *
-     * @param patientId     The patient id.
-     * @return              The birth date.
-     */
+    @Override
     public String getPatientBirthdate(String patientId) {
         MongoCollection<Document> collection = db.getCollection("Patient");
         Bson filter = eq("id", patientId);
@@ -151,7 +136,7 @@ public class PatientRepository implements PatientDAO {
         return name;
     }
 
-    public String[] getPatientAddress(String patientId) {
+    private String[] getPatientAddress(String patientId) {
         MongoCollection<Document> collection = db.getCollection("Patient");
         Bson filter = eq("id", patientId);
         FindIterable<Document> result = collection.find(filter, Document.class)
@@ -193,14 +178,7 @@ public class PatientRepository implements PatientDAO {
         return getPatientAddress(patientId)[2];
     }
 
-    /***
-     * Get list of patient names based on patient IDs sorted by ascending order of _id.
-     *
-     * @param patientIds        ArrayList of patient IDs represented in string.
-     * @return                  ArrayList of strings containing patient names.
-     */
-    @Override
-    public ArrayList<String> getPatientNamesByIds(ArrayList<String> patientIds) {
+    private ArrayList<String> getPatientNamesByIds(ArrayList<String> patientIds) {
         MongoCollection<Document> collection = db.getCollection("Patient");
         Bson filter = in("id", patientIds);
         // Sort by _id so position can be found later.
@@ -218,6 +196,7 @@ public class PatientRepository implements PatientDAO {
         return names;
     }
 
+    @Override
     public ArrayList<String> getPatientIdsSorted(ArrayList<String> patientIds) {
         MongoCollection<Document> collection = db.getCollection("Patient");
         Bson filter = in("id", patientIds);
@@ -236,7 +215,7 @@ public class PatientRepository implements PatientDAO {
         return ids;
     }
 
-    public ArrayList<Document> getPatientsSorted(ArrayList<String> patientIds) {
+    private ArrayList<Document> getPatientsSorted(ArrayList<String> patientIds) {
         MongoCollection<Document> collection = db.getCollection("Patient");
         Bson filter = in("id", patientIds);
         // Sort by _id so position can be found later.
@@ -253,19 +232,11 @@ public class PatientRepository implements PatientDAO {
         return patients;
     }
 
-    @Override
-    public String getPatientId(int position, ArrayList<String> patientIds) {
+    private String getPatientId(int position, ArrayList<String> patientIds) {
         Document doc = getPatientsSorted(patientIds).get(position);
         return doc.get("id", String.class);
     }
 
-    /***
-     * Insert patient with patient ID into the database.
-     *
-     * @param patientId         The patient id.
-     * @throws IOException
-     * @throws JSONException
-     */
     public void insertPatient(String patientId) {
         String patientUrl = rootUrl + "Patient/" + patientId + "?_format=json";
         JSONObject json = null;
@@ -286,7 +257,7 @@ public class PatientRepository implements PatientDAO {
         }
     }
 
-    public void insertPatientsByGender(String gender) {
+    private void insertPatientsByGender(String gender) {
         // insert the first 50 patients only
         String patientUrl = rootUrl + "Patient?_count=50&gender=" + gender + "&_format=json";
 

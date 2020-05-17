@@ -9,6 +9,5 @@ public interface EncounterDAO {
     void insertEncounter(String encounterId);
     void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO,
                                 ObservationDAO observationDAO) throws IOException;
-    void insertEncountersByPatient(String patientId);
 
 }

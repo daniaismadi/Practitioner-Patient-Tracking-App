@@ -159,8 +159,7 @@ public class EncounterRepository implements  EncounterDAO {
 
     }
 
-    @Override
-    public void insertEncountersByPatient(String patientId) {
+    private void insertEncountersByPatient(String patientId) {
         MongoCollection<Document> encounters = db.getCollection("Encounter");
 
         String encountersUrl = rootUrl + "Encounter?patient=Patient%2F" + patientId + "&_format=json";

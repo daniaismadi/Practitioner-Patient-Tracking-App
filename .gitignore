@@ -14,3 +14,5 @@ out/
 /.idea/libraries/
 /.idea/compiler.xml
 target/
+src/main/resources/.vscode/
+src/main/resources/.hypothesis
