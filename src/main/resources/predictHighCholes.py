@@ -18,7 +18,8 @@ db = myclient["FIT3077JD"]
 
 # connect to observation collection
 observation = db["Observation"]
-obs = observation.find({}, {"subject.reference": 1, "code.text": 1, "valueQuantity.value": 1, "code.coding": 1, "component": 1, "_id": 0, "valueCodeableConcept.text": 1})
+obs = observation.find({}, {"subject.reference": 1, "code.text": 1, "valueQuantity.value": 1, "code.coding": 1,
+                            "component": 1, "_id": 0, "valueCodeableConcept.text": 1})
 
 obsSmoker = observation.find({"code.coding.code": "72166-2"}, {"valueCodeableConcept.text": 1, "code.text": 1, "_id": 0})
 
@@ -75,8 +76,10 @@ by_patient_complete.columns = by_patient_complete.columns.droplevel()
 # print(by_patient_complete)
 
 # drop HDL and LDL columns and also RBC because it has has too many NA values
-by_patient_complete = by_patient_complete.drop(columns=['High Density Lipoprotein Cholesterol', 'Low Density Lipoprotein Cholesterol', 'RBC Auto (Bld) [#/Vol]', 'Oral temperature', 'Hemoglobin'])
-# by_patient_complete = by_patient_complete.drop(columns=['Body Height', 'Erythrocytes [#/volume] in Blood by Automated count', 'Glucose', 'Hemoglobin [Mass/volume] in Blood', 'Oral temperature', 'Hemoglobin'])
+by_patient_complete = by_patient_complete.drop(columns=['High Density Lipoprotein Cholesterol',
+                                                        'Low Density Lipoprotein Cholesterol', 'RBC Auto (Bld) [#/Vol]',
+                                                        'Oral temperature', 'Hemoglobin'])
+
 
 # add column to classify values into high or low cholesterol
 def put_class(row):
@@ -86,6 +89,7 @@ def put_class(row):
         val = 'low'
 
     return val
+
 
 by_patient_complete['Class'] = by_patient_complete.apply(put_class, axis=1)
 by_patient_complete = by_patient_complete.drop(columns=["Total Cholesterol"])
