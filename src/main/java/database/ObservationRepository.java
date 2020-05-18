@@ -85,24 +85,29 @@ public class ObservationRepository implements ObservationDAO {
             } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }
-
-            if (observationBundle != null) {
-                // Check if there is a next page
-                // Get all related links
-                JSONArray links = observationBundle.getJSONArray("link");
-                for (int j = 0; j < links.length(); j++) {
-                    // Get current link
-                    JSONObject link = links.getJSONObject(j);
-                    // Check if relation is next, this means there is a next page
-                    String relation = link.getString("relation");
-                    if (relation.equalsIgnoreCase("next")) {
-                        // Update variables accordingly
-                        System.out.println(i);
-                        nextPage = true;
-                        nextUrl = link.getString("url");
+            try{
+                if (observationBundle != null) {
+                    // Check if there is a next page
+                    // Get all related links
+                    JSONArray links = observationBundle.getJSONArray("link");
+                    for (int j = 0; j < links.length(); j++) {
+                        // Get current link
+                        JSONObject link = links.getJSONObject(j);
+                        // Check if relation is next, this means there is a next page
+                        String relation = link.getString("relation");
+                        if (relation.equalsIgnoreCase("next")) {
+                            // Update variables accordingly
+                            System.out.println(i);
+                            nextPage = true;
+                            nextUrl = link.getString("url");
+                        }
                     }
                 }
             }
+            catch (JSONException e){
+                e.printStackTrace();
+            }
+
         }
 
         // retrieve data from this page

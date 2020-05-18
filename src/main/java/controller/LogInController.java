@@ -17,6 +17,7 @@ public class LogInController {
         this.theModel = theModel;
 
         this.theView.addLogInListener(new LogInListener());
+        this.theView.setSize(400,300);
     }
 
     public void updateView() {

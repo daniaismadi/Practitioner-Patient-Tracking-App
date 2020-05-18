@@ -5,6 +5,8 @@ import view.Patient;
 import view.PatientsView;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
@@ -21,9 +23,12 @@ public class PatientsController{
     private java.util.Timer queryTimer;
     private java.util.Timer autosave;
 
+
     public PatientsController(PatientsView theView, DBModel theModel) {
         this.theView = theView;
         this.theModel = theModel;
+
+        this.theView.setSize(400,300);
 
         this.theView.addMonitorBtnListener(new MonitorBtnListener());
         this.theView.addRemoveBtnListener(new RemoveBtnListener());
@@ -49,6 +54,30 @@ public class PatientsController{
 
         // new query timer
         queryTimer = new java.util.Timer();
+        setTableListener();
+    }
+
+    private void setTableListener(){
+        ListSelectionModel model = theView.getMonTable().getSelectionModel();
+        model.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!model.isSelectionEmpty()){
+                    JTable table = theView.getMonTable();
+                    int row = table.getSelectedRow();
+                    Object name = table.getValueAt(row,0);
+                    String nameStr = name.toString();
+                    List<Patient> patients = theView.getMonitoredPatients();
+                    for (Patient p : patients) {
+                        if (p.toString().equals(nameStr)){
+                            theView.addExtraInfo(p.getBirthDate(),p.getGender(),p.getCountry(),p.getCity(),p.getState());
+                        }
+                    }
+
+
+                }
+            }
+        });
     }
 
     private void createPatients(List<String> patientIds) {
@@ -147,6 +176,8 @@ public class PatientsController{
         theView.updateColumnRenderer();
     }
 
+
+
     private class MonitorBtnListener implements ActionListener {
 
         @Override
@@ -177,6 +208,7 @@ public class PatientsController{
                 theView.updateColumnRenderer();
                 // remove monitored patient
                 theView.removeMonitoredPatient(row);
+                theView.extraInfoInitialState();
             }
             catch (Exception k){
             }

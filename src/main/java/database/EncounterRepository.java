@@ -74,7 +74,7 @@ public class EncounterRepository implements  EncounterDAO {
 
     @Override
     public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO,
-                                       ObservationDAO observationDAO) throws IOException {
+                                       ObservationDAO observationDAO) throws IOException, JSONException {
         MongoCollection<Document> encounters = db.getCollection("Encounter");
 
         String encountersUrl = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter" +
@@ -160,53 +160,53 @@ public class EncounterRepository implements  EncounterDAO {
 
     }
 
-    private void insertEncountersByPatient(String patientId) {
-        MongoCollection<Document> encounters = db.getCollection("Encounter");
-
-        String encountersUrl = rootUrl + "Encounter?patient=Patient%2F" + patientId + "&_format=json";
-
-        // Declare required variables
-        boolean nextPage = true;
-        String nextUrl = encountersUrl;
-
-        while (nextPage) {
-            // Get all encounters on this page
-            JSONObject allEncounters = null;
-            try {
-                allEncounters = JsonReader.readJsonFromUrl(nextUrl);
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
-
-            if (allEncounters != null) {
-                // Check if there is a next page
-                nextPage = false;
-                // Get all related links
-                JSONArray links = allEncounters.getJSONArray("link");
-                for (int i = 0; i < links.length(); i++) {
-                    // Get current link
-                    JSONObject link = links.getJSONObject(i);
-                    // Check if relation is next, this means there is a next page
-                    String relation = link.getString("relation");
-                    if (relation.equalsIgnoreCase("next")) {
-                        // Update variables accordingly
-                        nextPage = true;
-                        nextUrl = link.getString("url");
-                    }
-                }
-            }
-
-            if (allEncounters != null) {
-                JSONArray encounterData = allEncounters.getJSONArray("entry");
-                // Loop through all encounters and add encounter to database.
-                for (int i = 0; i < encounterData.length(); i++) {
-                    JSONObject entry = encounterData.getJSONObject(i);
-                    JSONObject resource = entry.getJSONObject("resource");
-                    // Get Encounter ID and then add to database.
-                    String encounterId = resource.getString("id");
-                    insertEncounter(encounterId);
-                }
-            }
-        }
-    }
+//    private void insertEncountersByPatient(String patientId) {
+//        MongoCollection<Document> encounters = db.getCollection("Encounter");
+//
+//        String encountersUrl = rootUrl + "Encounter?patient=Patient%2F" + patientId + "&_format=json";
+//
+//        // Declare required variables
+//        boolean nextPage = true;
+//        String nextUrl = encountersUrl;
+//
+//        while (nextPage) {
+//            // Get all encounters on this page
+//            JSONObject allEncounters = null;
+//            try {
+//                allEncounters = JsonReader.readJsonFromUrl(nextUrl);
+//            } catch (JSONException | IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            if (allEncounters != null) {
+//                // Check if there is a next page
+//                nextPage = false;
+//                // Get all related links
+//                JSONArray links = allEncounters.getJSONArray("link");
+//                for (int i = 0; i < links.length(); i++) {
+//                    // Get current link
+//                    JSONObject link = links.getJSONObject(i);
+//                    // Check if relation is next, this means there is a next page
+//                    String relation = link.getString("relation");
+//                    if (relation.equalsIgnoreCase("next")) {
+//                        // Update variables accordingly
+//                        nextPage = true;
+//                        nextUrl = link.getString("url");
+//                    }
+//                }
+//            }
+//
+//            if (allEncounters != null) {
+//                JSONArray encounterData = allEncounters.getJSONArray("entry");
+//                // Loop through all encounters and add encounter to database.
+//                for (int i = 0; i < encounterData.length(); i++) {
+//                    JSONObject entry = encounterData.getJSONObject(i);
+//                    JSONObject resource = entry.getJSONObject("resource");
+//                    // Get Encounter ID and then add to database.
+//                    String encounterId = resource.getString("id");
+//                    insertEncounter(encounterId);
+//                }
+//            }
+//        }
+//    }
 }

@@ -70,7 +70,7 @@ public class PractitionerRepository implements PractitionerDAO {
         return hPracIds;
     }
 
-    public void insertPracById(String pracId) throws IOException {
+    public void insertPracById(String pracId) throws IOException, JSONException {
         String pracUrl = rootUrl + "Practitioner/" + pracId + "?_format=json";
 
         JSONObject json = JsonReader.readJsonFromUrl(pracUrl);

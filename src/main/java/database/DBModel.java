@@ -1,5 +1,7 @@
 package database;
 
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,7 +22,7 @@ public class DBModel {
         this.monitorDAO = new MonitorRepository();
     }
 
-    public void onStart(String hPracId) throws IOException {
+    public void onStart(String hPracId) throws IOException, JSONException {
 
         String hPracIdentifier = "";
 

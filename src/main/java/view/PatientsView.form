@@ -153,7 +153,7 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Label"/>
+                  <text value="Date Of Birth"/>
                 </properties>
               </component>
               <component id="5a8b1" class="javax.swing.JLabel" binding="gender">
@@ -161,7 +161,7 @@
                   <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Label"/>
+                  <text value="Gender"/>
                 </properties>
               </component>
               <component id="31a97" class="javax.swing.JLabel" binding="country">
@@ -169,7 +169,7 @@
                   <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Label"/>
+                  <text value="Country"/>
                 </properties>
               </component>
               <component id="a4bac" class="javax.swing.JLabel" binding="city">
@@ -177,7 +177,7 @@
                   <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Label"/>
+                  <text value="City"/>
                 </properties>
               </component>
               <component id="75d38" class="javax.swing.JLabel" binding="state">
@@ -185,7 +185,7 @@
                   <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Label"/>
+                  <text value="State"/>
                 </properties>
               </component>
             </children>
