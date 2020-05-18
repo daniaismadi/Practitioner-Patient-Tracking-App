@@ -10,6 +10,7 @@ public class LogInView extends JFrame{
     JPanel southPanel;
     JButton logInButton;
     JLabel header;
+    JPanel eastPanel;
     JTextField practitionerId;
 
     LogInView() {
