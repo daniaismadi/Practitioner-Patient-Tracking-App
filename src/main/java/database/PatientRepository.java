@@ -30,7 +30,7 @@ public class PatientRepository implements PatientDAO {
         this.db = Mongo.db;
     }
 
-    private ArrayList<String> getAllPatientIds() {
+    public ArrayList<String> getAllPatientIds() {
         MongoCollection<Document> collection = db.getCollection("Patient");
         FindIterable<Document> result = collection.find().projection(fields(include("id"), excludeId()));
 

@@ -1,5 +1,6 @@
 package database;
 
+import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -178,17 +179,31 @@ public class ObservationRepository implements ObservationDAO {
         JSONObject json = null;
         try {
             json = JsonReader.readJsonFromUrl(obsUrl);
+            Document doc = Document.parse(json.toString());
+
+            Bson filter = Filters.eq("id", obsId);
+            Bson update = new Document("$set", doc);
+            UpdateOptions options = new UpdateOptions().upsert(true);
+
+            db.getCollection("Observation").updateOne(filter, update, options);
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
+    }
 
-        Document doc = Document.parse(json.toString());
+    @Override
+    public ArrayList<String> getAllPatientsIdsObs() {
+        DistinctIterable<String> patients = Mongo.db.getCollection("Observation")
+                .distinct("subject.reference", null, String.class);
 
-        Bson filter = Filters.eq("id", obsId);
-        Bson update = new Document("$set", doc);
-        UpdateOptions options = new UpdateOptions().upsert(true);
+        ArrayList<String> patientIds = new ArrayList<>();
 
-        db.getCollection("Observation").updateOne(filter, update, options);
+        for (String id : patients) {
+            id = id.replace("Patient/", "");
+            patientIds.add(id);
+        }
+
+        return patientIds;
     }
 
     @Override

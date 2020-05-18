@@ -1,5 +1,6 @@
 package database;
 
+import com.mongodb.client.DistinctIterable;
 import org.json.JSONException;
 
 import java.io.BufferedReader;
@@ -42,6 +43,7 @@ public class DatabaseDriver {
         String hemoglobin = "718-7";
         String erythrocytes = "789-8";
         String oralTemperature = "8331-1";
+        String smokingCode = "72166-2";
 
         ArrayList<String> codes = new ArrayList<>();
         codes.add(bloodPressure);
@@ -52,6 +54,7 @@ public class DatabaseDriver {
         codes.add(hemoglobin);
         codes.add(erythrocytes);
         codes.add(oralTemperature);
+        codes.add(smokingCode);
 
         double accuracy = getModelAccuracy();
         while (accuracy < 0.8) {
@@ -78,9 +81,10 @@ public class DatabaseDriver {
         int exitCode = p.waitFor();
         String accuracy = buffer.toString();
         System.out.println("Value is: " + accuracy);
-        System.out.println("Process exit value:" + exitCode);
+        System.out.println("");
         in.close();
 
         return Double.valueOf(accuracy);
     }
+
 }
