@@ -29,11 +29,11 @@ public class DatabaseDriver {
         observationDAO = new ObservationRepository();
         monitorDAO = new MonitorRepository();
 
-        System.out.println(predictHighCholes());
+        int pageCount = 1;
+        System.out.println(predictHighCholes(pageCount));
     }
 
-    static double predictHighCholes() throws Exception {
-        int pageCount = 1;
+    static double predictHighCholes(int pageCount) throws Exception {
 
         String bloodPressure = "55284-4";
         String bmi = "39156-5";
@@ -42,7 +42,6 @@ public class DatabaseDriver {
         String bloodGlucose = "2339-0";
         String hemoglobin = "718-7";
         String erythrocytes = "789-8";
-        String oralTemperature = "8331-1";
         String smokingCode = "72166-2";
 
         ArrayList<String> codes = new ArrayList<>();
@@ -53,7 +52,6 @@ public class DatabaseDriver {
         codes.add(bloodGlucose);
         codes.add(hemoglobin);
         codes.add(erythrocytes);
-        codes.add(oralTemperature);
         codes.add(smokingCode);
 
         double accuracy = getModelAccuracy();

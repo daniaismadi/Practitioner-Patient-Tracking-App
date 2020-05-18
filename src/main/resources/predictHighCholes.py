@@ -6,11 +6,6 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import f1_score
-from sklearn.metrics import accuracy_score
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
-from datetime import date
 
 # connect to mongo database
 myclient = pymongo.MongoClient()
@@ -20,8 +15,6 @@ db = myclient["FIT3077JD"]
 observation = db["Observation"]
 obs = observation.find({}, {"subject.reference": 1, "code.text": 1, "valueQuantity.value": 1, "code.coding": 1,
                             "component": 1, "_id": 0, "valueCodeableConcept.text": 1})
-
-obsSmoker = observation.find({"code.coding.code": "72166-2"}, {"valueCodeableConcept.text": 1, "code.text": 1, "_id": 0})
 
 
 # create empty data frame
@@ -115,59 +108,19 @@ x_test_imp = imp.transform(x_test)
 
 # create a Gaussian classifier
 model = GaussianNB()
-clf = RandomForestClassifier(n_estimators=100)
-d_tree = DecisionTreeClassifier()
 
 # train the model using the training sets
 model.fit(x_train_imp, y_train)
-clf.fit(x_train_imp, y_train)
-d_tree.fit(x_train_imp, y_train)
 
 # predicted output
 predicted = model.predict(x_test_imp)
-clf_predicted = clf.predict(x_test_imp)
-d_tree_predicted = d_tree.predict(x_test_imp)
-
-# print(model.score(x_test_imp, y_test))
-# print(clf.score(x_test_imp, y_test))
-
-# accuracy score
-# print(accuracy_score(y_test, predicted))
-# print(accuracy_score(y_test, clf_predicted))
 
 # confusion matrix
 matrix = confusion_matrix(y_test, predicted)
-clf_matrix = confusion_matrix(y_test, clf_predicted)
-d_tree_matrix = confusion_matrix(y_test, d_tree_predicted)
-# print(matrix)
 
 # calculate accuracy
 accuracy = matrix[0][0]/sum(matrix[0])
 print(accuracy)
 
-# accuracy = clf_matrix[0][0]/sum(clf_matrix[0])
-# print(accuracy)
-
-# accuracy = d_tree_matrix[0][0]/sum(d_tree_matrix[0])
-# print(accuracy)
-
-# y_test_modified = []
-# predicted_modified = []
-
-# # replace highs and lows with 1s and 0s respectively
-# for val in y_test:
-#     if val == "high":
-#         y_test_modified.append(1)
-#     else:
-#         y_test_modified.append(0)
-
-# for val in predicted:
-#     if val == "high":
-#         predicted_modified.append(1)
-#     else:
-#         predicted_modified.append(0)
-
-# # calculate f1_score
-# print(f1_score(y_test_modified, predicted_modified))
 sys.exit(0)
 

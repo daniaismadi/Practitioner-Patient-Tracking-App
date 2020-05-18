@@ -52,8 +52,9 @@ public class PatientsController{
         autosave = new java.util.Timer();
         autosave.schedule(new AutoSave(), 0, 5*10000);
 
-        // new query timer
+        // new query timer, set to 30 seconds at first
         queryTimer = new java.util.Timer();
+        queryTimer.schedule(new QueryObs(), 0, 30*1000);
         setTableListener();
     }
 
