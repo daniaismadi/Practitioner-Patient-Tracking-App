@@ -112,6 +112,14 @@ public class PatientsView extends JFrame{
         this.state.setText(state);
     }
 
+    public void extraInfoInitialState(){
+        this.dob.setText("Date of Birth");
+        this.gender.setText("Gender");
+        this.country.setText("Country");
+        this.city.setText("City");
+        this.state.setText("State");
+    }
+
     void addRowSelectionInterval(int i, int j) {
         this.monTable.addRowSelectionInterval(i, j);
     }
