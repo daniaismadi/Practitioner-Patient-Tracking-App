@@ -1,3 +1,13 @@
-# project
+# Project
 
-FIT3077 project repository
+FIT3077 Project Repository
+
+1. In order to run the application, you have to install the relevant dependencies as specified in pom.xml (MongoDB 
+and JSON).
+2. You also have to install MongoDB (the community edition) into your computer. Follow the installation instructions 
+for your device here: https://docs.mongodb.com/manual/installation/.
+3. Once everything is correctly configured, run the application by running the main function in RunApp class inside the 
+View package.
+
+Note: Please ignore DatabaseDriver class in the Database package as that is the driver that we used to run the program
+for the Machine Learning bonus task which is separate from the specifications of our assignment.
