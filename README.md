@@ -8,6 +8,8 @@ and JSON).
 for your device here: https://docs.mongodb.com/manual/installation/.
 3. Once everything is correctly configured, run the application by running the main function in RunApp class inside the 
 View package.
+4. All videos (System Demonstration and Machine Learning Bonus Task) are in src/videos/ folder and all documents 
+(Class Diagram and Design Rationale) are in the src/documents/ folder.
 
 Note: Please ignore DatabaseDriver class in the Database package as that is the driver that we used to run the program
 for the Machine Learning bonus task which is separate from the specifications of our assignment.
