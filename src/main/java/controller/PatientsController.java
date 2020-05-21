@@ -170,6 +170,8 @@ public class PatientsController{
             }
 
             theView.addRowToTableModel(new Object[]{patient.toString(), choles, strDate});
+            // Reset Date to "No Value Collected Yet".
+            strDate = "No Value Collected Yet";
             // add monitored patient
             // theView.addMonitoredPatient(patient);
         }
