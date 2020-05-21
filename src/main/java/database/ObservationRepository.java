@@ -196,8 +196,7 @@ public class ObservationRepository implements ObservationDAO {
         }
     }
 
-    @Override
-    public ArrayList<String> getAllPatientsIdsObs() {
+    private ArrayList<String> getAllPatientsIdsObs() {
         DistinctIterable<String> patients = Mongo.db.getCollection("Observation")
                 .distinct("subject.reference", null, String.class);
 

@@ -208,7 +208,9 @@ public class PatientsController{
                 calculateCholesAverage();
                 theView.updateColumnRenderer();
                 // remove monitored patient
+                Patient p = theView.getMonitoredPatients().get(row);
                 theView.removeMonitoredPatient(row);
+                theModel.removeMonitorPatient(theView.gethPracId(), p.getId());
                 theView.extraInfoInitialState();
             }
             catch (Exception k){
