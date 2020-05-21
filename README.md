@@ -11,6 +11,8 @@ for your device here: https://docs.mongodb.com/manual/installation/.
 View package.
 4. All videos (System Demonstration and Machine Learning Bonus Task) are in src/videos/ folder and all documents 
 (Class Diagram and Design Rationale) are in the src/documents/ folder.
+5. Make sure to mark the Java directory as the source root. (This can be done in File-> Project Structure-> Module)
+6. The pom.xml file must have a maven build in order to be ale to run the files.
 
 Note: Please ignore DatabaseDriver class in the Database package as that is the driver that we used to run the program
 for the Machine Learning bonus task which is separate from the specifications of our assignment.
