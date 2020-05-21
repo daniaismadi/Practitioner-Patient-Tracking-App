@@ -6,13 +6,9 @@ out/
 *.pptx
 *.xlsx
 *.doc
-*.pdf
 *.o
 *.jar
-/.idea/misc.xml
-/.idea/workspace.xml
-/.idea/libraries/
-/.idea/compiler.xml
+/.idea/
 target/
 src/main/resources/.vscode/
 src/main/resources/.hypothesis

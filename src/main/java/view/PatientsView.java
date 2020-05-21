@@ -81,7 +81,6 @@ public class PatientsView extends JFrame{
     public void updateColumnRenderer() {
         monTable.getColumnModel().getColumn(0).setCellRenderer(new HighlightCholesRenderer(avgCholes));
         monTable.getColumnModel().getColumn(1).setCellRenderer(new HighlightCholesRenderer(avgCholes));
-        monTable.getColumnModel().getColumn(2).setCellRenderer(new HighlightCholesRenderer(avgCholes));
     }
 
     public JList<Patient> getPatientList() {
