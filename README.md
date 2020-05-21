@@ -2,6 +2,7 @@
 
 FIT3077 Project Repository
 
+Please use Intelli-J to run the application.
 1. In order to run the application, you have to install the relevant dependencies as specified in pom.xml (MongoDB 
 and JSON).
 2. You also have to install MongoDB (the community edition) into your computer. Follow the installation instructions 
