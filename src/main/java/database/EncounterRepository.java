@@ -73,8 +73,8 @@ public class EncounterRepository implements  EncounterDAO {
     }
 
     @Override
-    public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO,
-                                       ObservationDAO observationDAO) throws IOException, JSONException {
+    public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO)
+            throws IOException, JSONException {
         MongoCollection<Document> encounters = db.getCollection("Encounter");
 
         String encountersUrl = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter" +
@@ -131,8 +131,6 @@ public class EncounterRepository implements  EncounterDAO {
                     if (!patientsInserted.contains(patientID)){
                         // Add patient.
                         patientDAO.insertPatient(patientID);
-                        // Insert all observation values of patient.
-                        observationDAO.insertLatestCholesObs(patientID);
                         patientsInserted.add(patientID);
                     }
 

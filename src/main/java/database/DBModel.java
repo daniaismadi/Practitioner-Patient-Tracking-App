@@ -38,12 +38,23 @@ public class DBModel {
             hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
             // 3. Populate database with encounters, patients and practitioners based on this identifier.
             System.out.println("Searching for encounters.");
-            encounterDAO.insertEncountersByPrac(hPracIdentifier, patientDAO, practitionerDAO, observationDAO);
+            encounterDAO.insertEncountersByPrac(hPracIdentifier, patientDAO, practitionerDAO);
+        }
+
+        // Get all patients of this practitioner.
+        ArrayList<String> patientIds = getPatientList(hPracId);
+
+        // Insert required observations.
+        for (String id : patientIds){
+            // Insert latest cholesterol observations.
+            observationDAO.insertLatestCholesObs(id);
+            // Insert the latest 5 blood pressure observations.
+            observationDAO.insertPatientObsByCode(id, "55284-4", "5");
         }
     }
 
     public ArrayList<String> getPatientList(String hPracId) {
-        // Get all names of patients of the practitioner with this ID.
+        // Get all IDs of patients of the practitioner with this ID.
         // 1. Get Practitioner Identifier.
         String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
 

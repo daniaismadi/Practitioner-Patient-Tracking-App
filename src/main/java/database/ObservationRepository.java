@@ -33,11 +33,13 @@ public class ObservationRepository implements ObservationDAO {
         this.db = Mongo.db;
     }
 
-    private void insertPatientObservationsByCode(String patientId, String code) {
+    @Override
+    public void insertPatientObsByCode(String patientId, String code, String count) {
         // Adds all patient observations.
         System.out.println("Updating observations for: " + patientId);
         // just get the latest observation
-        String obsUrl = rootUrl + "Observation?code=" + code + "&patient=" + patientId + "&_sort=-date&_format=json";
+        String obsUrl = rootUrl + "Observation?_count=" + count + "&code=" + code + "&patient=" + patientId +
+                "&_sort=-date&_format=json";
         JSONObject observationBundle = null;
         try {
             observationBundle = JsonReader.readJsonFromUrl(obsUrl);
