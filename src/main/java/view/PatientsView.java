@@ -21,16 +21,17 @@ public class PatientsView extends JFrame{
     private JButton monBttn;
     private JButton remBttn;
     private JTextField queryTimeTxt;
-    private JButton queryBtn;
+    private JButton queryBttn;
     private JLabel dob;
     private JLabel gender;
     private JLabel country;
     private JLabel city;
     private JLabel state;
+    private JButton cholesBttn;
+//    private JButton bpBttn;
     private DefaultListModel<Patient> defaultPatientList;
     private DefaultTableModel tableModel;
     private String arg;
-    private JFrame currentFrame;
     private String hPracId;
     private double avgCholes;
     private int queryTime = 10;
@@ -144,8 +145,16 @@ public class PatientsView extends JFrame{
     }
 
     public void addQueryBtnListener(ActionListener listenForQueryBtn) {
-        queryBtn.addActionListener(listenForQueryBtn);
+        queryBttn.addActionListener(listenForQueryBtn);
     }
+
+    public void addCholestrolBtnListener(ActionListener listenForCholesBtn){
+        cholesBttn.addActionListener(listenForCholesBtn);
+    }
+
+//    public void addBpBtnListener(ActionListener listenForBpBtn){
+//        bpBttn.addActionListener(listenForBpBtn);
+//    }
 
     public String gethPracId() {
         return hPracId;

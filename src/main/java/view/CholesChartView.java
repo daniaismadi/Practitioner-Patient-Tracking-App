@@ -11,19 +11,25 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
+import javax.swing.*;
+import java.util.List;
+
 
 public class CholesChartView extends ApplicationFrame {
+    List<Patient> patientList;
 
+    public CholesChartView(List<Patient> patientsList){
 
-    public CholesChartView(){
         super("Cholestrol Observations of Monitored Patients");
-
+        this.patientList = patientsList;
         JFreeChart barChart = chart();
         ChartPanel chartPanel = new ChartPanel(barChart);
         CategoryPlot categoryPlot = barChart.getCategoryPlot();
         BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
         br.setMaximumBarWidth(.1); // set maximum width to 35% of chart
         setContentPane(chartPanel);
+        this.pack();
+        this.setVisible(true);
     }
 
     public JFreeChart chart(){
@@ -34,21 +40,13 @@ public class CholesChartView extends ApplicationFrame {
 
     public CategoryDataset createDataSet(){
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(7,"","Junaid");
-        dataset.addValue(10,"","Gaffar");
-        dataset.addValue(4,"","Junaid2");
-        dataset.addValue(30,"","Gaffar2");
-        dataset.addValue(4,"","Junaid3");
-        dataset.addValue(45,"","Gaffar3");
+        for (Patient patient: patientList) {
+            if (!(patient.getTotalCholesterol() == 0.0)) {
+                dataset.addValue(patient.getTotalCholesterol(), patient.getId(), patient.toString());
+            }
+        }
 
         return dataset;
     }
 
-    public static void main(String[] args) {
-        CholesChartView chart = new CholesChartView();
-        chart.pack();
-//        RefineryUtilities.centerFrameOnScreen(chart);
-        chart.setVisible(true);
-
-    }
 }

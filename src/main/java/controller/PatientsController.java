@@ -1,6 +1,8 @@
 package controller;
 
 import database.DBModel;
+import org.jfree.ui.ApplicationFrame;
+import view.CholesChartView;
 import view.Patient;
 import view.PatientsView;
 
@@ -33,6 +35,8 @@ public class PatientsController{
         this.theView.addMonitorBtnListener(new MonitorBtnListener());
         this.theView.addRemoveBtnListener(new RemoveBtnListener());
         this.theView.addQueryBtnListener(new QueryBtnListener());
+        this.theView.addCholestrolBtnListener(new CholesBtnListener());
+//        this.theView.addBpBtnListener(new BpBtnListener());
     }
 
     public void onStart(String hPracId) {
@@ -238,6 +242,19 @@ public class PatientsController{
 
         }
 
+    }
+
+    private class CholesBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e){
+            try {
+                List<Patient> patients = theView.getMonitoredPatients();
+                ApplicationFrame graph = new CholesChartView(patients);
+            }
+            catch (Exception k){
+            }
+        }
     }
 
     private class QueryObs extends TimerTask {
