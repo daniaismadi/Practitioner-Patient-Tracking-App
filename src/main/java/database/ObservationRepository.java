@@ -23,13 +23,26 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.descending;
 
+/***
+ * Class for retrieving Observation resource documents from the server and from the local database.
+ *
+ */
 public class ObservationRepository implements ObservationDAO {
 
+    /**
+     * Root URL of the server.
+     */
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
+    /**
+     * Map of Observation types to their LOINC codes.
+     */
     private Map<String, String> observationCodes = new HashMap<String, String>() {{
         put("Cholesterol", "2093-3");
         put("Blood Pressure", "55284-4");
     }};
+    /***
+     * Instance of local MongoDB database.
+     */
     MongoDatabase db;
 
     /***
@@ -292,6 +305,15 @@ public class ObservationRepository implements ObservationDAO {
         return format.parse(dateStr);
     }
 
+    /***
+     * Retrieves cholesterol observations from the server and for each cholesterol observation retrieved, find the
+     * patients associated with this observation and insert their latest measurements for the observations
+     * specified by their LOINC codes in the parameter codes.
+     *
+     * @param codes     the codes for the other types of observations to retrieve
+     * @param count     the number of observations to show per page
+     * @param pageCount the page number on the server to start collecting observations at
+     */
     @Override
     public void insertCholesObsByCodes(ArrayList<String> codes, String count, int pageCount) {
         String obsUrl = rootUrl + "Observation?_count=" + count + "&_sort=-date&code=http%3A%2F%2Floinc.org%7C2093-3" +
@@ -363,7 +385,8 @@ public class ObservationRepository implements ObservationDAO {
 
                 // get patient observations of other measures
                 for (String code : codes) {
-                    insertPatientLatestObsByCode(patientId, code);
+                    insertPatientObsByCode(patientId, code, "1");
+//                    insertPatientLatestObsByCode(patientId, code);
                 }
 
                 System.out.println("Retrieved observation " + obsId);
@@ -378,32 +401,32 @@ public class ObservationRepository implements ObservationDAO {
 //        insertPatientLatestObsByCode(patientId, cholesCode);
 //    }
 
-    public void insertPatientLatestObsByCode(String patientId, String code) {
-        System.out.println("Updating observations for: " + patientId);
-        // just get the latest observation
-        String obsUrl = rootUrl + "Observation?code=" + code + "&patient=" + patientId + "&_sort=-date&_count=1&_format=json";
-        JSONObject observationBundle = null;
-        try {
-            observationBundle = JsonReader.readJsonFromUrl(obsUrl);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            JSONArray observations = observationBundle.getJSONArray("entry");
-            JSONObject entry = observations.getJSONObject(0);
-            // get resource
-            JSONObject resource = entry.getJSONObject("resource");
-            // get observation id
-            String obsId = resource.getString("id");
-            // insert observation to database
-            insertObs(obsId);
-            System.out.println("Successfully added observations for " + patientId);
-            } catch (JSONException e) {
-            // This means this person has no observations yet.
-            System.out.println(patientId + " currently has no observations.");
-        }
-    }
+//    public void insertPatientLatestObsByCode(String patientId, String code) {
+//        System.out.println("Updating observations for: " + patientId);
+//        // just get the latest observation
+//        String obsUrl = rootUrl + "Observation?code=" + code + "&patient=" + patientId + "&_sort=-date&_count=1&_format=json";
+//        JSONObject observationBundle = null;
+//        try {
+//            observationBundle = JsonReader.readJsonFromUrl(obsUrl);
+//        } catch (JSONException | IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            JSONArray observations = observationBundle.getJSONArray("entry");
+//            JSONObject entry = observations.getJSONObject(0);
+//            // get resource
+//            JSONObject resource = entry.getJSONObject("resource");
+//            // get observation id
+//            String obsId = resource.getString("id");
+//            // insert observation to database
+//            insertObs(obsId);
+//            System.out.println("Successfully added observations for " + patientId);
+//            } catch (JSONException e) {
+//            // This means this person has no observations yet.
+//            System.out.println(patientId + " currently has no observations.");
+//        }
+//    }
 
 //    private ArrayList<String> getAllPatientsIdsObs() {
 //        DistinctIterable<String> patients = Mongo.db.getCollection("Observation")
