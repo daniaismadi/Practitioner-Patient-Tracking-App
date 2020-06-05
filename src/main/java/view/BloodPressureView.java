@@ -2,6 +2,7 @@ package view;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
@@ -9,8 +10,8 @@ public class BloodPressureView {
     private JTable bpTable;
     private DefaultTableModel bpTableModel;
     private ArrayList<Patient> monitoredPatients;
-    private JScrollPane highSystolicBP;
     private JPanel BPMonitor;
+    private JPanel highSystolicBP;
     private JButton removeBtn;
     private double systolicBP;
     private double diastolicBP;
@@ -26,6 +27,19 @@ public class BloodPressureView {
         bpTableModel.setRowCount(0);
 
         this.monitoredPatients = new ArrayList<>();
+
+        highSystolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
+    }
+
+    public void addToHighSystolicBP(JTextPane textPane) {
+        highSystolicBP.add(textPane);
+    }
+
+    public void clearHighSystolicBP() {
+        highSystolicBP.getComponentCount();
+        for (int i = highSystolicBP.getComponentCount()-1; i >= 0; i--) {
+            highSystolicBP.remove(i);
+        }
     }
 
     public JPanel getBPMonitor() {
