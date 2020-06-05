@@ -34,7 +34,7 @@ public class LogInController {
                 String hPracId = theView.getIDText();
 
                 // Query server for information about this practitioner.
-                theModel.onStart(hPracId);
+                theModel.onStart(hPracId, theView.fetchNewEncounters(), theView.fetchNewObservations());
 
                 // Move to next page.
                 PatientsView patientsView = new PatientsView(hPracId);

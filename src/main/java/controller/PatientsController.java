@@ -28,7 +28,7 @@ public class PatientsController{
         this.theView = theView;
         this.theModel = theModel;
 
-        this.theView.setSize(500,500);
+        this.theView.setSize(1500,800);
 
         this.theView.addMonitorBtnListener(new MonitorBtnListener());
         this.theView.addRemoveBtnListener(new RemoveBtnListener());

@@ -12,6 +12,8 @@ public class LogInView extends JFrame{
     JLabel header;
     JPanel eastPanel;
     JTextField practitionerId;
+    private JCheckBox fetchNewEncountersCheckBox;
+    private JCheckBox fetchNewObservationsCheckBox;
 
     LogInView() {
 
@@ -28,6 +30,14 @@ public class LogInView extends JFrame{
 
     public void addLogInListener(ActionListener listenForLogInButton) {
         logInButton.addActionListener(listenForLogInButton);
+    }
+
+    public boolean fetchNewEncounters() {
+        return fetchNewEncountersCheckBox.isSelected();
+    }
+
+    public boolean fetchNewObservations() {
+        return fetchNewObservationsCheckBox.isSelected();
     }
 
     public void displayErrorMessage(String errorMessage) {

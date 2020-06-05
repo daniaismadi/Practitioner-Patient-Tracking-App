@@ -24,15 +24,21 @@ public class DBModel {
         this.monitorDAO = new MonitorRepository();
     }
 
-    public void onStart(String hPracId) throws IOException, JSONException {
+    public void onStart(String hPracId, boolean fetchEncounters, boolean fetchObs) throws IOException, JSONException {
 
         String hPracIdentifier = "";
 
         // Try querying from the database first.
         hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
 
-        // If practitioner does not exist, then search for encounters.
         if (hPracIdentifier.equals("")) {
+            // Override both fetchEncounters and fetchObs to true because practitioner does not exist in the database yet.
+            fetchEncounters = true;
+            fetchObs = true;
+        }
+
+        // If fetchEncounters is true, fetch all encounters.
+        if (fetchEncounters) {
             // Log in with practitioner ID (NOT IDENTIFIER).
             // 1. Add practitioner to database.
             practitionerDAO.insertPracById(hPracId);
@@ -43,16 +49,19 @@ public class DBModel {
             encounterDAO.insertEncountersByPrac(hPracIdentifier, patientDAO, practitionerDAO);
         }
 
-        // Get all patients of this practitioner.
-        ArrayList<String> patientIds = getPatientList(hPracId);
+        // If fetchObs is true, fetch latest observations.
+        if (fetchObs) {
+            // Get all patients of this practitioner.
+            ArrayList<String> patientIds = getPatientList(hPracId);
 
-        // Insert required observations.
-//        for (String id : patientIds){
-//            // Insert latest cholesterol observations.
-//            observationDAO.insertCholesterolObs(id, 1);
-//            // Insert the latest 5 blood pressure observations.
-//            observationDAO.insertBPObs(id, 5);
-//        }
+            // Insert required observations.
+            for (String id : patientIds){
+                // Insert latest cholesterol observations.
+                observationDAO.insertCholesterolObs(id, 1);
+                // Insert the latest 5 blood pressure observations.
+                observationDAO.insertBPObs(id, 5);
+            }
+        }
     }
 
     public ArrayList<String> getPatientList(String hPracId) {
