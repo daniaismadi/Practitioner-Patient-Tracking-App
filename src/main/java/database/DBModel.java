@@ -3,8 +3,10 @@ package database;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class DBModel {
 
@@ -45,12 +47,12 @@ public class DBModel {
         ArrayList<String> patientIds = getPatientList(hPracId);
 
         // Insert required observations.
-        for (String id : patientIds){
-            // Insert latest cholesterol observations.
-            observationDAO.insertLatestCholesObs(id);
-            // Insert the latest 5 blood pressure observations.
-            observationDAO.insertPatientObsByCode(id, "55284-4", "5");
-        }
+//        for (String id : patientIds){
+//            // Insert latest cholesterol observations.
+//            observationDAO.insertCholesterolObs(id, 1);
+//            // Insert the latest 5 blood pressure observations.
+//            observationDAO.insertBPObs(id, 5);
+//        }
     }
 
     public ArrayList<String> getPatientList(String hPracId) {
@@ -71,7 +73,7 @@ public class DBModel {
     }
 
     public void updateCholesObs(String patientId) {
-        observationDAO.insertLatestCholesObs(patientId);
+        observationDAO.insertCholesterolObs(patientId, 1);
     }
 
     public String getPatientFName(String patientId) {
@@ -103,11 +105,41 @@ public class DBModel {
     }
 
     public double getPatientLatestCholes(String patientId) {
-        return observationDAO.getLatestCholesVal(patientId);
+        try {
+            // get latest cholesterol observations
+            List<Object[]> cholesterolObs =  observationDAO.getCholesterolObs(patientId, 1);
+
+            if (cholesterolObs.size() == 0) {
+                // patient has no cholesterol observations
+                return 0;
+            }
+
+            // return latest cholesterol observation
+            return (double)cholesterolObs.get(0)[1];
+
+        } catch (ParseException e) {
+            // patient has no cholesterol observations
+            return 0;
+        }
     }
 
     public Date getPatientLatestCholesDate(String patientId) {
-        return observationDAO.getLatestCholesDate(patientId);
+        try {
+            // get latest cholesterol observations
+            List<Object[]> cholesterolObs =  observationDAO.getCholesterolObs(patientId, 1);
+
+            if (cholesterolObs.size() == 0) {
+                // patient has no cholesterol observations
+                return null;
+            }
+
+            // return latest cholesterol observation
+            return (Date)cholesterolObs.get(0)[0];
+
+        } catch (ParseException e) {
+            // patient has no cholesterol observations
+            return null;
+        }
     }
 
     public void insertMonitorPatient(String hPracId, String patientId) {

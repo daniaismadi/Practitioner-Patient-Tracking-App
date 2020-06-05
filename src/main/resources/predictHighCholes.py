@@ -86,6 +86,7 @@ def put_class(row):
 
 by_patient_complete['Class'] = by_patient_complete.apply(put_class, axis=1)
 by_patient_complete = by_patient_complete.drop(columns=["Total Cholesterol"])
+by_patient_complete = by_patient_complete.dropna()
 
 # classifier
 df_info = by_patient_complete
@@ -122,5 +123,5 @@ matrix = confusion_matrix(y_test, predicted)
 accuracy = matrix[0][0]/sum(matrix[0])
 print(accuracy)
 
-sys.exit(0)
+# sys.exit(0)
 

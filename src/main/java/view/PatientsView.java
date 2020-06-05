@@ -54,6 +54,9 @@ public class PatientsView extends JFrame{
         tableModel.addColumn("NAME");
         tableModel.addColumn("TOTAL CHOLESTEROL");
         tableModel.addColumn("TIME");
+        tableModel.addColumn("SYSTOLIC BLOOD PRESSURE");
+        tableModel.addColumn("DIASTOLIC BLOOD PRESSURE");
+        tableModel.addColumn("TIME");
         tableModel.setRowCount(0);
 
     }

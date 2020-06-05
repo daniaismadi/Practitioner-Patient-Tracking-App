@@ -16,23 +16,38 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Sorts.descending;
 
 public class ObservationRepository implements ObservationDAO {
 
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
+    private Map<String, String> observationCodes = new HashMap<String, String>() {{
+        put("Cholesterol", "2093-3");
+        put("Blood Pressure", "55284-4");
+    }};
     MongoDatabase db;
 
+    /***
+     * Class constructor for Observation Repository. Initialises a reference to the local MongoDB database.
+     *
+     */
     public ObservationRepository() {
         this.db = Mongo.db;
     }
 
+    /***
+     * Insert count number of observations, specified by code, of patient with patientId in order of descending
+     * date, i.e., the latest observation first.
+     *
+     * @param patientId     the ID of the patient
+     * @param code          the code that specifies the observation type
+     * @param count         the number of observations to insert
+     */
     @Override
     public void insertPatientObsByCode(String patientId, String code, String count) {
         // Adds all patient observations.
@@ -63,6 +78,218 @@ public class ObservationRepository implements ObservationDAO {
             // This means this person has no observations yet.
             System.out.println(patientId + " currently has no observations.");
         }
+    }
+
+    /***
+     * Retrieve cholesterol observations of patient from the server and insert into the database.
+     *
+     * @param patientId     the ID of the patient
+     * @param count         the number of observations to insert
+     */
+    public void insertCholesterolObs(String patientId, int count) {
+        // Retrieve cholesterol observation code.
+        String code = observationCodes.get("Cholesterol");
+        // Insert cholesterol observations of patient into the database.
+        insertPatientObsByCode(patientId, code, String.valueOf(count));
+    }
+
+    /***
+     * Retrieve blood pressure observations (systolic and diastolic) of patient from the server and insert into
+     * the database.
+     *
+     * @param patientId     the ID of the patient
+     * @param count         the number of observations to insert
+     */
+    public void insertBPObs(String patientId, int count) {
+        // Retrieve blood pressure observation code.
+        String code = observationCodes.get("Blood Pressure");
+        // Insert blood pressure observations of patient into the database.
+        insertPatientObsByCode(patientId, code, String.valueOf(count));
+    }
+
+    /***
+     * Retrieve cholesterol observations of patient from the local database.
+     *
+     * @param patientId     the ID of the patient
+     * @param count         the number of observations to retrieve
+     * @return              a list of an array of objects which is in the format of [Date, Cholesterol Value] sorted in
+     *                      descending order of Date. Date is of type Date and Cholesterol Value is of type double.
+     */
+    public List<Object[]> getCholesterolObs(String patientId, int count) throws ParseException {
+        // Retrieve cholesterol observation code.
+        String code = observationCodes.get("Cholesterol");
+
+        // query for the database
+        MongoCollection<Document> collection = db.getCollection("Observation");
+        Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
+        Bson filterType = eq("code.coding.code", code);
+        Bson filterProjection = fields(include("effectiveDateTime", "valueQuantity", "id"), excludeId());
+        Bson filterSort = descending("effectiveDateTime");
+        Bson filter = and(filterPatient, filterType);
+
+        FindIterable<Document> result = collection.find(filter, Document.class)
+                .projection(fields(filterProjection))
+                .sort(filterSort)
+                .limit(count);
+
+        List<Object[]> observations = new ArrayList<>();
+
+        for (Document doc : result) {
+            // get date of cholesterol observation
+            Date date = getEffectiveDate(doc.get("id", String.class));
+
+            // get value of cholesterol observation
+            Document valueQuantity = doc.get("valueQuantity", Document.class);
+
+            try {
+                double value = valueQuantity.get("value", Double.class);
+                // add to observations list
+                observations.add(new Object[]{date, value});
+            } catch (ClassCastException e) {
+                Integer val = valueQuantity.get("value", Integer.class);
+                double value = (double) val;
+                // add to observations list
+                observations.add(new Object[]{date, value});
+            }
+        }
+
+        // return observation list
+        return observations;
+    }
+
+    /***
+     * Retrieve systolic BP observations of patient from the local database.
+     *
+     * @param patientId     the ID of the patient
+     * @param count         the number of observations to retrieve
+     * @return              a list of an array of objects which is in the format of [Date, Systolic BP Value] sorted
+     *                      in descending order of Date. Date is of type Date and Systolic BP Value is of type
+     *                      double.
+     * @throws ParseException   if a parse exception occurs when retrieving the date
+     */
+    public List<Object[]> getSystolicBPObs(String patientId, int count) throws ParseException {
+        return getBPObs(patientId, "Systolic Blood Pressure", count);
+    }
+
+    /***
+     * Retrieve diastolic BP observations of patient from the local database.
+     *
+     * @param patientId     the ID of the patient
+     * @param count         the number of observations to retrieve
+     * @return              a list of an array of objects which is in the format of [Date, Diastolic BP Value] sorted
+     *                      in descending order of Date. Date is of type Date and Systolic BP Value is of type double.
+     * @throws ParseException   if a parse exception occurs when retrieving the date
+     */
+    public List<Object[]> getDiastolicBPObs(String patientId, int count) throws ParseException {
+        return getBPObs(patientId, "Diastolic Blood Pressure", count);
+    }
+
+    /***
+     * Insert observation into the database.
+     *
+     * @param obsId     the ID of the observation
+     */
+    private void insertObs(String obsId) {
+        String obsUrl = rootUrl + "Observation/" + obsId + "?_format=json";
+        JSONObject json = null;
+        try {
+            json = JsonReader.readJsonFromUrl(obsUrl);
+            Document doc = Document.parse(json.toString());
+
+            Bson filter = Filters.eq("id", obsId);
+            Bson update = new Document("$set", doc);
+            UpdateOptions options = new UpdateOptions().upsert(true);
+
+            db.getCollection("Observation").updateOne(filter, update, options);
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /***
+     * Helper function to retrieve a certain blood pressure values from a blood pressure document in the database.
+     *
+     * @param patientId     the ID of the patient
+     * @param bpType        the type of blood pressure value to obtain, either "Systolic Blood Pressure" or
+     *                      "Diastolic Blood Pressure"
+     * @param count         the number of observations to retrieve
+     * @return              a list of an array of objects which is in the format of [Date, BP Value] sorted in
+     *                      descending order of Date. Date is of type Date and BP value is of type double.
+     * @throws ParseException   if a parse exception occurs when retrieving the date
+     */
+    private List<Object[]> getBPObs(String patientId, String bpType, int count) throws ParseException {
+        // Retrieve blood pressure observation code.
+        String code = observationCodes.get("Blood Pressure");
+
+        // query for the database
+        MongoCollection<Document> collection = db.getCollection("Observation");
+        Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
+        Bson filterType = eq("code.coding.code", code);
+        Bson filterProjection = fields(include("id", "effectiveDateTime", "component"), excludeId());
+        Bson filterSort = descending("effectiveDateTime");
+        Bson filter = and(filterPatient, filterType);
+
+        FindIterable<Document> result = collection.find(filter, Document.class)
+                .projection(fields(filterProjection))
+                .sort(filterSort)
+                .limit(count);
+
+        List<Object[]> observations = new ArrayList<>();
+
+        for (Document doc : result) {
+            // get date of blood pressure observation
+            Date date = getEffectiveDate(doc.get("id", String.class));
+
+            // get systolic bp
+            ArrayList<Document> component = doc.get("component", ArrayList.class);
+
+            for (Document obs : component) {
+                Document componentCode = obs.get("code", Document.class);
+                String obsType = componentCode.get("text", String.class);
+                if (obsType.equalsIgnoreCase(bpType)) {
+                    // Value is stored inside valueQuantity.
+                    Document valueQuantity = obs.get("valueQuantity", Document.class);
+                    try {
+                        double value = valueQuantity.get("value", Double.class);
+                        // add to observations list
+                        observations.add(new Object[]{date, value});
+                    } catch (ClassCastException e) {
+                        Integer val = valueQuantity.get("value", Integer.class);
+                        double value = (double) val;
+                        // add to observations list
+                        observations.add(new Object[]{date, value});
+                    }
+                }
+            }
+
+        }
+
+        // return observation list
+        return observations;
+    }
+
+    /***
+     * Helper function to retrieve the effective date time of an observation.
+     *
+     * @param obsId     the ID of the observation
+     * @return          the formatted effective date time of the observation
+     * @throws ParseException   if there is an error in parsing the SimpleDateFormat
+     */
+    private Date getEffectiveDate(String obsId) throws ParseException {
+        MongoCollection<Document> collection = db.getCollection("Observation");
+        Bson filter = eq("id", obsId);
+        FindIterable<Document> result = collection.find(filter, Document.class)
+                .projection(fields(include("effectiveDateTime"), excludeId()));
+
+        String dateStr = "";
+
+        for (Document doc : result) {
+            dateStr = doc.get("effectiveDateTime", String.class);
+        }
+
+        // 1999-08-24T15:48:33+10:00
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        return format.parse(dateStr);
     }
 
     @Override
@@ -146,13 +373,11 @@ public class ObservationRepository implements ObservationDAO {
         }
     }
 
-    @Override
-    public void insertLatestCholesObs(String patientId) {
-        String cholesCode = "2093-3";
-        insertPatientLatestObsByCode(patientId, cholesCode);
-    }
+//    private void insertLatestCholesObs(String patientId) {
+//        String cholesCode = "2093-3";
+//        insertPatientLatestObsByCode(patientId, cholesCode);
+//    }
 
-    @Override
     public void insertPatientLatestObsByCode(String patientId, String code) {
         System.out.println("Updating observations for: " + patientId);
         // just get the latest observation
@@ -180,158 +405,123 @@ public class ObservationRepository implements ObservationDAO {
         }
     }
 
-    @Override
-    public void insertObs(String obsId) {
-        String obsUrl = rootUrl + "Observation/" + obsId + "?_format=json";
-        JSONObject json = null;
-        try {
-            json = JsonReader.readJsonFromUrl(obsUrl);
-            Document doc = Document.parse(json.toString());
+//    private ArrayList<String> getAllPatientsIdsObs() {
+//        DistinctIterable<String> patients = Mongo.db.getCollection("Observation")
+//                .distinct("subject.reference", null, String.class);
+//
+//        ArrayList<String> patientIds = new ArrayList<>();
+//
+//        for (String id : patients) {
+//            id = id.replace("Patient/", "");
+//            patientIds.add(id);
+//        }
+//
+//        return patientIds;
+//    }
 
-            Bson filter = Filters.eq("id", obsId);
-            Bson update = new Document("$set", doc);
-            UpdateOptions options = new UpdateOptions().upsert(true);
+//    @Override
+//    public Date getLatestCholesDate(String patientId) {
+//        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
+//        return getLatestObsDate(allCholesObs);
+//    }
+//
+//    @Override
+//    public double getLatestCholesVal(String patientId) {
+//        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
+//        return getLatestObsVal(allCholesObs);
+//    }
 
-            db.getCollection("Observation").updateOne(filter, update, options);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    private ArrayList<String> getAllObsByCode(String patientId, String code) {
+//        MongoCollection<Document> collection = db.getCollection("Observation");
+//        Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
+//        Bson filterType = eq("code.coding.code", code);
+//        Bson filter = and(filterPatient, filterType);
+//
+//        FindIterable<Document> result = collection.find(filter, Document.class)
+//                .projection(fields(include("id"), excludeId()));
+//
+//        ArrayList<String> observations = new ArrayList<>();
+//
+//        for (Document doc : result) {
+//            observations.add(doc.get("id", String.class));
+//        }
+//
+//        return observations;
+//    }
 
-    private ArrayList<String> getAllPatientsIdsObs() {
-        DistinctIterable<String> patients = Mongo.db.getCollection("Observation")
-                .distinct("subject.reference", null, String.class);
+//    private ArrayList<String> getAllCholesObs(String patientId) {
+//        String cholesCode = "2093-3";
+//        return getAllObsByCode(patientId, cholesCode);
+//    }
 
-        ArrayList<String> patientIds = new ArrayList<>();
+//    private double getObsValue(String obsId) {
+//        MongoCollection<Document> collection = db.getCollection("Observation");
+//        Bson filter = eq("id", obsId);
+//        FindIterable<Document> result = collection.find(filter, Document.class)
+//                .projection(fields(include("valueQuantity"), excludeId()));
+//
+//        double value = 0;
+//
+//        for (Document doc : result) {
+//            Document valueQuantity = doc.get("valueQuantity", Document.class);
+//            Document valueQuantityParsed = Document.parse(valueQuantity.toJson());
+//
+//            try {
+//                value = valueQuantityParsed.get("value", Double.class);
+//            } catch (ClassCastException e) {
+//                Integer val = valueQuantityParsed.get("value", Integer.class);
+//                value = (double) val;
+//            }
+//        }
+//
+//        return value;
+//    }
 
-        for (String id : patients) {
-            id = id.replace("Patient/", "");
-            patientIds.add(id);
-        }
-
-        return patientIds;
-    }
-
-    @Override
-    public Date getLatestCholesDate(String patientId) {
-        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
-        return getLatestObsDate(allCholesObs);
-    }
-
-    @Override
-    public double getLatestCholesVal(String patientId) {
-        ArrayList<String> allCholesObs = getAllCholesObs(patientId);
-        return getLatestObsVal(allCholesObs);
-    }
-
-    private ArrayList<String> getAllObsByCode(String patientId, String code) {
-        MongoCollection<Document> collection = db.getCollection("Observation");
-        Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
-        Bson filterType = eq("code.coding.code", code);
-        Bson filter = and(filterPatient, filterType);
-
-        FindIterable<Document> result = collection.find(filter, Document.class)
-                .projection(fields(include("id"), excludeId()));
-
-        ArrayList<String> observations = new ArrayList<>();
-
-        for (Document doc : result) {
-            observations.add(doc.get("id", String.class));
-        }
-
-        return observations;
-    }
-
-    private ArrayList<String> getAllCholesObs(String patientId) {
-        String cholesCode = "2093-3";
-        return getAllObsByCode(patientId, cholesCode);
-    }
-
-    private double getObsValue(String obsId) {
-        MongoCollection<Document> collection = db.getCollection("Observation");
-        Bson filter = eq("id", obsId);
-        FindIterable<Document> result = collection.find(filter, Document.class)
-                .projection(fields(include("valueQuantity"), excludeId()));
-
-        double value = 0;
-
-        for (Document doc : result) {
-            Document valueQuantity = doc.get("valueQuantity", Document.class);
-            Document valueQuantityParsed = Document.parse(valueQuantity.toJson());
-
-            try {
-                value = valueQuantityParsed.get("value", Double.class);
-            } catch (ClassCastException e) {
-                Integer val = valueQuantityParsed.get("value", Integer.class);
-                value = (double) val;
-            }
-        }
-
-        return value;
-    }
-
-    private Date getEffectiveDate(String obsId) throws ParseException {
-        MongoCollection<Document> collection = db.getCollection("Observation");
-        Bson filter = eq("id", obsId);
-        FindIterable<Document> result = collection.find(filter, Document.class)
-                .projection(fields(include("effectiveDateTime"), excludeId()));
-
-        String dateStr = "";
-
-        for (Document doc : result) {
-            dateStr = doc.get("effectiveDateTime", String.class);
-        }
-
-        // 1999-08-24T15:48:33+10:00
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        return format.parse(dateStr);
-    }
-
-    private Date getLatestObsDate(ArrayList<String> obsIds) {
-        if (obsIds.size() == 0) {
-            // Patient does not have any observations.
-            return null;
-        }
-
-        Date latestDate = new Date(Long.MIN_VALUE);
-
-        for (String obsId : obsIds) {
-            try {
-                // this means that getEffectiveDate occurs after latestDate
-                if (getEffectiveDate(obsId).compareTo(latestDate) > 0) {
-                    // update latestDate
-                    latestDate = getEffectiveDate(obsId);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return latestDate;
-    }
-
-    private double getLatestObsVal(ArrayList<String> obsIds) {
-        if (obsIds.size() == 0) {
-            // Patient does not have any cholesterol observations.
-            return 0;
-        }
-
-        Date latestDate = new Date(Long.MIN_VALUE);
-        double val = 0;
-
-        for (String obsId : obsIds) {
-            try {
-                // this means that getEffectiveDate occurs after latestDate
-                if (getEffectiveDate(obsId).compareTo(latestDate) > 0) {
-                    // update latestDate
-                    latestDate = getEffectiveDate(obsId);
-                    val = getObsValue(obsId);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return val;
-    }
+//    private Date getLatestObsDate(ArrayList<String> obsIds) {
+//        if (obsIds.size() == 0) {
+//            // Patient does not have any observations.
+//            return null;
+//        }
+//
+//        Date latestDate = new Date(Long.MIN_VALUE);
+//
+//        for (String obsId : obsIds) {
+//            try {
+//                // this means that getEffectiveDate occurs after latestDate
+//                if (getEffectiveDate(obsId).compareTo(latestDate) > 0) {
+//                    // update latestDate
+//                    latestDate = getEffectiveDate(obsId);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return latestDate;
+//    }
+//
+//    private double getLatestObsVal(ArrayList<String> obsIds) {
+//        if (obsIds.size() == 0) {
+//            // Patient does not have any cholesterol observations.
+//            return 0;
+//        }
+//
+//        Date latestDate = new Date(Long.MIN_VALUE);
+//        double val = 0;
+//
+//        for (String obsId : obsIds) {
+//            try {
+//                // this means that getEffectiveDate occurs after latestDate
+//                if (getEffectiveDate(obsId).compareTo(latestDate) > 0) {
+//                    // update latestDate
+//                    latestDate = getEffectiveDate(obsId);
+//                    val = getObsValue(obsId);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return val;
+//    }
 }

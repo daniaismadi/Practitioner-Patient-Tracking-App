@@ -14,7 +14,7 @@ public class DatabaseDriver {
     // To test queries.
     private static PatientRepository patientDAO;
     private static PractitionerDAO practitionerDAO;
-    private static ObservationDAO observationDAO;
+    private static ObservationRepository observationDAO;
     private static EncounterDAO encounterDAO;
     private static MonitorDAO monitorDAO;
 
