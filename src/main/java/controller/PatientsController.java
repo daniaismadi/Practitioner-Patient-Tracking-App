@@ -28,20 +28,16 @@ public class PatientsController{
         this.theView = theView;
         this.theModel = theModel;
 
-        this.theView.setSize(400,300);
+        this.theView.setSize(500,500);
 
         this.theView.addMonitorBtnListener(new MonitorBtnListener());
         this.theView.addRemoveBtnListener(new RemoveBtnListener());
         this.theView.addQueryBtnListener(new QueryBtnListener());
-        this.theView.addSystolicBPBtnListener(new SystolicBPBtnListener());
-        this.theView.addDiastolicBPBtnListener(new DiastolicBPBtnListener());
     }
 
     public void onStart(String hPracId) {
 
         theView.setAvgCholes(Double.POSITIVE_INFINITY);
-        theView.setDiastolicBP(Double.POSITIVE_INFINITY);
-        theView.setSystolicBP(Double.POSITIVE_INFINITY);
         theView.setPatientListModel(theView.getDefaultPatientList());
 
         // update patient list
@@ -51,10 +47,6 @@ public class PatientsController{
         // update monitored table
         List<Patient> monitoredPatients = theView.getMonitoredPatients();
         addToMonitoredPatientTable(monitoredPatients);
-
-        // new autosave timer, save every 5 minutes
-        autosave = new java.util.Timer();
-        autosave.schedule(new AutoSave(), 0, 5*10000);
 
         // new query timer, set to 30 seconds at first
         queryTimer = new java.util.Timer();
@@ -84,7 +76,7 @@ public class PatientsController{
     }
 
     private void createPatients(List<String> patientIds) {
-        ArrayList<String> monitoredIds = theModel.getMonitoredPatients(theView.gethPracId());
+//        ArrayList<String> monitoredIds = theModel.getMonitoredPatients(theView.gethPracId());
 
         for (int i = 0; i < patientIds.size(); i++) {
             String patientId = patientIds.get(i);
@@ -111,11 +103,6 @@ public class PatientsController{
 
             // Add to default model list.
             theView.addToPutList(patient);
-
-            // if id is in monitored list, add to monitored list
-            if (monitoredIds.contains(patientId) && !checkPatientAdded(patient)) {
-                theView.addMonitoredPatient(patient);
-            }
         }
     }
 
@@ -164,11 +151,8 @@ public class PatientsController{
 
         for (int i = 0; i < p.size(); i++) {
             String cholesterol = "-";
-            String systolicBP = "-";
-            String diastolicBP = "-";
 
             String cholesterolDate = "-";
-            String bpDate = "-";
 
             Patient patient = p.get(i);
 
@@ -181,29 +165,11 @@ public class PatientsController{
                 ex.printStackTrace();
             }
 
-            // add latest systolic blood pressure value
-            try {
-                systolicBP = (double)patient.getSystolicBPs().get(0)[1] + " mmHg";
-            } catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
-            }
-
-            // add latest diastolic blood pressure value
-            try {
-                diastolicBP = (double)patient.getDiastolicBPs().get(0)[1] + " mmHg";
-                bpDate = convertDateToString((Date)patient.getDiastolicBPs().get(0)[0]);
-            } catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
-            }
-
-            theView.addRowToTableModel(new Object[]{patient.toString(), cholesterol, cholesterolDate,
-                    systolicBP, diastolicBP, bpDate});
+            theView.addRowToTableModel(new Object[]{patient.toString(), cholesterol, cholesterolDate});
 
         }
         calculateCholesAverage();
         theView.updateCholesterolColumn();
-        theView.updateSystolicColumn();
-        theView.updateDiastolicColumn();
     }
 
     private String convertDateToString(Date date) {
@@ -218,17 +184,19 @@ public class PatientsController{
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            // Update the view.
-            List<Patient> p = theView.getPatientList().getSelectedValuesList();
-            List<Patient> toAdd = new ArrayList<>();
-            for (Patient patient : p) {
-                if (!checkPatientAdded(patient)) {
-                    theView.addMonitoredPatient(patient);
-                    toAdd.add(patient);
+            if (theView.monitorCholesterol()) {
+                // Update the view.
+                List<Patient> p = theView.getPatientList().getSelectedValuesList();
+                List<Patient> toAdd = new ArrayList<>();
+                for (Patient patient : p) {
+                    if (!checkPatientAdded(patient)) {
+                        theView.addMonitoredPatient(patient);
+                        toAdd.add(patient);
+                    }
                 }
+                System.out.println(theView.getMonitoredPatients());
+                addToMonitoredPatientTable(toAdd);
             }
-            System.out.println(theView.getMonitoredPatients());
-            addToMonitoredPatientTable(toAdd);
         }
     }
 
@@ -274,34 +242,6 @@ public class PatientsController{
 
     }
 
-    private class SystolicBPBtnListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                double systolicBP = Double.parseDouble(theView.getSystolicBPTxt());
-                theView.setSystolicBP(systolicBP);
-                theView.updateSystolicColumn();
-            } catch (NumberFormatException ex) {
-                theView.displayErrorMessage("Please enter a valid input for systolic blood pressure.");
-            }
-        }
-    }
-
-    private class DiastolicBPBtnListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                double diastolicBP = Double.parseDouble(theView.getDiastolicBPTxt());
-                theView.setDiastolicBP(diastolicBP);
-                theView.updateDiastolicColumn();
-            } catch (NumberFormatException ex) {
-                theView.displayErrorMessage("Please enter a valid input for diastolic blood pressure.");
-            }
-        }
-    }
-
     private class QueryObs extends TimerTask {
 
         @Override
@@ -329,37 +269,6 @@ public class PatientsController{
 
             // update table
             theView.updateCholesterolColumn();
-        }
-    }
-
-    private class AutoSave extends TimerTask {
-
-        @Override
-        public void run() {
-            System.out.println("Autosave executed");
-            ArrayList<Patient> monitorPatients = theView.getMonitoredPatients();
-            ArrayList<String> monitorIds = new ArrayList<>();
-
-            // find unique patients to add
-            ArrayList<String> toAdd = new ArrayList<>();
-            for (Patient p : monitorPatients) {
-                monitorIds.add(p.getId());
-
-                if (!toAdd.contains(p.getId())) {
-                    toAdd.add(p.getId());
-                    theModel.insertMonitorPatient(theView.gethPracId(), p.getId());
-                }
-            }
-
-            ArrayList<String> patientsInDB = theModel.getMonitoredPatients(theView.gethPracId());
-
-            // remove patients
-            for (String p : patientsInDB) {
-                if (!monitorIds.contains(p)) {
-                    theModel.removeMonitorPatient(theView.gethPracId(), p);
-                }
-            }
-
         }
     }
 }

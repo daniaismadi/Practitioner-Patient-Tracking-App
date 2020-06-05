@@ -17,7 +17,7 @@ public class SystolicBPRenderer extends DefaultTableCellRenderer {
 
         Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        String bpVal = (String) table.getModel().getValueAt(row, 3);
+        String bpVal = (String) table.getModel().getValueAt(row, 1);
         bpVal = bpVal.replace(" mmHg", "");
 
         try {

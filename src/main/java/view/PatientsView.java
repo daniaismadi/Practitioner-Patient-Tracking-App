@@ -31,14 +31,14 @@ public class PatientsView extends JFrame{
     private JButton setDiastolicBPBtn;
     private JTextField systolicBPTxt;
     private JButton setSystolicBPBtn;
+    private JRadioButton monitorCholesterolBtn;
+    private JRadioButton monitorBPBtn;
     private DefaultListModel<Patient> defaultPatientList;
     private DefaultTableModel tableModel;
     private String arg;
     private JFrame currentFrame;
     private String hPracId;
     private double avgCholes;
-    private double systolicBP;
-    private double diastolicBP;
     private int queryTime = 10;
 
     private ArrayList<Patient> monitoredPatients;
@@ -60,27 +60,20 @@ public class PatientsView extends JFrame{
         tableModel.addColumn("NAME");
         tableModel.addColumn("TOTAL CHOLESTEROL");
         tableModel.addColumn("TIME");
-        tableModel.addColumn("SYSTOLIC BLOOD PRESSURE");
-        tableModel.addColumn("DIASTOLIC BLOOD PRESSURE");
-        tableModel.addColumn("TIME");
         tableModel.setRowCount(0);
 
     }
 
-    public double getSystolicBP() {
-        return systolicBP;
+    public void addTabPane(String tabName, JPanel newPanel) {
+        Monitor.add(tabName, newPanel);
     }
 
-    public void setSystolicBP(double systolicBP) {
-        this.systolicBP = systolicBP;
+    public boolean monitorCholesterol() {
+        return monitorCholesterolBtn.isSelected();
     }
 
-    public double getDiastolicBP() {
-        return diastolicBP;
-    }
-
-    public void setDiastolicBP(double diastolicBP) {
-        this.diastolicBP = diastolicBP;
+    public boolean monitorBP() {
+        return monitorBPBtn.isSelected();
     }
 
     public ArrayList<Patient> getMonitoredPatients() {
@@ -104,16 +97,7 @@ public class PatientsView extends JFrame{
     }
 
     public void updateCholesterolColumn() {
-//        monTable.getColumnModel().getColumn(0).setCellRenderer(new HighlightCholesRenderer(avgCholes));
         monTable.getColumnModel().getColumn(1).setCellRenderer(new HighlightCholesRenderer(avgCholes));
-    }
-
-    public void updateSystolicColumn() {
-        monTable.getColumnModel().getColumn(3).setCellRenderer(new SystolicBPRenderer(systolicBP));
-    }
-
-    public void updateDiastolicColumn() {
-        monTable.getColumnModel().getColumn(4).setCellRenderer(new DiastolicBPRenderer(diastolicBP));
     }
 
     public JList<Patient> getPatientList() {
@@ -152,18 +136,6 @@ public class PatientsView extends JFrame{
         this.state.setText("State");
     }
 
-    void addRowSelectionInterval(int i, int j) {
-        this.monTable.addRowSelectionInterval(i, j);
-    }
-
-    void removeRowSelectionInterval(int i, int j) {
-        this.monTable.removeRowSelectionInterval(i, j);
-    }
-
-    void setTableForegroundColor(Color color) {
-        this.monTable.setForeground(color);
-    }
-
     public void addToPutList(Patient patient) {
         this.defaultPatientList.addElement(patient);
     }
@@ -192,16 +164,8 @@ public class PatientsView extends JFrame{
         return hPracId;
     }
 
-    public void sethPracId(String hPracId) {
-        this.hPracId = hPracId;
-    }
-
     public void setPatientListModel(DefaultListModel model) {
         this.patientList.setModel(defaultPatientList);
-    }
-
-    public double getAvgCholes() {
-        return avgCholes;
     }
 
     public void setAvgCholes(double avgCholes) {

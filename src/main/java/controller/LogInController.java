@@ -1,6 +1,7 @@
 package controller;
 
 import database.DBModel;
+import view.BloodPressureView;
 import view.LogInView;
 import view.PatientsView;
 
@@ -36,15 +37,24 @@ public class LogInController {
                 theModel.onStart(hPracId);
 
                 // Move to next page.
-                PatientsView newView = new PatientsView(hPracId);
-                PatientsController patientsController = new PatientsController(newView, theModel);
+                PatientsView patientsView = new PatientsView(hPracId);
+
+                // Add new Blood Pressure view.
+                BloodPressureView bloodPressureView = new BloodPressureView();
+                BPMonitorController bpMonitorController = new BPMonitorController(bloodPressureView, theModel);
+                // Give Blood Pressure pane access to information in PatientsView.
+                bpMonitorController.setPatientsView(patientsView);
+                // Add to tab pane of original view.
+                patientsView.addTabPane("Blood Pressure", bloodPressureView.getBPMonitor());
+
+                PatientsController patientsController = new PatientsController(patientsView, theModel);
                 patientsController.onStart(hPracId);
 
                 // Set current visibility to false.
                 theView.setVisible(false);
 
                 // Set next view visibility to true.
-                newView.setVisible(true);
+                patientsView.setVisible(true);
 
 
             } catch (Exception ex) {
