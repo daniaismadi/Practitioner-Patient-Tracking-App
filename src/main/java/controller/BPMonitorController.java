@@ -16,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.swing.BorderFactory;
 
 import static javax.swing.BorderFactory.createLineBorder;
 
@@ -91,24 +90,37 @@ public class BPMonitorController {
 
     private void addHighSysBPObs(List<JTextPane> jTextPanes) {
         for (JTextPane jTextPane : jTextPanes) {
-            bpView.addToHighSystolicBP(jTextPane);
+            bpView.addToHighSystolicBPObs(jTextPane);
         }
     }
 
-    private List<JTextPane> createSysBPTextPanes(List<Patient> patientList) {
+    private void addHighDiastolicBPObs(List<JTextPane> jTextPanes) {
+        for (JTextPane jTextPane : jTextPanes) {
+            bpView.addToHighDiastolicBPObs(jTextPane);
+        }
+    }
+
+    private List<JTextPane> createSysBPTextPanes(List<Patient> patientList, String type) {
         List<JTextPane> textPanes = new ArrayList<>();
 
         for (Patient p : patientList) {
-            List<Object[]> systolicBPs = p.getSystolicBPs();
+
+            List<Object[]> bps;
+
+            if (type.equalsIgnoreCase("systolic")) {
+                bps = p.getSystolicBPs();
+            } else {
+                bps = p.getDiastolicBPs();
+            }
 
             // Create JTextPane.
             JTextPane textPane = new JTextPane();
-            textPane.setText("\n"+p.toString()+"\n");
+            textPane.setText("\n     "+p.toString()+"\n");
             StyledDocument doc = textPane.getStyledDocument();
 
-            for (Object[] observation : systolicBPs) {
-                String date = "\n\tDate: " + convertDateToString((Date)observation[0]);
-                String value = ", Value: " + observation[1] + " mmHg";
+            for (Object[] observation : bps) {
+                String date = "\n     Date: " + convertDateToString((Date)observation[0]);
+                String value = ", Value: " + observation[1] + " mmHg     ";
 
                 try {
                     doc.insertString(doc.getLength(), date + value, null);
@@ -155,6 +167,29 @@ public class BPMonitorController {
         return patientList;
     }
 
+    private List<Patient> getHighDiastolicBPs(double diastolicBPThreshold) {
+        List<Patient> patientList = new ArrayList<>();
+        ArrayList<Patient> monitoredPatients = bpView.getMonitoredPatients();
+
+        for (Patient p : monitoredPatients) {
+            // get latest systolic blood pressure measurements
+            List<Object[]> diastolicBPs = p.getDiastolicBPs();
+
+            // ensure patient has at least one systolic blood pressure measurement
+            if (diastolicBPs.size() > 0) {
+                // get latest observation
+                double diastolicBP = (double)diastolicBPs.get(0)[1];
+
+                // if latestVal is higher then threshold, this person has high systolic BP
+                if (diastolicBP > diastolicBPThreshold) {
+                    patientList.add(p);
+                }
+            }
+        }
+
+        return patientList;
+    }
+
     private class BPMonitorBtnListener implements ActionListener {
 
         @Override
@@ -172,6 +207,7 @@ public class BPMonitorController {
                 System.out.println(bpView.getMonitoredPatients());
                 addToBPTable(newPatientsToMonitor);
                 updateHighSystolicBP();
+                updateHighDiastolicBP();
             }
         }
     }
@@ -187,6 +223,7 @@ public class BPMonitorController {
                 Patient p = bpView.getMonitoredPatients().get(row);
                 bpView.removePatientFromMonitor(p);
                 updateHighSystolicBP();
+                updateHighDiastolicBP();
                 bpView.getBPMonitor().revalidate();
                 System.out.println(bpView.getMonitoredPatients());
             }
@@ -198,11 +235,21 @@ public class BPMonitorController {
     private void updateHighSystolicBP() {
         // Update High Systolic BP Monitor.
         List<Patient> patientList = getHighSystolicBPs(bpView.getSystolicBP());
-        List<JTextPane> textPanes = createSysBPTextPanes(patientList);
+        List<JTextPane> textPanes = createSysBPTextPanes(patientList, "systolic");
         // clear current high systolic bp view.
-        bpView.clearHighSystolicBP();
+        bpView.clearHighSystolicBPObs();
         // update view.
         addHighSysBPObs(textPanes);
+    }
+
+    private void updateHighDiastolicBP() {
+        // Update High Diastolic BP Monitor.
+        List<Patient> patientList = getHighDiastolicBPs(bpView.getDiastolicBP());
+        List<JTextPane> textPanes = createSysBPTextPanes(patientList, "diastolic");
+        // clear current high systolic bp view.
+        bpView.clearHighDiastolicBPObs();
+        // update view.
+        addHighDiastolicBPObs(textPanes);
     }
 
     private class SystolicBPBtnListener implements ActionListener {
@@ -230,6 +277,9 @@ public class BPMonitorController {
                 double diastolicBP = Double.parseDouble(patientsView.getDiastolicBPTxt());
                 bpView.setDiastolicBP(diastolicBP);
                 bpView.updateDiastolicColumn();
+
+                updateHighDiastolicBP();
+
             } catch (NumberFormatException ex) {
                 patientsView.displayErrorMessage("Please enter a valid input for diastolic blood pressure.");
             }

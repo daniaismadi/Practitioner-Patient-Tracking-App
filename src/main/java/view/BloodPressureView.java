@@ -13,6 +13,7 @@ public class BloodPressureView {
     private JPanel BPMonitor;
     private JPanel highSystolicBP;
     private JButton removeBtn;
+    private JPanel highDiastolicBP;
     private double systolicBP;
     private double diastolicBP;
 
@@ -29,16 +30,29 @@ public class BloodPressureView {
         this.monitoredPatients = new ArrayList<>();
 
         highSystolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
+        highDiastolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1
+        ));
     }
 
-    public void addToHighSystolicBP(JTextPane textPane) {
+    public void addToHighSystolicBPObs(JTextPane textPane) {
         highSystolicBP.add(textPane);
     }
 
-    public void clearHighSystolicBP() {
+    public void addToHighDiastolicBPObs(JTextPane textPane) {
+        highDiastolicBP.add(textPane);
+    }
+
+    public void clearHighSystolicBPObs() {
         highSystolicBP.getComponentCount();
         for (int i = highSystolicBP.getComponentCount()-1; i >= 0; i--) {
             highSystolicBP.remove(i);
+        }
+    }
+
+    public void clearHighDiastolicBPObs() {
+        highDiastolicBP.getComponentCount();
+        for (int i = highDiastolicBP.getComponentCount()-1; i >= 0; i--) {
+            highDiastolicBP.remove(i);
         }
     }
 
