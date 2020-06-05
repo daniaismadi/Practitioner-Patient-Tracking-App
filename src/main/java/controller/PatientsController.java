@@ -212,7 +212,6 @@ public class PatientsController{
                 // remove monitored patient
                 Patient p = theView.getMonitoredPatients().get(row);
                 theView.removeMonitoredPatient(row);
-                theModel.removeMonitorPatient(theView.gethPracId(), p.getId());
                 theView.extraInfoInitialState();
             }
             catch (Exception k){
@@ -255,6 +254,7 @@ public class PatientsController{
 
                 // update observations
                 theModel.updateCholesObs(patientId);
+                theModel.updateBPObs(patientId);
 
                 // update latest cholesterol value
                 double latestCholes = theModel.getPatientLatestCholes(patientId);
@@ -263,6 +263,13 @@ public class PatientsController{
                 // update latest cholesterol date
                 Date latestDate = theModel.getPatientLatestCholesDate(patientId);
                 p.setLatestCholesterolDate(latestDate);
+
+                // update 5 latest systolic BPs
+                p.setSystolicBPs(theModel.getPatientSystolicBPs(patientId, 5));
+
+                // update 5 latest diastolic BPs
+                p.setDiastolicBPs(theModel.getPatientDiastolicBPs(patientId, 5));
+
             }
             // calculate new average
             calculateCholesAverage();

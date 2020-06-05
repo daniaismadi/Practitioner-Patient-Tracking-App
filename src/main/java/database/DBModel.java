@@ -85,6 +85,10 @@ public class DBModel {
         observationDAO.insertCholesterolObs(patientId, 1);
     }
 
+    public void updateBPObs(String patientId) {
+        observationDAO.insertBPObs(patientId, 5);
+    }
+
     public String getPatientFName(String patientId) {
         return patientDAO.getPatientFName(patientId);
     }
