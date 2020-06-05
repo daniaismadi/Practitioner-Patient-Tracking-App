@@ -4,12 +4,12 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 
-public class HighlightCholesRenderer extends DefaultTableCellRenderer {
+public class SystolicBPRenderer extends DefaultTableCellRenderer {
 
-    double cholesAvg;
+    double systolicBP;
 
-    public HighlightCholesRenderer(double cholesAvg) {
-        this.cholesAvg = cholesAvg;
+    public SystolicBPRenderer(double systolicBP) {
+        this.systolicBP = systolicBP;
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
@@ -17,14 +17,15 @@ public class HighlightCholesRenderer extends DefaultTableCellRenderer {
 
         Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        String cholesStr = (String) table.getModel().getValueAt(row, 1);
-        cholesStr = cholesStr.replace(" mg/dL", "");
+        String bpVal = (String) table.getModel().getValueAt(row, 3);
+        bpVal = bpVal.replace(" mmHg", "");
 
         try {
-            double choles = Double.valueOf(cholesStr);
+            double sysBp = Double.valueOf(bpVal);
 
-            if (choles > cholesAvg) {
-                cell.setForeground(new Color(255, 99, 71));
+            if (sysBp > systolicBP) {
+                // highlight colour to purple
+                cell.setForeground(new Color(138, 43, 226));
             } else {
                 cell.setForeground(Color.black);
             }
@@ -34,5 +35,4 @@ public class HighlightCholesRenderer extends DefaultTableCellRenderer {
 
         return cell;
     }
-
 }

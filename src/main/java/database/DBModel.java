@@ -142,6 +142,42 @@ public class DBModel {
         }
     }
 
+    /***
+     * Retrieve latest k number of systolic blood pressure measurements of patient, where k is count.
+     *
+     * @param patientId     The ID of the patient
+     * @param count         The number of blood pressure measurements to retrieve
+     * @return              A list of an array of objects which is in the format of [Date, Systolic BP Value] sorted
+     *                      in descending order of Date. Date is of type Date and Systolic BP Value is of type
+     *                      double.
+     */
+    public List<Object[]> getPatientSystolicBPs(String patientId, int count) {
+        try {
+            return observationDAO.getSystolicBPObs(patientId, count);
+        } catch (ParseException e) {
+            // return empty list
+            return new ArrayList<Object[]>(){};
+        }
+    }
+
+    /***
+     * Retrieve latest k number of diastolic blood pressure measurements of patient, where k is count.
+     *
+     * @param patientId     The ID of the patient
+     * @param count         The number of blood pressure measurements to retrieve
+     * @return              A list of an array of objects which is in the format of [Date, Diastolic BP Value] sorted
+     *                      in descending order of Date. Date is of type Date and Diastolic BP Value is of type
+     *                      double.
+     */
+    public List<Object[]> getPatientDiastolicBPs(String patientId, int count) {
+        try {
+            return observationDAO.getDiastolicBPObs(patientId, count);
+        } catch (ParseException e) {
+            // return empty list
+            return new ArrayList<Object[]>(){};
+        }
+    }
+
     public void insertMonitorPatient(String hPracId, String patientId) {
         String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
         monitorDAO.insertPatient(hPracId, hPracIdentifier, patientId);

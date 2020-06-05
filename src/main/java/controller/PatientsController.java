@@ -33,11 +33,15 @@ public class PatientsController{
         this.theView.addMonitorBtnListener(new MonitorBtnListener());
         this.theView.addRemoveBtnListener(new RemoveBtnListener());
         this.theView.addQueryBtnListener(new QueryBtnListener());
+        this.theView.addSystolicBPBtnListener(new SystolicBPBtnListener());
+        this.theView.addDiastolicBPBtnListener(new DiastolicBPBtnListener());
     }
 
     public void onStart(String hPracId) {
 
         theView.setAvgCholes(Double.POSITIVE_INFINITY);
+        theView.setDiastolicBP(Double.POSITIVE_INFINITY);
+        theView.setSystolicBP(Double.POSITIVE_INFINITY);
         theView.setPatientListModel(theView.getDefaultPatientList());
 
         // update patient list
@@ -74,8 +78,6 @@ public class PatientsController{
                             theView.addExtraInfo(p.getBirthDate(),p.getGender(),p.getCountry(),p.getCity(),p.getState());
                         }
                     }
-
-
                 }
             }
         });
@@ -102,6 +104,11 @@ public class PatientsController{
             patient.setTotalCholesterol(theModel.getPatientLatestCholes(patientId));
             patient.setLatestCholesterolDate(theModel.getPatientLatestCholesDate(patientId));
 
+            // set latest 5 systolic blood pressure measurements
+            patient.setSystolicBPs(theModel.getPatientSystolicBPs(patientId, 5));
+            // set latest 5 diastolic blood pressure measurements
+            patient.setDiastolicBPs(theModel.getPatientDiastolicBPs(patientId, 5));
+
             // Add to default model list.
             theView.addToPutList(patient);
 
@@ -121,6 +128,7 @@ public class PatientsController{
         // iterate through people already on the monitored list
         for (int i = 0; i < size; i++) {
             String cholesStr = (String) theView.getMonTableValueAt(i, 1);
+            cholesStr = cholesStr.replace(" mg/dL", "");
 
             try {
                 double choles = Double.valueOf(cholesStr);
@@ -153,28 +161,54 @@ public class PatientsController{
     }
 
     private void addToMonitoredPatientTable(List<Patient> p) {
-        String choles;
-        String strDate = "No Value Collected Yet";
 
         for (int i = 0; i < p.size(); i++) {
-            Patient patient = p.get(i);
-            try {
-                choles = String.valueOf(patient.getTotalCholesterol());
+            String cholesterol = "-";
+            String systolicBP = "-";
+            String diastolicBP = "-";
 
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
-                Date cholesDate = patient.getLatestCholesterolDate();
-                strDate = dateFormat.format(cholesDate);
+            String cholesterolDate = "-";
+            String bpDate = "-";
+
+            Patient patient = p.get(i);
+
+            // add latest cholesterol value
+            try {
+                cholesterol = patient.getTotalCholesterol() + " mg/dL";
+                cholesterolDate = convertDateToString(patient.getLatestCholesterolDate());
             } catch (NullPointerException ex) {
+                cholesterol = "-";
                 ex.printStackTrace();
-                choles = "No Value Collected Yet";
             }
 
-            theView.addRowToTableModel(new Object[]{patient.toString(), choles, strDate});
-            // Reset Date to "No Value Collected Yet".
-            strDate = "No Value Collected Yet";
+            // add latest systolic blood pressure value
+            try {
+                systolicBP = (double)patient.getSystolicBPs().get(0)[1] + " mmHg";
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+
+            // add latest diastolic blood pressure value
+            try {
+                diastolicBP = (double)patient.getDiastolicBPs().get(0)[1] + " mmHg";
+                bpDate = convertDateToString((Date)patient.getDiastolicBPs().get(0)[0]);
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+
+            theView.addRowToTableModel(new Object[]{patient.toString(), cholesterol, cholesterolDate,
+                    systolicBP, diastolicBP, bpDate});
+
         }
         calculateCholesAverage();
-        theView.updateColumnRenderer();
+        theView.updateCholesterolColumn();
+        theView.updateSystolicColumn();
+        theView.updateDiastolicColumn();
+    }
+
+    private String convertDateToString(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        return dateFormat.format(date);
     }
 
 
@@ -206,7 +240,7 @@ public class PatientsController{
                 int row = theView.getMonTable().getSelectedRow();
                 theView.getTableModel().removeRow(row);
                 calculateCholesAverage();
-                theView.updateColumnRenderer();
+                theView.updateCholesterolColumn();
                 // remove monitored patient
                 Patient p = theView.getMonitoredPatients().get(row);
                 theView.removeMonitoredPatient(row);
@@ -240,6 +274,34 @@ public class PatientsController{
 
     }
 
+    private class SystolicBPBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                double systolicBP = Double.parseDouble(theView.getSystolicBPTxt());
+                theView.setSystolicBP(systolicBP);
+                theView.updateSystolicColumn();
+            } catch (NumberFormatException ex) {
+                theView.displayErrorMessage("Please enter a valid input for systolic blood pressure.");
+            }
+        }
+    }
+
+    private class DiastolicBPBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                double diastolicBP = Double.parseDouble(theView.getDiastolicBPTxt());
+                theView.setDiastolicBP(diastolicBP);
+                theView.updateDiastolicColumn();
+            } catch (NumberFormatException ex) {
+                theView.displayErrorMessage("Please enter a valid input for diastolic blood pressure.");
+            }
+        }
+    }
+
     private class QueryObs extends TimerTask {
 
         @Override
@@ -266,7 +328,7 @@ public class PatientsController{
             calculateCholesAverage();
 
             // update table
-            theView.updateColumnRenderer();
+            theView.updateCholesterolColumn();
         }
     }
 

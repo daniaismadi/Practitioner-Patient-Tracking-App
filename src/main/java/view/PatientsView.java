@@ -27,12 +27,18 @@ public class PatientsView extends JFrame{
     private JLabel country;
     private JLabel city;
     private JLabel state;
+    private JTextField diastolicBPTxt;
+    private JButton setDiastolicBPBtn;
+    private JTextField systolicBPTxt;
+    private JButton setSystolicBPBtn;
     private DefaultListModel<Patient> defaultPatientList;
     private DefaultTableModel tableModel;
     private String arg;
     private JFrame currentFrame;
     private String hPracId;
     private double avgCholes;
+    private double systolicBP;
+    private double diastolicBP;
     private int queryTime = 10;
 
     private ArrayList<Patient> monitoredPatients;
@@ -61,6 +67,22 @@ public class PatientsView extends JFrame{
 
     }
 
+    public double getSystolicBP() {
+        return systolicBP;
+    }
+
+    public void setSystolicBP(double systolicBP) {
+        this.systolicBP = systolicBP;
+    }
+
+    public double getDiastolicBP() {
+        return diastolicBP;
+    }
+
+    public void setDiastolicBP(double diastolicBP) {
+        this.diastolicBP = diastolicBP;
+    }
+
     public ArrayList<Patient> getMonitoredPatients() {
         return monitoredPatients;
     }
@@ -81,9 +103,17 @@ public class PatientsView extends JFrame{
         return this.defaultPatientList;
     }
 
-    public void updateColumnRenderer() {
-        monTable.getColumnModel().getColumn(0).setCellRenderer(new HighlightCholesRenderer(avgCholes));
+    public void updateCholesterolColumn() {
+//        monTable.getColumnModel().getColumn(0).setCellRenderer(new HighlightCholesRenderer(avgCholes));
         monTable.getColumnModel().getColumn(1).setCellRenderer(new HighlightCholesRenderer(avgCholes));
+    }
+
+    public void updateSystolicColumn() {
+        monTable.getColumnModel().getColumn(3).setCellRenderer(new SystolicBPRenderer(systolicBP));
+    }
+
+    public void updateDiastolicColumn() {
+        monTable.getColumnModel().getColumn(4).setCellRenderer(new DiastolicBPRenderer(diastolicBP));
     }
 
     public JList<Patient> getPatientList() {
@@ -150,6 +180,14 @@ public class PatientsView extends JFrame{
         queryBtn.addActionListener(listenForQueryBtn);
     }
 
+    public void addSystolicBPBtnListener(ActionListener listenForSystolicBPBtn) {
+        setSystolicBPBtn.addActionListener(listenForSystolicBPBtn);
+    }
+
+    public void addDiastolicBPBtnListener(ActionListener listenForDiastolicBPBtn) {
+        setDiastolicBPBtn.addActionListener(listenForDiastolicBPBtn);
+    }
+
     public String gethPracId() {
         return hPracId;
     }
@@ -173,6 +211,14 @@ public class PatientsView extends JFrame{
 
     public String getQueryTimeTxt() {
         return queryTimeTxt.getText();
+    }
+
+    public String getSystolicBPTxt() {
+        return systolicBPTxt.getText();
+    }
+
+    public String getDiastolicBPTxt() {
+        return diastolicBPTxt.getText();
     }
 
     public void displayErrorMessage(String errorMessage) {
