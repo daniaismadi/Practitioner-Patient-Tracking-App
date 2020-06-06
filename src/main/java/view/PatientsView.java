@@ -69,6 +69,10 @@ public class PatientsView extends JFrame {
         return tabPane2;
     }
 
+    public double getAvgCholes() {
+        return avgCholes;
+    }
+
     public void addTabPane(String tabName, JPanel newPanel) {
         Monitor.add(tabName, newPanel);
     }

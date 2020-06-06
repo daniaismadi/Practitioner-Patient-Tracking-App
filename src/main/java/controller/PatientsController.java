@@ -110,25 +110,32 @@ public class PatientsController implements Observer{
     }
 
     private void calculateCholesAverage() {
-        int size = theView.getMonTableRowCount();
-
+//        int size = theView.getMonTableRowCount();
+//
         int totalPatients = 0;
         double totalCholes = 0;
 
-        // iterate through people already on the monitored list
-        for (int i = 0; i < size; i++) {
-            String cholesStr = (String) theView.getMonTableValueAt(i, 1);
-            cholesStr = cholesStr.replace(" mg/dL", "");
-
-            try {
-                double choles = Double.valueOf(cholesStr);
+        for (Patient p : theView.getMonitoredPatients()) {
+            totalCholes += p.getTotalCholesterol();
+            if (p.getLatestCholesterolDate() != null) {
                 totalPatients += 1;
-                totalCholes += choles;
-
-            } catch (NumberFormatException ex) {
-                System.out.println("No cholesterol value found.");
             }
         }
+
+        // iterate through people already on the monitored list
+//        for (int i = 0; i < size; i++) {
+//            String cholesStr = (String) theView.getMonTableValueAt(i, 1);
+//            cholesStr = cholesStr.replace(" mg/dL", "");
+//
+//            try {
+//                double choles = Double.valueOf(cholesStr);
+//                totalPatients += 1;
+//                totalCholes += choles;
+//
+//            } catch (NumberFormatException ex) {
+//                System.out.println("No cholesterol value found.");
+//            }
+//        }
 
         // calculate total cholesterol
         if (totalPatients > 1) {
@@ -153,7 +160,7 @@ public class PatientsController implements Observer{
     private void addToMonitoredPatientTable(List<Patient> p) {
 
         for (int i = 0; i < p.size(); i++) {
-            String cholesterol = "-";
+            String cholesterol;
 
             String cholesterolDate = "-";
 
@@ -185,14 +192,17 @@ public class PatientsController implements Observer{
         System.out.println("Cholesterol view updated.");
         // calculate new average
         calculateCholesAverage();
+        System.out.println(theView.getAvgCholes());
 
         // Get patient position in monitor list if they are on the monitor list
         int i = theView.getMonitoredPatients().indexOf(patient);
 
         // change value in cholesterol column
         try {
-            theView.setMonTableValueAt(patient.getTotalCholesterol() + " mg/dL", i, 1);
-            theView.setMonTableValueAt(patient.getLatestCholesterolDate(), i, 2);
+            if (patient.getTotalCholesterol() > 0) {
+                theView.setMonTableValueAt(patient.getTotalCholesterol() + " mg/dL", i, 1);
+                theView.setMonTableValueAt(convertDateToString(patient.getLatestCholesterolDate()), i, 2);
+            }
         } catch (IndexOutOfBoundsException e) {
             System.out.println("No cholesterol value to update on table.");
         }

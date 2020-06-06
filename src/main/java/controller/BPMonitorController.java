@@ -204,7 +204,7 @@ public class BPMonitorController implements Observer {
         try {
             bpView.setBpTableValue(patient.getSystolicBPs().get(0)[1] + " mmHg", i, 1);
             bpView.setBpTableValue(patient.getDiastolicBPs().get(0)[1] + " mmHg", i, 2);
-            bpView.setBpTableValue(patient.getSystolicBPs().get(0)[0], i, 3);
+            bpView.setBpTableValue(convertDateToString((Date)patient.getSystolicBPs().get(0)[0]), i, 3);
 
             // update text pane
             if ((double) patient.getSystolicBPs().get(0)[1] > bpView.getSystolicBP()) {
