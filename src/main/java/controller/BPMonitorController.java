@@ -19,14 +19,17 @@ import java.util.List;
 
 import static javax.swing.BorderFactory.createLineBorder;
 
-public class BPMonitorController {
+public class BPMonitorController implements Observer {
     private PatientsView patientsView;
     private BloodPressureView bpView;
     private DBModel dbModel;
+    private PatientGrabber patientGrabber;
 
-    public BPMonitorController(BloodPressureView bpView, DBModel theModel) {
+    public BPMonitorController(BloodPressureView bpView, DBModel theModel, PatientGrabber patientGrabber) {
         this.bpView = bpView;
         this.dbModel = theModel;
+        this.patientGrabber = patientGrabber;
+        this.patientGrabber.register(this);
         bpView.setDiastolicBP(Double.POSITIVE_INFINITY);
         bpView.setSystolicBP(Double.POSITIVE_INFINITY);
 
@@ -190,6 +193,36 @@ public class BPMonitorController {
         return patientList;
     }
 
+    @Override
+    public void update(Patient patient) {
+        // revalidate and repaint
+        System.out.println("Blood Pressure view re-validated.");
+
+        int i = bpView.getMonitoredPatients().indexOf(patient);
+
+        // update table values
+        try {
+            bpView.setBpTableValue(patient.getSystolicBPs().get(0)[1] + " mmHg", i, 1);
+            bpView.setBpTableValue(patient.getDiastolicBPs().get(0)[1] + " mmHg", i, 2);
+            bpView.setBpTableValue(patient.getSystolicBPs().get(0)[0], i, 3);
+
+            // update text pane
+            if ((double) patient.getSystolicBPs().get(0)[1] > bpView.getSystolicBP()) {
+                updateHighSystolicBP();
+            }
+
+            if ((double) patient.getDiastolicBPs().get(0)[1] > bpView.getDiastolicBP()) {
+                updateHighDiastolicBP();
+            }
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("No blood pressure value to update on the table.");
+        }
+
+        // revalidate
+        bpView.getBPMonitor().revalidate();
+        bpView.getBPMonitor().repaint();
+    }
+
     private class BPMonitorBtnListener implements ActionListener {
 
         @Override
@@ -225,6 +258,7 @@ public class BPMonitorController {
                 updateHighSystolicBP();
                 updateHighDiastolicBP();
                 bpView.getBPMonitor().revalidate();
+                bpView.getBPMonitor().repaint();
                 System.out.println(bpView.getMonitoredPatients());
             }
             catch (Exception k){

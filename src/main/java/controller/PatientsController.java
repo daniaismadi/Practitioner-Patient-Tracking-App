@@ -16,17 +16,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimerTask;
 
-public class PatientsController{
+public class PatientsController implements Observer{
 
     private PatientsView theView;
     private DBModel theModel;
     private java.util.Timer queryTimer;
     private java.util.Timer autosave;
+    private PatientGrabber patientGrabber;
 
 
-    public PatientsController(PatientsView theView, DBModel theModel) {
+    public PatientsController(PatientsView theView, DBModel theModel, PatientGrabber patientGrabber) {
         this.theView = theView;
         this.theModel = theModel;
+        this.patientGrabber = patientGrabber;
+        this.patientGrabber.register(this);
 
         this.theView.setSize(1500,800);
 
@@ -123,7 +126,7 @@ public class PatientsController{
                 totalCholes += choles;
 
             } catch (NumberFormatException ex) {
-                ex.printStackTrace();
+                System.out.println("No cholesterol value found.");
             }
         }
 
@@ -177,6 +180,30 @@ public class PatientsController{
         return dateFormat.format(date);
     }
 
+    @Override
+    public void update(Patient patient) {
+        System.out.println("Cholesterol view updated.");
+        // calculate new average
+        calculateCholesAverage();
+
+        // Get patient position in monitor list if they are on the monitor list
+        int i = theView.getMonitoredPatients().indexOf(patient);
+
+        // change value in cholesterol column
+        try {
+            theView.setMonTableValueAt(patient.getTotalCholesterol() + " mg/dL", i, 1);
+            theView.setMonTableValueAt(patient.getLatestCholesterolDate(), i, 2);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("No cholesterol value to update on table.");
+        }
+
+        // update table
+        theView.updateCholesterolColumn();
+
+        // revalidate panel
+        theView.getTabPane2().revalidate();
+        theView.getTabPane2().repaint();
+    }
 
 
     private class MonitorBtnListener implements ActionListener {
@@ -246,36 +273,15 @@ public class PatientsController{
         @Override
         public void run() {
             System.out.println("Getting new observations.");
+
             ListModel patients = theView.getPatientList().getModel();
             for (int i = 0; i < patients.getSize(); i++) {
                 Patient p = (Patient) patients.getElementAt(i);
-
-                String patientId = p.getId();
-
-                // update observations
-                theModel.updateCholesObs(patientId);
-                theModel.updateBPObs(patientId);
-
-                // update latest cholesterol value
-                double latestCholes = theModel.getPatientLatestCholes(patientId);
-                p.setTotalCholesterol(latestCholes);
-
-                // update latest cholesterol date
-                Date latestDate = theModel.getPatientLatestCholesDate(patientId);
-                p.setLatestCholesterolDate(latestDate);
-
-                // update 5 latest systolic BPs
-                p.setSystolicBPs(theModel.getPatientSystolicBPs(patientId, 5));
-
-                // update 5 latest diastolic BPs
-                p.setDiastolicBPs(theModel.getPatientDiastolicBPs(patientId, 5));
-
+                patientGrabber.setPatient(p);
+                patientGrabber.updatePatientCholesterol(theModel);
+                patientGrabber.updatePatientDiastolicBP(theModel);
+                patientGrabber.updatePatientSystolicBP(theModel);
             }
-            // calculate new average
-            calculateCholesAverage();
-
-            // update table
-            theView.updateCholesterolColumn();
         }
     }
 }

@@ -1,5 +1,6 @@
 package view;
 
+import controller.Observer;
 import database.DBModel;
 
 import javax.swing.*;
@@ -8,7 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class PatientsView extends JFrame{
+public class PatientsView extends JFrame {
     private JTabbedPane Monitor;
     JPanel rootPanel;
     private JPanel tabPane1;
@@ -64,6 +65,10 @@ public class PatientsView extends JFrame{
 
     }
 
+    public JPanel getTabPane2() {
+        return tabPane2;
+    }
+
     public void addTabPane(String tabName, JPanel newPanel) {
         Monitor.add(tabName, newPanel);
     }
@@ -114,6 +119,10 @@ public class PatientsView extends JFrame{
 
     public Object getMonTableValueAt(int row, int col) {
         return this.monTable.getValueAt(row, col);
+    }
+
+    public void setMonTableValueAt(Object object, int row, int col) {
+        this.monTable.setValueAt(object, row, col);
     }
 
     public void addRowToTableModel(Object[] objects) {
@@ -188,4 +197,5 @@ public class PatientsView extends JFrame{
     public void displayErrorMessage(String errorMessage) {
         JOptionPane.showMessageDialog(this, errorMessage);
     }
+
 }

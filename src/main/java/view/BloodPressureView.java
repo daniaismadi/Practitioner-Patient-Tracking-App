@@ -76,7 +76,11 @@ public class BloodPressureView {
         this.diastolicBP = diastolicBP;
     }
 
-    public JTable getBpTable() {
+    public void setBpTableValue(Object object, int row, int col) {
+        this.bpTable.setValueAt(object, row, col);
+    }
+
+    public   JTable getBpTable() {
         return bpTable;
     }
 
