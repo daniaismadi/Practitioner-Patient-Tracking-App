@@ -40,7 +40,7 @@ public class PatientsView extends JFrame {
     private JFrame currentFrame;
     private String hPracId;
     private double avgCholes;
-    private int queryTime = 10;
+    private int queryTime;
 
     private ArrayList<Patient> monitoredPatients;
 
@@ -52,26 +52,26 @@ public class PatientsView extends JFrame {
         this.pack();
 
         this.defaultPatientList = new DefaultListModel<Patient>();
-        this.tableModel = new DefaultTableModel();
-        this.monitoredPatients = new ArrayList<Patient>();
+//        this.tableModel = new DefaultTableModel();
+//        this.monitoredPatients = new ArrayList<Patient>();
 
         // onStart(hPracId);
 
-        monTable.setModel(tableModel);
-        tableModel.addColumn("NAME");
-        tableModel.addColumn("TOTAL CHOLESTEROL");
-        tableModel.addColumn("TIME");
-        tableModel.setRowCount(0);
+//        monTable.setModel(tableModel);
+//        tableModel.addColumn("NAME");
+//        tableModel.addColumn("TOTAL CHOLESTEROL");
+//        tableModel.addColumn("TIME");
+//        tableModel.setRowCount(0);
 
     }
 
-    public JPanel getTabPane2() {
-        return tabPane2;
-    }
-
-    public double getAvgCholes() {
-        return avgCholes;
-    }
+//    public JPanel getTabPane2() {
+//        return tabPane2;
+//    }
+//
+//    public double getAvgCholesterol() {
+//        return avgCholes;
+//    }
 
     public void addTabPane(String tabName, JPanel newPanel) {
         Monitor.add(tabName, newPanel);
@@ -85,29 +85,29 @@ public class PatientsView extends JFrame {
         return monitorBPBtn.isSelected();
     }
 
-    public ArrayList<Patient> getMonitoredPatients() {
-        return monitoredPatients;
-    }
-
-    public void addMonitoredPatient(Patient patient) {
-        this.monitoredPatients.add(patient);
-    }
-
-    public void removeMonitoredPatient(int position) {
-        this.monitoredPatients.remove(position);
-    }
-
-    public DefaultTableModel getTableModel() {
-        return this.tableModel;
-    }
+//    public ArrayList<Patient> getMonitoredPatients() {
+//        return monitoredPatients;
+//    }
+//
+//    public void addPatientToMonitor(Patient patient) {
+//        this.monitoredPatients.add(patient);
+//    }
+//
+//    public void removePatientFromMonitor(int position) {
+//        this.monitoredPatients.remove(position);
+//    }
+//
+//    public DefaultTableModel getTableModel() {
+//        return this.tableModel;
+//    }
 
     public DefaultListModel getDefaultPatientList() {
         return this.defaultPatientList;
     }
 
-    public void updateCholesterolColumn() {
-        monTable.getColumnModel().getColumn(1).setCellRenderer(new HighlightCholesRenderer(avgCholes));
-    }
+//    public void updateCholesterolColumn() {
+//        monTable.getColumnModel().getColumn(1).setCellRenderer(new HighlightCholesRenderer(avgCholes));
+//    }
 
     public JList<Patient> getPatientList() {
         return this.patientList;
@@ -117,37 +117,37 @@ public class PatientsView extends JFrame {
         return this.monTable;
     }
 
-    public int getMonTableRowCount() {
-        return this.monTable.getRowCount();
-    }
+//    public int getMonTableRowCount() {
+//        return this.monTable.getRowCount();
+//    }
+//
+//    public Object getMonTableValueAt(int row, int col) {
+//        return this.monTable.getValueAt(row, col);
+//    }
 
-    public Object getMonTableValueAt(int row, int col) {
-        return this.monTable.getValueAt(row, col);
-    }
-
-    public void setMonTableValueAt(Object object, int row, int col) {
-        this.monTable.setValueAt(object, row, col);
-    }
-
-    public void addRowToTableModel(Object[] objects) {
-        this.tableModel.addRow(objects);
-    }
-
-    public void addExtraInfo(String dob, String gender, String country, String city, String state){
-        this.dob.setText(dob);
-        this.gender.setText(gender);
-        this.country.setText(country);
-        this.city.setText(city);
-        this.state.setText(state);
-    }
-
-    public void extraInfoInitialState(){
-        this.dob.setText("Date of Birth");
-        this.gender.setText("Gender");
-        this.country.setText("Country");
-        this.city.setText("City");
-        this.state.setText("State");
-    }
+//    public void setMonTableValueAt(Object object, int row, int col) {
+//        this.monTable.setValueAt(object, row, col);
+//    }
+//
+//    public void addRowToTableModel(Object[] objects) {
+//        this.tableModel.addRow(objects);
+//    }
+//
+//    public void addExtraInfo(String dob, String gender, String country, String city, String state){
+//        this.dob.setText(dob);
+//        this.gender.setText(gender);
+//        this.country.setText(country);
+//        this.city.setText(city);
+//        this.state.setText(state);
+//    }
+//
+//    public void extraInfoInitialState(){
+//        this.dob.setText("Date of Birth");
+//        this.gender.setText("Gender");
+//        this.country.setText("Country");
+//        this.city.setText("City");
+//        this.state.setText("State");
+//    }
 
     public void addToPutList(Patient patient) {
         this.defaultPatientList.addElement(patient);
@@ -157,9 +157,9 @@ public class PatientsView extends JFrame {
         monBttn.addActionListener(listenForMonitorBtn);
     }
 
-    public void addRemoveBtnListener(ActionListener listenForRemoveBtn) {
-        remBttn.addActionListener(listenForRemoveBtn);
-    }
+//    public void addRemoveBtnListener(ActionListener listenForRemoveBtn) {
+//        remBttn.addActionListener(listenForRemoveBtn);
+//    }
 
     public void addQueryBtnListener(ActionListener listenForQueryBtn) {
         queryBtn.addActionListener(listenForQueryBtn);
@@ -181,9 +181,9 @@ public class PatientsView extends JFrame {
         this.patientList.setModel(defaultPatientList);
     }
 
-    public void setAvgCholes(double avgCholes) {
-        this.avgCholes = avgCholes;
-    }
+//    public void setAvgCholesterol(double avgCholes) {
+//        this.avgCholes = avgCholes;
+//    }
 
 
     public String getQueryTimeTxt() {

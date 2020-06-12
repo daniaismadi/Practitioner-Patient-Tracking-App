@@ -18,65 +18,65 @@ import java.util.TimerTask;
 
 public class PatientsController implements Observer{
 
-    private PatientsView theView;
-    private DBModel theModel;
+    private PatientsView patientsView;
+    private DBModel dbModel;
     private java.util.Timer queryTimer;
-    private java.util.Timer autosave;
     private PatientUpdater patientUpdater;
 
 
-    public PatientsController(PatientsView theView, DBModel theModel, PatientUpdater patientUpdater) {
-        this.theView = theView;
-        this.theModel = theModel;
+    public PatientsController(PatientsView patientsView, DBModel dbModel, PatientUpdater patientUpdater) {
+        this.patientsView = patientsView;
+        this.dbModel = dbModel;
         this.patientUpdater = patientUpdater;
         this.patientUpdater.register(this);
 
-        this.theView.setSize(1500,800);
-
-        this.theView.addMonitorBtnListener(new MonitorBtnListener());
-        this.theView.addRemoveBtnListener(new RemoveBtnListener());
-        this.theView.addQueryBtnListener(new QueryBtnListener());
-    }
-
-    public void onStart(String hPracId) {
-
-        theView.setAvgCholes(Double.POSITIVE_INFINITY);
-        theView.setPatientListModel(theView.getDefaultPatientList());
-
+        this.patientsView.setSize(1500,800);
+        // Set patients list model.
+        this.patientsView.setPatientListModel(patientsView.getDefaultPatientList());
         // update patient list
-        ArrayList<String> patientIds = theModel.getPatientList(hPracId);
+        ArrayList<String> patientIds = dbModel.getPatientList(this.patientsView.gethPracId());
         createPatients(patientIds);
 
-        // update monitored table
-        List<Patient> monitoredPatients = theView.getMonitoredPatients();
-        addToMonitoredPatientTable(monitoredPatients);
-
-        // new query timer, set to 30 seconds at first
+        // new query timer, set to 60 seconds at first
         queryTimer = new java.util.Timer();
-        queryTimer.schedule(new QueryObs(), 0, 30*1000);
-        setTableListener();
+        queryTimer.schedule(new QueryObs(), 0, 60*1000);
+
+//        this.patientsView.addMonitorBtnListener(new MonitorBtnListener());
+//        this.patientsView.addRemoveBtnListener(new RemoveBtnListener());
+        this.patientsView.addQueryBtnListener(new QueryBtnListener());
     }
 
-    private void setTableListener(){
-        ListSelectionModel model = theView.getMonTable().getSelectionModel();
-        model.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!model.isSelectionEmpty()){
-                    JTable table = theView.getMonTable();
-                    int row = table.getSelectedRow();
-                    Object name = table.getValueAt(row,0);
-                    String nameStr = name.toString();
-                    List<Patient> patients = theView.getMonitoredPatients();
-                    for (Patient p : patients) {
-                        if (p.toString().equals(nameStr)){
-                            theView.addExtraInfo(p.getBirthDate(),p.getGender(),p.getCountry(),p.getCity(),p.getState());
-                        }
-                    }
-                }
-            }
-        });
-    }
+//    public void onStart(String hPracId) {
+//
+////        patientsView.setAvgCholesterol(Double.POSITIVE_INFINITY);
+//
+//        // update patient list
+//        ArrayList<String> patientIds = dbModel.getPatientList(hPracId);
+//        createPatients(patientIds);
+//
+////        setTableListener();
+//    }
+
+//    private void setTableListener(){
+//        ListSelectionModel model = patientsView.getMonTable().getSelectionModel();
+//        model.addListSelectionListener(new ListSelectionListener() {
+//            @Override
+//            public void valueChanged(ListSelectionEvent e) {
+//                if (!model.isSelectionEmpty()){
+//                    JTable table = patientsView.getMonTable();
+//                    int row = table.getSelectedRow();
+//                    Object name = table.getValueAt(row,0);
+//                    String nameStr = name.toString();
+//                    List<Patient> patients = patientsView.getMonitoredPatients();
+//                    for (Patient p : patients) {
+//                        if (p.toString().equals(nameStr)){
+//                            patientsView.addExtraInfo(p.getBirthDate(),p.getGender(),p.getCountry(),p.getCity(),p.getState());
+//                        }
+//                    }
+//                }
+//            }
+//        });
+//    }
 
     private void createPatients(List<String> patientIds) {
 //        ArrayList<String> monitoredIds = theModel.getMonitoredPatients(theView.gethPracId());
@@ -89,172 +89,177 @@ public class PatientsController implements Observer{
 
             // Set variables.
             patient.setId(patientId);
-            patient.setGivenName(theModel.getPatientFName(patientId));
-            patient.setFamilyName(theModel.getPatientLName(patientId));
-            patient.setBirthDate(theModel.getPatientBirthdate(patientId));
-            patient.setGender(theModel.getPatientGender(patientId));
-            patient.setCountry(theModel.getPatientAddressCountry(patientId));
-            patient.setCity(theModel.getPatientAddressCity(patientId));
-            patient.setState(theModel.getPatientAddressState(patientId));
-            patient.setTotalCholesterol(theModel.getPatientLatestCholes(patientId));
-            patient.setLatestCholesterolDate(theModel.getPatientLatestCholesDate(patientId));
+            patient.setGivenName(dbModel.getPatientFName(patientId));
+            patient.setFamilyName(dbModel.getPatientLName(patientId));
+            patient.setBirthDate(dbModel.getPatientBirthdate(patientId));
+            patient.setGender(dbModel.getPatientGender(patientId));
+            patient.setCountry(dbModel.getPatientAddressCountry(patientId));
+            patient.setCity(dbModel.getPatientAddressCity(patientId));
+            patient.setState(dbModel.getPatientAddressState(patientId));
+            patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patientId));
+            patient.setLatestCholesterolDate(dbModel.getPatientLatestCholesDate(patientId));
 
             // set latest 5 systolic blood pressure measurements
-            patient.setSystolicBPs(theModel.getPatientSystolicBPs(patientId, 5));
+            patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patientId, 5));
             // set latest 5 diastolic blood pressure measurements
-            patient.setDiastolicBPs(theModel.getPatientDiastolicBPs(patientId, 5));
+            patient.setDiastolicBPs(dbModel.getPatientDiastolicBPs(patientId, 5));
 
             // Add to default model list.
-            theView.addToPutList(patient);
+            patientsView.addToPutList(patient);
         }
-    }
-
-    private void calculateCholesAverage() {
-//        int size = theView.getMonTableRowCount();
-//
-        int totalPatients = 0;
-        double totalCholes = 0;
-
-        for (Patient p : theView.getMonitoredPatients()) {
-            totalCholes += p.getTotalCholesterol();
-            if (p.getLatestCholesterolDate() != null) {
-                totalPatients += 1;
-            }
-        }
-
-        // iterate through people already on the monitored list
-//        for (int i = 0; i < size; i++) {
-//            String cholesStr = (String) theView.getMonTableValueAt(i, 1);
-//            cholesStr = cholesStr.replace(" mg/dL", "");
-//
-//            try {
-//                double choles = Double.valueOf(cholesStr);
-//                totalPatients += 1;
-//                totalCholes += choles;
-//
-//            } catch (NumberFormatException ex) {
-//                System.out.println("No cholesterol value found.");
-//            }
-//        }
-
-        // calculate total cholesterol
-        if (totalPatients > 1) {
-            theView.setAvgCholes(totalCholes/totalPatients);
-        } else {
-            theView.setAvgCholes(Double.POSITIVE_INFINITY);
-        }
-    }
-
-    private boolean checkPatientAdded(Patient patient) {
-        // Return true if patient has already been added to the monitor list.
-        List<Patient> patients = theView.getMonitoredPatients();
-        for (Patient p : patients) {
-            if (p.equals(patient)) {
-                return true;
-            }
-        }
-        return false;
-
-    }
-
-    private void addToMonitoredPatientTable(List<Patient> p) {
-
-        for (int i = 0; i < p.size(); i++) {
-            String cholesterol;
-
-            String cholesterolDate = "-";
-
-            Patient patient = p.get(i);
-
-            // add latest cholesterol value
-            try {
-                cholesterol = patient.getTotalCholesterol() + " mg/dL";
-                cholesterolDate = convertDateToString(patient.getLatestCholesterolDate());
-            } catch (NullPointerException ex) {
-                cholesterol = "-";
-                ex.printStackTrace();
-            }
-
-            theView.addRowToTableModel(new Object[]{patient.toString(), cholesterol, cholesterolDate});
-
-        }
-        calculateCholesAverage();
-        theView.updateCholesterolColumn();
-    }
-
-    private String convertDateToString(Date date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        return dateFormat.format(date);
     }
 
     @Override
     public void update(Patient patient) {
-        System.out.println("Cholesterol view updated.");
-        // calculate new average
-        calculateCholesAverage();
-        System.out.println(theView.getAvgCholes());
-
-        // Get patient position in monitor list if they are on the monitor list
-        int i = theView.getMonitoredPatients().indexOf(patient);
-
-        // change value in cholesterol column
-        try {
-            if (patient.getTotalCholesterol() > 0) {
-                theView.setMonTableValueAt(patient.getTotalCholesterol() + " mg/dL", i, 1);
-                theView.setMonTableValueAt(convertDateToString(patient.getLatestCholesterolDate()), i, 2);
-            }
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("No cholesterol value to update on table.");
-        }
-
-        // update table
-        theView.updateCholesterolColumn();
-
-        // revalidate panel
-        theView.getTabPane2().revalidate();
-        theView.getTabPane2().repaint();
+        ;
     }
 
+//    private void calculateCholesAverage() {
+////        int size = theView.getMonTableRowCount();
+////
+//        int totalPatients = 0;
+//        double totalCholes = 0;
+//
+//        for (Patient p : patientsView.getMonitoredPatients()) {
+//            totalCholes += p.getTotalCholesterol();
+//            if (p.getLatestCholesterolDate() != null) {
+//                totalPatients += 1;
+//            }
+//        }
+//
+//        // iterate through people already on the monitored list
+////        for (int i = 0; i < size; i++) {
+////            String cholesStr = (String) theView.getMonTableValueAt(i, 1);
+////            cholesStr = cholesStr.replace(" mg/dL", "");
+////
+////            try {
+////                double choles = Double.valueOf(cholesStr);
+////                totalPatients += 1;
+////                totalCholes += choles;
+////
+////            } catch (NumberFormatException ex) {
+////                System.out.println("No cholesterol value found.");
+////            }
+////        }
+//
+//        // calculate total cholesterol
+//        if (totalPatients > 1) {
+//            patientsView.setAvgCholesterol(totalCholes/totalPatients);
+//        } else {
+//            patientsView.setAvgCholesterol(Double.POSITIVE_INFINITY);
+//        }
+//    }
 
-    private class MonitorBtnListener implements ActionListener {
+//    private boolean checkPatientAdded(Patient patient) {
+//        // Return true if patient has already been added to the monitor list.
+//        List<Patient> patients = patientsView.getMonitoredPatients();
+//        for (Patient p : patients) {
+//            if (p.equals(patient)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//
+//    }
+//
+//    private void addToTCTable(List<Patient> p) {
+//
+//        for (int i = 0; i < p.size(); i++) {
+//            String cholesterol;
+//
+//            String cholesterolDate = "-";
+//
+//            Patient patient = p.get(i);
+//
+//            // add latest cholesterol value
+//            try {
+//                cholesterol = patient.getTotalCholesterol() + " mg/dL";
+//                cholesterolDate = convertDateToString(patient.getLatestCholesterolDate());
+//            } catch (NullPointerException ex) {
+//                cholesterol = "-";
+//                ex.printStackTrace();
+//            }
+//
+//            patientsView.addRowToTableModel(new Object[]{patient.toString(), cholesterol, cholesterolDate});
+//
+//        }
+//        calculateCholesAverage();
+//        patientsView.updateCholesterolColumn();
+//    }
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-
-            if (theView.monitorCholesterol()) {
-                // Update the view.
-                List<Patient> p = theView.getPatientList().getSelectedValuesList();
-                List<Patient> toAdd = new ArrayList<>();
-                for (Patient patient : p) {
-                    if (!checkPatientAdded(patient)) {
-                        theView.addMonitoredPatient(patient);
-                        toAdd.add(patient);
-                    }
-                }
-                System.out.println(theView.getMonitoredPatients());
-                addToMonitoredPatientTable(toAdd);
-            }
-        }
-    }
-
-    private class RemoveBtnListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                int row = theView.getMonTable().getSelectedRow();
-                theView.getTableModel().removeRow(row);
-                calculateCholesAverage();
-                theView.updateCholesterolColumn();
-                // remove monitored patient
-                Patient p = theView.getMonitoredPatients().get(row);
-                theView.removeMonitoredPatient(row);
-                theView.extraInfoInitialState();
-            }
-            catch (Exception k){
-            }
-        }
-    }
+//    private String convertDateToString(Date date) {
+//        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+//        return dateFormat.format(date);
+//    }
+//
+//    @Override
+//    public void update(Patient patient) {
+//        System.out.println("Cholesterol view updated.");
+//        // calculate new average
+//        calculateCholesAverage();
+//        System.out.println(patientsView.getAvgCholesterol());
+//
+//        // Get patient position in monitor list if they are on the monitor list
+//        int i = patientsView.getMonitoredPatients().indexOf(patient);
+//
+//        // change value in cholesterol column
+//        try {
+//            if (patient.getTotalCholesterol() > 0) {
+//                patientsView.setMonTableValueAt(patient.getTotalCholesterol() + " mg/dL", i, 1);
+//                patientsView.setMonTableValueAt(convertDateToString(patient.getLatestCholesterolDate()), i, 2);
+//            }
+//        } catch (IndexOutOfBoundsException e) {
+//            System.out.println("No cholesterol value to update on table.");
+//        }
+//
+//        // update table
+//        patientsView.updateCholesterolColumn();
+//
+//        // revalidate panel
+//        patientsView.getTabPane2().revalidate();
+//        patientsView.getTabPane2().repaint();
+//    }
+//
+//
+//    private class MonitorBtnListener implements ActionListener {
+//
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//
+//            if (patientsView.monitorCholesterol()) {
+//                // Update the view.
+//                List<Patient> p = patientsView.getPatientList().getSelectedValuesList();
+//                List<Patient> toAdd = new ArrayList<>();
+//                for (Patient patient : p) {
+//                    if (!checkPatientAdded(patient)) {
+//                        patientsView.addPatientToMonitor(patient);
+//                        toAdd.add(patient);
+//                    }
+//                }
+//                System.out.println(patientsView.getMonitoredPatients());
+//                addToTCTable(toAdd);
+//            }
+//        }
+//    }
+//
+//    private class RemoveBtnListener implements ActionListener {
+//
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            try {
+//                int row = patientsView.getMonTable().getSelectedRow();
+//                patientsView.getTableModel().removeRow(row);
+//                calculateCholesAverage();
+//                patientsView.updateCholesterolColumn();
+//                // remove monitored patient
+//                Patient p = patientsView.getMonitoredPatients().get(row);
+//                patientsView.removePatientFromMonitor(row);
+//                patientsView.extraInfoInitialState();
+//            }
+//            catch (Exception k){
+//            }
+//        }
+//    }
 
     private class QueryBtnListener implements ActionListener {
 
@@ -265,13 +270,13 @@ public class PatientsController implements Observer{
             queryTimer = new java.util.Timer();
 
             try {
-                int n = Integer.valueOf(theView.getQueryTimeTxt());
+                int n = Integer.valueOf(patientsView.getQueryTimeTxt());
 
                 // update time
                 queryTimer.schedule(new QueryObs(), 0, n*1000);
 
             } catch (NumberFormatException ex){
-                theView.displayErrorMessage("Please enter a valid input for query time.");
+                patientsView.displayErrorMessage("Please enter a valid input for query time.");
             }
 
         }
@@ -284,13 +289,13 @@ public class PatientsController implements Observer{
         public void run() {
             System.out.println("Getting new observations.");
 
-            ListModel patients = theView.getPatientList().getModel();
+            ListModel patients = patientsView.getPatientList().getModel();
             for (int i = 0; i < patients.getSize(); i++) {
                 Patient p = (Patient) patients.getElementAt(i);
                 patientUpdater.setPatient(p);
-                patientUpdater.updatePatientCholesterol(theModel);
-                patientUpdater.updatePatientDiastolicBP(theModel);
-                patientUpdater.updatePatientSystolicBP(theModel);
+                patientUpdater.updatePatientCholesterol(dbModel);
+                patientUpdater.updatePatientDiastolicBP(dbModel);
+                patientUpdater.updatePatientSystolicBP(dbModel);
             }
         }
     }

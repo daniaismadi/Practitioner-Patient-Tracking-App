@@ -1,7 +1,8 @@
 package controller;
 
 import database.DBModel;
-import view.BloodPressureView;
+import view.BloodPressureTableView;
+import view.CholesterolTableView;
 import view.LogInView;
 import view.PatientsView;
 
@@ -42,16 +43,24 @@ public class LogInController {
                 // Initialise new patientGrabber.
                 PatientUpdater patientUpdater = new PatientUpdater();
 
-                // Add new Blood Pressure view.
-                BloodPressureView bloodPressureView = new BloodPressureView();
-                BPMonitorController bpMonitorController = new BPMonitorController(bloodPressureView, theModel, patientUpdater);
-                // Give Blood Pressure pane access to information in PatientsView.
-                bpMonitorController.setPatientsView(patientsView);
+                // Add new Cholesterol Table view.
+                CholesterolTableView cholesterolTableView = new CholesterolTableView();
+                TCTableController tcTableController = new TCTableController(cholesterolTableView, theModel, patientUpdater);
+                // Give Cholesterol Table pane access to information in PatientsView.
+                tcTableController.setPatientsView(patientsView);
                 // Add to tab pane of original view.
-                patientsView.addTabPane("Blood Pressure", bloodPressureView.getBPMonitor());
+                patientsView.addTabPane("Cholesterol Table", cholesterolTableView.getTCTableMonitor());
+
+                // Add new Blood Pressure view.
+                BloodPressureTableView bloodPressureTableView = new BloodPressureTableView();
+                BPTableController bpTableController = new BPTableController(bloodPressureTableView, theModel, patientUpdater);
+                // Give Blood Pressure pane access to information in PatientsView.
+                bpTableController.setPatientsView(patientsView);
+                // Add to tab pane of original view.
+                patientsView.addTabPane("Blood Pressure", bloodPressureTableView.getBPMonitor());
 
                 PatientsController patientsController = new PatientsController(patientsView, theModel, patientUpdater);
-                patientsController.onStart(hPracId);
+//                patientsController.onStart(hPracId);
 
                 // Set current visibility to false.
                 theView.setVisible(false);

@@ -1,11 +1,13 @@
 package controller;
 
 import database.DBModel;
-import view.BloodPressureView;
+import view.BloodPressureTableView;
 import view.Patient;
 import view.PatientsView;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
@@ -24,7 +26,7 @@ import static javax.swing.BorderFactory.createLineBorder;
  * information.
  *
  */
-public class BPMonitorController implements Observer {
+public class BPTableController implements Observer {
 
     /***
      * The main view that this controller is connected to.
@@ -34,7 +36,7 @@ public class BPMonitorController implements Observer {
     /**
      * The view class that this controller controls.
      */
-    private BloodPressureView bpView;
+    private BloodPressureTableView bpView;
 
     /**
      * The model class that this controller communicates with.
@@ -53,7 +55,7 @@ public class BPMonitorController implements Observer {
      * @param theModel          the model that provides the view with information
      * @param patientUpdater    the concrete subject class which grabs new information about the patient
      */
-    public BPMonitorController(BloodPressureView bpView, DBModel theModel, PatientUpdater patientUpdater) {
+    public BPTableController(BloodPressureTableView bpView, DBModel theModel, PatientUpdater patientUpdater) {
         this.bpView = bpView;
         this.dbModel = theModel;
         this.patientUpdater = patientUpdater;
@@ -63,6 +65,7 @@ public class BPMonitorController implements Observer {
         bpView.setSystolicBP(Double.POSITIVE_INFINITY);
 
         this.bpView.addRemoveBtnListener(new RemoveBtnListener());
+        this.bpView.addTableListener(new TableSelectionListener());
     }
 
     /***
@@ -399,7 +402,8 @@ public class BPMonitorController implements Observer {
                 updateHighDiastolicBPTracker();
                 bpView.getBPMonitor().revalidate();
                 bpView.getBPMonitor().repaint();
-                System.out.println(bpView.getMonitoredPatients());
+                // Reset patient info view state.
+                bpView.resetPatientInfo();
             }
             catch (Exception k){
                 System.out.println("No patient to remove.");
@@ -457,6 +461,37 @@ public class BPMonitorController implements Observer {
 
             } catch (NumberFormatException ex) {
                 patientsView.displayErrorMessage("Please enter a valid input for diastolic blood pressure.");
+            }
+        }
+    }
+
+    /***
+     * A class to listen to the blood pressure table selection.
+     *
+     */
+    private class TableSelectionListener implements ListSelectionListener {
+
+        /***
+         *  Gets the information of the patient whose row is currently being selected and shows it onto the view.
+         *
+         * @param e     the event being performed
+         */
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            try {
+                assert !bpView.getBpTable().getSelectionModel().isSelectionEmpty();
+                JTable table = bpView.getBpTable();
+                int row = table.getSelectedRow();
+                Object name = table.getValueAt(row,0);
+                String nameStr = name.toString();
+                List<Patient> patients = bpView.getMonitoredPatients();
+                for (Patient p : patients) {
+                    if (p.toString().equals(nameStr)) {
+                        bpView.setPatientInfo(p.getBirthDate(), p.getGender(), p.getCountry(), p.getCity(), p.getState());
+                    }
+                }
+            } catch (Exception ex) {
+                System.out.println("No patient selected.");
             }
         }
     }

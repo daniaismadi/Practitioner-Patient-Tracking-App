@@ -1,6 +1,7 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
  * A class for the view that monitors blood pressure for patients.
  *
  */
-public class BloodPressureView {
+public class BloodPressureTableView {
 
     /**
      * The blood pressure table.
@@ -38,7 +39,7 @@ public class BloodPressureView {
     private JPanel highSystolicBP;
 
     /**
-     * The remove button to remove patients.
+     * The remove button to remove monitored patients.
      */
     private JButton removeBtn;
 
@@ -46,6 +47,31 @@ public class BloodPressureView {
      * The high diastolic blood pressure tracker panel.
      */
     private JPanel highDiastolicBP;
+
+    /***
+     * Date of birth label for patient selected.
+     */
+    private JLabel patientDOB;
+
+    /**
+     * Gender label for patient selected.
+     */
+    private JLabel patientGender;
+
+    /**
+     * Country label for patient selected.
+     */
+    private JLabel patientCountry;
+
+    /**
+     * City label for patient selected.
+     */
+    private JLabel patientCity;
+
+    /**
+     * State label for patient selected.
+     */
+    private JLabel patientState;
 
     /**
      * The systolic blood pressure threshold.
@@ -61,7 +87,7 @@ public class BloodPressureView {
      * Initialise the blood pressure view.
      *
      */
-    public BloodPressureView() {
+    public BloodPressureTableView() {
         // Initialise columns on table.
         this.bpTableModel = new DefaultTableModel();
         bpTable.setModel(bpTableModel);
@@ -76,6 +102,36 @@ public class BloodPressureView {
         highSystolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
         highDiastolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1
         ));
+    }
+
+    /***
+     * Show patient information for patient selected.
+     *
+     * @param patientDOB        The date of birth of the patient.
+     * @param patientGender     The gender of the patient.
+     * @param patientCountry    The country where the patient is from.
+     * @param patientCity       The city where the patient is from.
+     * @param patientState      The state the patient is from.
+     */
+    public void setPatientInfo(String patientDOB, String patientGender, String patientCountry,
+                               String patientCity, String patientState) {
+
+        this.patientDOB.setText(patientDOB);
+        this.patientGender.setText(patientGender);
+        this.patientCountry.setText(patientCountry);
+        this.patientCity.setText(patientCity);
+        this.patientState.setText(patientState);
+    }
+
+    /***
+     * Reset patient information to original state.
+     */
+    public void resetPatientInfo() {
+        this.patientDOB.setText("Date of Birth");
+        this.patientGender.setText("Gender");
+        this.patientCountry.setText("Country");
+        this.patientCity.setText("City");
+        this.patientState.setText("State");
     }
 
     /***
@@ -214,10 +270,10 @@ public class BloodPressureView {
      * Remove this patient from the list of patients who are currently being monitored for their blood pressure
      * measurements.
      *
-     * @param p     The patient to remove.
+     * @param patient     The patient to remove.
      */
-    public void removePatientFromMonitor(Patient p) {
-        monitoredPatients.remove(p);
+    public void removePatientFromMonitor(Patient patient) {
+        monitoredPatients.remove(patient);
     }
 
     /***
@@ -254,6 +310,15 @@ public class BloodPressureView {
      */
     public void addRemoveBtnListener(ActionListener listenForRemoveBtn) {
         removeBtn.addActionListener(listenForRemoveBtn);
+    }
+
+    /***
+     * Add a listener for the table model.
+     *
+     * @param listenForTableClick   the listener to add for the table
+     */
+    public void addTableListener(ListSelectionListener listenForTableClick) {
+        bpTable.getSelectionModel().addListSelectionListener(listenForTableClick);
     }
 
 }
