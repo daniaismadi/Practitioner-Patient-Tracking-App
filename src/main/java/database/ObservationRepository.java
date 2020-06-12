@@ -24,7 +24,8 @@ import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.descending;
 
 /***
- * Class for retrieving Observation resource documents from the server and from the local database.
+ * A class to retrieve observation information from the server, insert observation information into the database
+ *  * and query information about observations from the database. Implements the ObservationDAO interface.
  *
  */
 public class ObservationRepository implements ObservationDAO {
@@ -33,6 +34,7 @@ public class ObservationRepository implements ObservationDAO {
      * Root URL of the server.
      */
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
+
     /**
      * Map of Observation types to their LOINC codes.
      */
@@ -40,6 +42,7 @@ public class ObservationRepository implements ObservationDAO {
         put("Cholesterol", "2093-3");
         put("Blood Pressure", "55284-4");
     }};
+
     /***
      * Instance of local MongoDB database.
      */
@@ -63,13 +66,14 @@ public class ObservationRepository implements ObservationDAO {
      */
     @Override
     public void insertPatientObsByCode(String patientId, String code, String count) {
-        // Adds all patient observations.
-        System.out.println("Updating observations for: " + patientId);
-        // just get the latest observation
+        // URL to get count number of observations as specified by code.
         String obsUrl = rootUrl + "Observation?_count=" + count + "&code=" + code + "&patient=" + patientId +
                 "&_sort=-date&_format=json";
+
+
         JSONObject observationBundle = null;
         try {
+            // Read JSON resource document which contains information about this observation.
             observationBundle = JsonReader.readJsonFromUrl(obsUrl);
         } catch (JSONException | IOException e) {
             e.printStackTrace();
@@ -85,6 +89,7 @@ public class ObservationRepository implements ObservationDAO {
                 String obsId = resource.getString("id");
                 // insert observation to database
                 insertObs(obsId);
+                // successfully added observations for this patient
                 System.out.println("Successfully added observations for " + patientId);
             }
         } catch (JSONException e) {
@@ -127,16 +132,25 @@ public class ObservationRepository implements ObservationDAO {
      * @param count         the number of observations to retrieve
      * @return              a list of an array of objects which is in the format of [Date, Cholesterol Value] sorted in
      *                      descending order of Date. Date is of type Date and Cholesterol Value is of type double.
+     * @throws ParseException   Occurs if there is an error in parsing the effectiveDateTIme.
      */
     public List<Object[]> getCholesterolObs(String patientId, int count) throws ParseException {
         // Retrieve cholesterol observation code.
         String code = observationCodes.get("Cholesterol");
 
-        // query for the database
+        // Access Observation collection.
         MongoCollection<Document> collection = db.getCollection("Observation");
+
+        // Find documents for observations with this patient ID.
         Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
+
+        // Find documents for observations that have this code.
         Bson filterType = eq("code.coding.code", code);
+
+        // Return the effectiveDateTime and valueQuantity entries in this document.
         Bson filterProjection = fields(include("effectiveDateTime", "valueQuantity", "id"), excludeId());
+
+        // Order in descending effectiveDateTime so will return count latest measurements.
         Bson filterSort = descending("effectiveDateTime");
         Bson filter = and(filterPatient, filterType);
 
@@ -203,19 +217,24 @@ public class ObservationRepository implements ObservationDAO {
      * @param obsId     the ID of the observation
      */
     private void insertObs(String obsId) {
+        // Observation URL.
         String obsUrl = rootUrl + "Observation/" + obsId + "?_format=json";
+
         JSONObject json = null;
         try {
+            // Read JSON resource document which contains information about this observation.
             json = JsonReader.readJsonFromUrl(obsUrl);
             Document doc = Document.parse(json.toString());
 
+            // Insert or update document with this information ID into the database.
             Bson filter = Filters.eq("id", obsId);
             Bson update = new Document("$set", doc);
             UpdateOptions options = new UpdateOptions().upsert(true);
 
             db.getCollection("Observation").updateOne(filter, update, options);
         } catch (JSONException | IOException e) {
-            e.printStackTrace();
+            // URL is not valid.
+            ;
         }
     }
 
@@ -234,31 +253,40 @@ public class ObservationRepository implements ObservationDAO {
         // Retrieve blood pressure observation code.
         String code = observationCodes.get("Blood Pressure");
 
-        // query for the database
+        // Access the Observation collection.
         MongoCollection<Document> collection = db.getCollection("Observation");
+        // Find the observation document of the patient with this patient ID.
         Bson filterPatient = eq("subject.reference", "Patient/" + patientId);
+        // Find the observation with this code.
         Bson filterType = eq("code.coding.code", code);
+        // Return the id, effectiveDateTime and component of this Observation document.
         Bson filterProjection = fields(include("id", "effectiveDateTime", "component"), excludeId());
+
+        // Sort the documents in descending effectiveDateTime to retrieve the latest measurements.
         Bson filterSort = descending("effectiveDateTime");
         Bson filter = and(filterPatient, filterType);
 
+        // Query the database.
         FindIterable<Document> result = collection.find(filter, Document.class)
                 .projection(fields(filterProjection))
                 .sort(filterSort)
                 .limit(count);
 
+        // Initialise a list to contain information of the observations.
         List<Object[]> observations = new ArrayList<>();
 
         for (Document doc : result) {
             // get date of blood pressure observation
             Date date = getEffectiveDate(doc.get("id", String.class));
 
-            // get systolic bp
+            // get systolic or diastolic bp measurement stored in component
             ArrayList<Document> component = doc.get("component", ArrayList.class);
 
             for (Document obs : component) {
+                // Distinguish between systolic and diastolic BP.
                 Document componentCode = obs.get("code", Document.class);
                 String obsType = componentCode.get("text", String.class);
+
                 if (obsType.equalsIgnoreCase(bpType)) {
                     // Value is stored inside valueQuantity.
                     Document valueQuantity = obs.get("valueQuantity", Document.class);
@@ -284,12 +312,15 @@ public class ObservationRepository implements ObservationDAO {
     /***
      * Helper function to retrieve the effective date time of an observation.
      *
-     * @param obsId     the ID of the observation
-     * @return          the formatted effective date time of the observation
+     * @param obsId             the ID of the observation
+     * @return                  the formatted effective date time of the observation
      * @throws ParseException   if there is an error in parsing the SimpleDateFormat
      */
     private Date getEffectiveDate(String obsId) throws ParseException {
+        // Access Observation collection.
         MongoCollection<Document> collection = db.getCollection("Observation");
+
+        // Search for the document with this observation ID.
         Bson filter = eq("id", obsId);
         FindIterable<Document> result = collection.find(filter, Document.class)
                 .projection(fields(include("effectiveDateTime"), excludeId()));
@@ -297,104 +328,106 @@ public class ObservationRepository implements ObservationDAO {
         String dateStr = "";
 
         for (Document doc : result) {
+            // Get the effective date time of this observation.
             dateStr = doc.get("effectiveDateTime", String.class);
         }
 
         // 1999-08-24T15:48:33+10:00
+        // Format into Date object.
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         return format.parse(dateStr);
     }
 
-    /***
-     * Retrieves cholesterol observations from the server and for each cholesterol observation retrieved, find the
-     * patients associated with this observation and insert their latest measurements for the observations
-     * specified by their LOINC codes in the parameter codes.
-     *
-     * @param codes     the codes for the other types of observations to retrieve
-     * @param count     the number of observations to show per page
-     * @param pageCount the page number on the server to start collecting observations at
-     */
-    @Override
-    public void insertCholesObsByCodes(ArrayList<String> codes, String count, int pageCount) {
-        String obsUrl = rootUrl + "Observation?_count=" + count + "&_sort=-date&code=http%3A%2F%2Floinc.org%7C2093-3" +
-                "&_format=json";
-        JSONObject observationBundle = null;
-
-        // Declare required variables
-        boolean nextPage = true;
-        String nextUrl = obsUrl;
-
-        // go to the desired page
-        for (int i = 0; i < pageCount; i++) {
-            if (!nextPage) {
-                break;
-            }
-
-            nextPage = false;
-            try {
-                observationBundle = JsonReader.readJsonFromUrl(nextUrl);
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
-            try{
-                if (observationBundle != null) {
-                    // Check if there is a next page
-                    // Get all related links
-                    JSONArray links = observationBundle.getJSONArray("link");
-                    for (int j = 0; j < links.length(); j++) {
-                        // Get current link
-                        JSONObject link = links.getJSONObject(j);
-                        // Check if relation is next, this means there is a next page
-                        String relation = link.getString("relation");
-                        if (relation.equalsIgnoreCase("next")) {
-                            // Update variables accordingly
-                            System.out.println(i);
-                            nextPage = true;
-                            nextUrl = link.getString("url");
-                        }
-                    }
-                }
-            }
-            catch (JSONException e){
-                e.printStackTrace();
-            }
-
-        }
-
-        // retrieve data from this page
-        try {
-            observationBundle = JsonReader.readJsonFromUrl(nextUrl);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            JSONArray observations = observationBundle.getJSONArray("entry");
-            for (int i = 0; i < observations.length(); i++) {
-                JSONObject entry = observations.getJSONObject(i);
-                // get resource
-                JSONObject resource = entry.getJSONObject("resource");
-                // get observation id
-                String obsId = resource.getString("id");
-                // insert observation to database
-                insertObs(obsId);
-
-                JSONObject subject = resource.getJSONObject("subject");
-                String patientId = subject.getString("reference");
-                patientId = patientId.replace("Patient/", "");
-
-                // get patient observations of other measures
-                for (String code : codes) {
-                    insertPatientObsByCode(patientId, code, "1");
-//                    insertPatientLatestObsByCode(patientId, code);
-                }
-
-                System.out.println("Retrieved observation " + obsId);
-            }
-        } catch (JSONException e) {
-            System.out.println("Failed to retrieve observations.");
-        }
-    }
+//    /***
+//     * Retrieves cholesterol observations from the server and for each cholesterol observation retrieved, find the
+//     * patients associated with this observation and insert their latest measurements for the observations
+//     * specified by their LOINC codes in the parameter codes.
+//     *
+//     * @param codes     the codes for the other types of observations to retrieve
+//     * @param count     the number of observations to show per page
+//     * @param pageCount the page number on the server to start collecting observations at
+//     */
+//    @Override
+//    public void insertCholesObsByCodes(ArrayList<String> codes, String count, int pageCount) {
+//        String obsUrl = rootUrl + "Observation?_count=" + count + "&_sort=-date&code=http%3A%2F%2Floinc.org%7C2093-3" +
+//                "&_format=json";
+//        JSONObject observationBundle = null;
+//
+//        // Declare required variables
+//        boolean nextPage = true;
+//        String nextUrl = obsUrl;
+//
+//        // go to the desired page
+//        for (int i = 0; i < pageCount; i++) {
+//            if (!nextPage) {
+//                break;
+//            }
+//
+//            nextPage = false;
+//            try {
+//                observationBundle = JsonReader.readJsonFromUrl(nextUrl);
+//            } catch (JSONException | IOException e) {
+//                e.printStackTrace();
+//            }
+//            try{
+//                if (observationBundle != null) {
+//                    // Check if there is a next page
+//                    // Get all related links
+//                    JSONArray links = observationBundle.getJSONArray("link");
+//                    for (int j = 0; j < links.length(); j++) {
+//                        // Get current link
+//                        JSONObject link = links.getJSONObject(j);
+//                        // Check if relation is next, this means there is a next page
+//                        String relation = link.getString("relation");
+//                        if (relation.equalsIgnoreCase("next")) {
+//                            // Update variables accordingly
+//                            System.out.println(i);
+//                            nextPage = true;
+//                            nextUrl = link.getString("url");
+//                        }
+//                    }
+//                }
+//            }
+//            catch (JSONException e){
+//                e.printStackTrace();
+//            }
+//
+//        }
+//
+//        // retrieve data from this page
+//        try {
+//            observationBundle = JsonReader.readJsonFromUrl(nextUrl);
+//        } catch (JSONException | IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            JSONArray observations = observationBundle.getJSONArray("entry");
+//            for (int i = 0; i < observations.length(); i++) {
+//                JSONObject entry = observations.getJSONObject(i);
+//                // get resource
+//                JSONObject resource = entry.getJSONObject("resource");
+//                // get observation id
+//                String obsId = resource.getString("id");
+//                // insert observation to database
+//                insertObs(obsId);
+//
+//                JSONObject subject = resource.getJSONObject("subject");
+//                String patientId = subject.getString("reference");
+//                patientId = patientId.replace("Patient/", "");
+//
+//                // get patient observations of other measures
+//                for (String code : codes) {
+//                    insertPatientObsByCode(patientId, code, "1");
+////                    insertPatientLatestObsByCode(patientId, code);
+//                }
+//
+//                System.out.println("Retrieved observation " + obsId);
+//            }
+//        } catch (JSONException e) {
+//            System.out.println("Failed to retrieve observations.");
+//        }
+//    }
 
 //    private void insertLatestCholesObs(String patientId) {
 //        String cholesCode = "2093-3";
