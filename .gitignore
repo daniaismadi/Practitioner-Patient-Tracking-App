@@ -12,4 +12,4 @@ out/
 target/
 src/main/resources/.vscode/
 src/main/resources/.hypothesis
-src/main/database/DatabaseDriver.java
+DatabaseDriver.java

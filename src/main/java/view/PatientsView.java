@@ -7,10 +7,6 @@ import java.util.ArrayList;
 public class PatientsView extends JFrame {
     private JTabbedPane Monitor;
     JPanel rootPanel;
-    private JPanel tabPane1;
-    private JPanel westPanel;
-    private JPanel northEastPanel;
-    private JPanel southEastPanel;
     private JList<Patient> patientList;
     private JButton monitorBtn;
     private JTextField queryTimeTxt;

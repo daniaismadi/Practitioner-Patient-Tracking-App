@@ -6,10 +6,10 @@ import java.awt.*;
 
 public class HighlightCholesRenderer extends DefaultTableCellRenderer {
 
-    double cholesAvg;
+    double cholesterolAvg;
 
-    public HighlightCholesRenderer(double cholesAvg) {
-        this.cholesAvg = cholesAvg;
+    public HighlightCholesRenderer(double cholesterolAvg) {
+        this.cholesterolAvg = cholesterolAvg;
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
@@ -23,7 +23,7 @@ public class HighlightCholesRenderer extends DefaultTableCellRenderer {
         try {
             double choles = Double.valueOf(cholesStr);
 
-            if (choles > cholesAvg) {
+            if (choles > cholesterolAvg) {
                 cell.setForeground(new Color(255, 99, 71));
             } else {
                 cell.setForeground(Color.black);
