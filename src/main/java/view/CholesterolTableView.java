@@ -132,7 +132,7 @@ public class CholesterolTableView {
      * Update the cholesterol column to highlight the values that are above the average cholesterol.
      */
     public void updateCholesterolColumn() {
-        tcTable.getColumnModel().getColumn(1).setCellRenderer(new HighlightCholesRenderer(avgCholesterol));
+        tcTable.getColumnModel().getColumn(1).setCellRenderer(new CholesterolRenderer(avgCholesterol));
     }
 
     /***

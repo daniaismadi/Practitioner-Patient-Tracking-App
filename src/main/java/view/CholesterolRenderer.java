@@ -5,28 +5,27 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 
 /***
- * Table cell renderer for Diastolic BP measurements.
+ * Table cell renderer for Cholesterol measurements.
  */
-public class DiastolicBPRenderer extends DefaultTableCellRenderer {
+public class CholesterolRenderer extends DefaultTableCellRenderer {
 
     /**
-     *  Diastolic BP threshold.
+     * Average cholesterol value of monitored patients.
      */
-    double diastolicBP;
+    double cholesterolAvg;
 
     /***
-     * Class constructor for DiastolicBPRenderer. Initialises a diastolic blood pressure measurement to act as
-     * a threshold.
+     * Class constructor Cholesterol Renderer. Initialises the average cholesterol value to act as a threshold.
      *
-     * @param diastolicBP       the diastolic blood pressure threshold
+     * @param cholesterolAvg    The average cholesterol value of monitored patients.
      */
-    public DiastolicBPRenderer(double diastolicBP) {
-        this.diastolicBP = diastolicBP;
+    public CholesterolRenderer(double cholesterolAvg) {
+        this.cholesterolAvg = cholesterolAvg;
     }
 
     /***
      * Returns the component used for drawing the cell. This method is used to configure the renderer appropriately
-     * before drawing. Will highlight diastolic BP measurements on the table that are above the threshold.
+     * before drawing. Will highlight cholesterol measurements on the table that are above the threshold.
      *
      * @param table         the JTable that is asking the renderer to draw; can be null
      * @param value         the value of the cell to be rendered
@@ -36,23 +35,23 @@ public class DiastolicBPRenderer extends DefaultTableCellRenderer {
      * @param column        the column index of the cell being drawn
      * @return              the component used for drawing the cell
      */
-    @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
 
         Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        // Get value at column 2 because column 2 is the diastolic blood pressure column.
-        String bpVal = (String) table.getModel().getValueAt(row, 2);
+        // Get value at column 1 because column 1 is the cholesterol measurement column.
+        String cholesStr = (String) table.getModel().getValueAt(row, 1);
 
-        // Parse value on table.
-        bpVal = bpVal.replace(" mmHg", "");
+        // Parse cholesterol value from table.
+        cholesStr = cholesStr.replace(" mg/dL", "");
 
         try {
-            double diasBp = Double.parseDouble(bpVal);
-            if (diasBp > diastolicBP) {
-                // highlight colour to blue if diastolic blood pressure is above the threshold
-                cell.setForeground(new Color(100,149,237));
+            double choles = Double.parseDouble(cholesStr);
+
+            if (choles > cholesterolAvg) {
+                // Highlight cell red if value is above the threshold.
+                cell.setForeground(new Color(255, 99, 71));
             } else {
                 cell.setForeground(Color.black);
             }
@@ -62,4 +61,5 @@ public class DiastolicBPRenderer extends DefaultTableCellRenderer {
 
         return cell;
     }
+
 }
