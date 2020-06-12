@@ -19,23 +19,57 @@ import java.util.List;
 
 import static javax.swing.BorderFactory.createLineBorder;
 
+/***
+ * Class that acts as a controller for BloodPressureView. Implements Observer to observe changes in patient
+ * information.
+ *
+ */
 public class BPMonitorController implements Observer {
-    private PatientsView patientsView;
-    private BloodPressureView bpView;
-    private DBModel dbModel;
-    private PatientGrabber patientGrabber;
 
-    public BPMonitorController(BloodPressureView bpView, DBModel theModel, PatientGrabber patientGrabber) {
+    /***
+     * The main view that this controller is connected to.
+     */
+    private PatientsView patientsView;
+
+    /**
+     * The view class that this controller controls.
+     */
+    private BloodPressureView bpView;
+
+    /**
+     * The model class that this controller communicates with.
+     */
+    private DBModel dbModel;
+
+    /**
+     * The subject that this class subscribes to in order to update patient measurements.
+     */
+    private PatientUpdater patientUpdater;
+
+    /***
+     * Initialises all required variables.
+     *
+     * @param bpView            the view that this controller controls
+     * @param theModel          the model that provides the view with information
+     * @param patientUpdater    the concrete subject class which grabs new information about the patient
+     */
+    public BPMonitorController(BloodPressureView bpView, DBModel theModel, PatientUpdater patientUpdater) {
         this.bpView = bpView;
         this.dbModel = theModel;
-        this.patientGrabber = patientGrabber;
-        this.patientGrabber.register(this);
+        this.patientUpdater = patientUpdater;
+        this.patientUpdater.register(this);
+
         bpView.setDiastolicBP(Double.POSITIVE_INFINITY);
         bpView.setSystolicBP(Double.POSITIVE_INFINITY);
 
         this.bpView.addRemoveBtnListener(new RemoveBtnListener());
     }
 
+    /***
+     * Connects this view that displays blood pressure information to the main patients view.
+     *
+     * @param patientsView  the main patients view
+     */
     public void setPatientsView(PatientsView patientsView) {
         this.patientsView = patientsView;
         this.patientsView.addMonitorBtnListener(new BPMonitorBtnListener());
@@ -43,6 +77,11 @@ public class BPMonitorController implements Observer {
         this.patientsView.addDiastolicBPBtnListener(new DiastolicBPBtnListener());
     }
 
+    /***
+     * Adds the patients in the list of patients p to the blood pressure table.
+     *
+     * @param p     list of patients to add to the blood pressure table
+     */
     private void addToBPTable(List<Patient> p) {
 
         for (int i = 0; i < p.size(); i++) {
@@ -75,13 +114,24 @@ public class BPMonitorController implements Observer {
         bpView.updateDiastolicColumn();
     }
 
+    /***
+     * Helper function to convert date into a string format.
+     *
+     * @param date  the date to convert
+     * @return      the date as a string
+     */
     private String convertDateToString(Date date) {
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         return dateFormat.format(date);
     }
 
+    /***
+     * Return true if patient has already been added to the blood pressure monitor list.
+     *
+     * @param patient   the patient to check for
+     * @return          true if patient has already been added to the blood monitor list, false otherwise
+     */
     private boolean checkPatientAdded(Patient patient) {
-        // Return true if patient has already been added to the blood pressure monitor list.
         List<Patient> patients = bpView.getMonitoredPatients();
         for (Patient p : patients) {
             if (p.equals(patient)) {
@@ -91,18 +141,36 @@ public class BPMonitorController implements Observer {
         return false;
     }
 
+    /***
+     * Add a text pane to the high systolic blood pressure tracker.
+     *
+     * @param jTextPanes    The text pane containing the information of the patient to add.
+     */
     private void addHighSysBPObs(List<JTextPane> jTextPanes) {
         for (JTextPane jTextPane : jTextPanes) {
             bpView.addToHighSystolicBPObs(jTextPane);
         }
     }
 
+    /***
+     * Add a text pane to the high diastolic blood pressure tracker.
+     *
+     * @param jTextPanes    The text pane containing the information of the patient to add.
+     */
     private void addHighDiastolicBPObs(List<JTextPane> jTextPanes) {
         for (JTextPane jTextPane : jTextPanes) {
             bpView.addToHighDiastolicBPObs(jTextPane);
         }
     }
 
+    /***
+     * Create a list of text panes containing information of the patient who are currently being tracked for either
+     * high diastolic or high systolic blood pressure measurement.
+     *
+     * @param patientList       The list of patients to create text panes for.
+     * @param type              The type of tracker to create text panes for.
+     * @return                  The list of text panes that were created.
+     */
     private List<JTextPane> createSysBPTextPanes(List<Patient> patientList, String type) {
         List<JTextPane> textPanes = new ArrayList<>();
 
@@ -147,6 +215,13 @@ public class BPMonitorController implements Observer {
         return textPanes;
     }
 
+    /***
+     * Get the list of patients who are above a certain systolic blood pressure threshold from those who are
+     * currently being monitored for their blood pressure.
+     *
+     * @param systolicBPThreshold   the systolic blood pressure measurement threshold
+     * @return                      The list of patients who are above the systolic blood pressure threshold.
+     */
     private List<Patient> getHighSystolicBPs(double systolicBPThreshold) {
         List<Patient> patientList = new ArrayList<>();
         ArrayList<Patient> monitoredPatients = bpView.getMonitoredPatients();
@@ -170,6 +245,13 @@ public class BPMonitorController implements Observer {
         return patientList;
     }
 
+    /***
+     * Get the list of patients who are above a certain diastolic blood pressure threshold from those who are currently
+     * being monitored for their blood pressure.
+     *
+     * @param diastolicBPThreshold  The diastolic blood pressure measurement threshold
+     * @return                      The list of patients who are above the diastolic blood pressure threshold.
+     */
     private List<Patient> getHighDiastolicBPs(double diastolicBPThreshold) {
         List<Patient> patientList = new ArrayList<>();
         ArrayList<Patient> monitoredPatients = bpView.getMonitoredPatients();
@@ -193,11 +275,46 @@ public class BPMonitorController implements Observer {
         return patientList;
     }
 
+    /***
+     * Update the blood pressure view to include patients who have systolic blood pressure measurements that are above
+     * the currently set systolic blood pressure threshold.
+     *
+     */
+    private void updateHighSystolicBPTracker() {
+        // Update High Systolic BP Monitor.
+        List<Patient> patientList = getHighSystolicBPs(bpView.getSystolicBP());
+        List<JTextPane> textPanes = createSysBPTextPanes(patientList, "systolic");
+        // clear current high systolic bp view.
+        bpView.clearHighSystolicBPObs();
+        // update view.
+        addHighSysBPObs(textPanes);
+    }
+
+    /***
+     * Update the blood pressure view to include patients who have diastolic blood pressure measurements that are
+     * above the currently set diastolic blood pressure threshold.
+     *
+     */
+    private void updateHighDiastolicBPTracker() {
+        // Update High Diastolic BP Monitor.
+        List<Patient> patientList = getHighDiastolicBPs(bpView.getDiastolicBP());
+        List<JTextPane> textPanes = createSysBPTextPanes(patientList, "diastolic");
+        // clear current high systolic bp view.
+        bpView.clearHighDiastolicBPObs();
+        // update view.
+        addHighDiastolicBPObs(textPanes);
+    }
+
+    /***
+     * Overridden from the Observer interface method. Updates the view (blood pressure table and high blood pressure
+     * tracker) with this patient's new values.
+     *
+     * @param patient   The patient to update values in the table for.
+     */
     @Override
     public void update(Patient patient) {
-        // revalidate and repaint
-        System.out.println("Blood Pressure view re-validated.");
 
+        // get the position of this patient in the monitor list
         int i = bpView.getMonitoredPatients().indexOf(patient);
 
         // update table values
@@ -208,11 +325,11 @@ public class BPMonitorController implements Observer {
 
             // update text pane
             if ((double) patient.getSystolicBPs().get(0)[1] > bpView.getSystolicBP()) {
-                updateHighSystolicBP();
+                updateHighSystolicBPTracker();
             }
 
             if ((double) patient.getDiastolicBPs().get(0)[1] > bpView.getDiastolicBP()) {
-                updateHighDiastolicBP();
+                updateHighDiastolicBPTracker();
             }
         } catch (IndexOutOfBoundsException e) {
             System.out.println("No blood pressure value to update on the table.");
@@ -223,8 +340,19 @@ public class BPMonitorController implements Observer {
         bpView.getBPMonitor().repaint();
     }
 
+    /***
+     * A class to listen to the monitor button in patientsView.
+     *
+     */
     private class BPMonitorBtnListener implements ActionListener {
 
+        /***
+         * Invoked when the monitor button is clicked in the main view. Checks if the practitioner wants to monitor
+         * blood pressure values for these patients as well and if yes, adds this patient to the blood pressure
+         * monitor list. Updates the blood pressure table and the systolic and diastolic blood pressure trackers.
+         *
+         * @param e     the event that was performed
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             if (patientsView.monitorBP()) {
@@ -237,16 +365,28 @@ public class BPMonitorController implements Observer {
                         newPatientsToMonitor.add(patient);
                     }
                 }
-                System.out.println(bpView.getMonitoredPatients());
+                // Add new patients to the blood pressure table.
                 addToBPTable(newPatientsToMonitor);
-                updateHighSystolicBP();
-                updateHighDiastolicBP();
+                // Update the high systolic blood pressure tracker.
+                updateHighSystolicBPTracker();
+                // Update the high diastolic blood pressure tracker.
+                updateHighDiastolicBPTracker();
             }
         }
     }
 
+    /***
+     * A class to listen to the remove button in the blood pressure view.
+     *
+     */
     private class RemoveBtnListener implements ActionListener {
 
+        /***
+         * Invoked when the remove button is clicked. Removes the corresponding patient from the blood pressure
+         * monitor list and updates the blood pressure table and the systolic and diastolic blood pressure trackers.
+         *
+         * @param e     the event that was performed
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -255,39 +395,30 @@ public class BPMonitorController implements Observer {
                 // remove monitored patient
                 Patient p = bpView.getMonitoredPatients().get(row);
                 bpView.removePatientFromMonitor(p);
-                updateHighSystolicBP();
-                updateHighDiastolicBP();
+                updateHighSystolicBPTracker();
+                updateHighDiastolicBPTracker();
                 bpView.getBPMonitor().revalidate();
                 bpView.getBPMonitor().repaint();
                 System.out.println(bpView.getMonitoredPatients());
             }
             catch (Exception k){
+                System.out.println("No patient to remove.");
             }
         }
     }
 
-    private void updateHighSystolicBP() {
-        // Update High Systolic BP Monitor.
-        List<Patient> patientList = getHighSystolicBPs(bpView.getSystolicBP());
-        List<JTextPane> textPanes = createSysBPTextPanes(patientList, "systolic");
-        // clear current high systolic bp view.
-        bpView.clearHighSystolicBPObs();
-        // update view.
-        addHighSysBPObs(textPanes);
-    }
-
-    private void updateHighDiastolicBP() {
-        // Update High Diastolic BP Monitor.
-        List<Patient> patientList = getHighDiastolicBPs(bpView.getDiastolicBP());
-        List<JTextPane> textPanes = createSysBPTextPanes(patientList, "diastolic");
-        // clear current high systolic bp view.
-        bpView.clearHighDiastolicBPObs();
-        // update view.
-        addHighDiastolicBPObs(textPanes);
-    }
-
+    /***
+     * A class to listen to systolic blood pressure button in patientsView.
+     *
+     */
     private class SystolicBPBtnListener implements ActionListener {
 
+        /***
+         * Gets the systolic blood pressure threshold set by the practitioner and updates the systolic blood pressure
+         * tracker view.
+         *
+         * @param e     The event that was performed.
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -295,7 +426,7 @@ public class BPMonitorController implements Observer {
                 bpView.setSystolicBP(systolicBP);
                 bpView.updateSystolicColumn();
 
-                updateHighSystolicBP();
+                updateHighSystolicBPTracker();
 
             } catch (NumberFormatException ex) {
                 patientsView.displayErrorMessage("Please enter a valid input for systolic blood pressure.");
@@ -303,8 +434,18 @@ public class BPMonitorController implements Observer {
         }
     }
 
+    /***
+     * A class to listen to the diastolic blood pressure button in patientsView.
+     *
+     */
     private class DiastolicBPBtnListener implements ActionListener {
 
+        /***
+         * Gets the diastolic blood pressure threshold set by the practitioner and updates the diastolic blood pressure
+         * tracker view.
+         *
+         * @param e     The event that was performed.
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -312,7 +453,7 @@ public class BPMonitorController implements Observer {
                 bpView.setDiastolicBP(diastolicBP);
                 bpView.updateDiastolicColumn();
 
-                updateHighDiastolicBP();
+                updateHighDiastolicBPTracker();
 
             } catch (NumberFormatException ex) {
                 patientsView.displayErrorMessage("Please enter a valid input for diastolic blood pressure.");

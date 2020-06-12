@@ -40,17 +40,17 @@ public class LogInController {
                 PatientsView patientsView = new PatientsView(hPracId);
 
                 // Initialise new patientGrabber.
-                PatientGrabber patientGrabber = new PatientGrabber();
+                PatientUpdater patientUpdater = new PatientUpdater();
 
                 // Add new Blood Pressure view.
                 BloodPressureView bloodPressureView = new BloodPressureView();
-                BPMonitorController bpMonitorController = new BPMonitorController(bloodPressureView, theModel, patientGrabber);
+                BPMonitorController bpMonitorController = new BPMonitorController(bloodPressureView, theModel, patientUpdater);
                 // Give Blood Pressure pane access to information in PatientsView.
                 bpMonitorController.setPatientsView(patientsView);
                 // Add to tab pane of original view.
                 patientsView.addTabPane("Blood Pressure", bloodPressureView.getBPMonitor());
 
-                PatientsController patientsController = new PatientsController(patientsView, theModel, patientGrabber);
+                PatientsController patientsController = new PatientsController(patientsView, theModel, patientUpdater);
                 patientsController.onStart(hPracId);
 
                 // Set current visibility to false.

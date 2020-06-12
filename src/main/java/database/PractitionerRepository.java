@@ -24,15 +24,33 @@ import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Sorts.orderBy;
 
+/***
+ *
+ */
 public class PractitionerRepository implements PractitionerDAO {
 
+    /**
+     *
+     */
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
+
+    /**
+     *
+     */
     private MongoDatabase db;
 
+    /***
+     *
+     */
     public PractitionerRepository() {
         this.db = Mongo.db;
     }
 
+    /***
+     *
+     * @param hPracId
+     * @return
+     */
     public String getHPracIdentifier(String hPracId) {
         MongoCollection<Document> hpracs = db.getCollection("Practitioner");
 
@@ -52,6 +70,11 @@ public class PractitionerRepository implements PractitionerDAO {
         return identifier;
     }
 
+    /***
+     *
+     * @param hPracIdentifier
+     * @return
+     */
     public ArrayList<String> getHPracIds(String hPracIdentifier) {
         ArrayList<String> hPracIds = new ArrayList<>();
 
@@ -70,6 +93,12 @@ public class PractitionerRepository implements PractitionerDAO {
         return hPracIds;
     }
 
+    /***
+     *
+     * @param pracId
+     * @throws IOException
+     * @throws JSONException
+     */
     public void insertPracById(String pracId) throws IOException, JSONException {
         String pracUrl = rootUrl + "Practitioner/" + pracId + "?_format=json";
 

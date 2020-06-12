@@ -22,14 +22,14 @@ public class PatientsController implements Observer{
     private DBModel theModel;
     private java.util.Timer queryTimer;
     private java.util.Timer autosave;
-    private PatientGrabber patientGrabber;
+    private PatientUpdater patientUpdater;
 
 
-    public PatientsController(PatientsView theView, DBModel theModel, PatientGrabber patientGrabber) {
+    public PatientsController(PatientsView theView, DBModel theModel, PatientUpdater patientUpdater) {
         this.theView = theView;
         this.theModel = theModel;
-        this.patientGrabber = patientGrabber;
-        this.patientGrabber.register(this);
+        this.patientUpdater = patientUpdater;
+        this.patientUpdater.register(this);
 
         this.theView.setSize(1500,800);
 
@@ -287,10 +287,10 @@ public class PatientsController implements Observer{
             ListModel patients = theView.getPatientList().getModel();
             for (int i = 0; i < patients.getSize(); i++) {
                 Patient p = (Patient) patients.getElementAt(i);
-                patientGrabber.setPatient(p);
-                patientGrabber.updatePatientCholesterol(theModel);
-                patientGrabber.updatePatientDiastolicBP(theModel);
-                patientGrabber.updatePatientSystolicBP(theModel);
+                patientUpdater.setPatient(p);
+                patientUpdater.updatePatientCholesterol(theModel);
+                patientUpdater.updatePatientDiastolicBP(theModel);
+                patientUpdater.updatePatientSystolicBP(theModel);
             }
         }
     }

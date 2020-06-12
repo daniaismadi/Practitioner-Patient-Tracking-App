@@ -6,17 +6,61 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+/***
+ * A class for the view that monitors blood pressure for patients.
+ *
+ */
 public class BloodPressureView {
+
+    /**
+     * The blood pressure table.
+     */
     private JTable bpTable;
+
+    /**
+     * The blood pressure table model.
+     */
     private DefaultTableModel bpTableModel;
+
+    /**
+     * The list of patients currently being monitored for their blood pressure measurements.
+     */
     private ArrayList<Patient> monitoredPatients;
+
+    /**
+     * The entire view- the blood pressure panel.
+     */
     private JPanel BPMonitor;
+
+    /**
+     * The high systolic blood pressure tracker panel.
+     */
     private JPanel highSystolicBP;
+
+    /**
+     * The remove button to remove patients.
+     */
     private JButton removeBtn;
+
+    /**
+     * The high diastolic blood pressure tracker panel.
+     */
     private JPanel highDiastolicBP;
+
+    /**
+     * The systolic blood pressure threshold.
+     */
     private double systolicBP;
+
+    /**
+     * The diastolic blood pressure threshold.
+     */
     private double diastolicBP;
 
+    /***
+     * Initialise the blood pressure view.
+     *
+     */
     public BloodPressureView() {
         // Initialise columns on table.
         this.bpTableModel = new DefaultTableModel();
@@ -34,14 +78,28 @@ public class BloodPressureView {
         ));
     }
 
+    /***
+     * Add a new text pane to the high systolic blood pressure tracker.
+     *
+     * @param textPane
+     */
     public void addToHighSystolicBPObs(JTextPane textPane) {
         highSystolicBP.add(textPane);
     }
 
+    /***
+     * Add a new text pane to the high diastolic blood pressure tracker.
+     *
+     * @param textPane
+     */
     public void addToHighDiastolicBPObs(JTextPane textPane) {
         highDiastolicBP.add(textPane);
     }
 
+    /***
+     * Clear the high systolic blood pressure tracker view.
+     *
+     */
     public void clearHighSystolicBPObs() {
         highSystolicBP.getComponentCount();
         for (int i = highSystolicBP.getComponentCount()-1; i >= 0; i--) {
@@ -49,6 +107,10 @@ public class BloodPressureView {
         }
     }
 
+    /***
+     * Clear the high diastolic blood pressure tracker view.
+     *
+     */
     public void clearHighDiastolicBPObs() {
         highDiastolicBP.getComponentCount();
         for (int i = highDiastolicBP.getComponentCount()-1; i >= 0; i--) {
@@ -56,62 +118,140 @@ public class BloodPressureView {
         }
     }
 
+    /***
+     * Get the entire view.
+     *
+     * @return      Return the entire view.
+     */
     public JPanel getBPMonitor() {
         return BPMonitor;
     }
 
+    /***
+     * Get the systolic blood pressure threshold.
+     *
+     * @return      The systolic blood pressure threshold.
+     */
     public double getSystolicBP() {
         return systolicBP;
     }
 
+    /***
+     * Set the systolic blood pressure threshold.
+     *
+     * @param systolicBP    The systolic blood pressure threshold.
+     */
     public void setSystolicBP(double systolicBP) {
         this.systolicBP = systolicBP;
     }
 
+    /***
+     * Get the diastolic blood pressure threshold.
+     *
+     * @return      The diastolic blood pressure threshold.
+     */
     public double getDiastolicBP() {
         return diastolicBP;
     }
 
+    /***
+     * Set the diastolic blood pressure threshold.
+     *
+     * @param diastolicBP   The diastolic blood pressure threshold.
+     */
     public void setDiastolicBP(double diastolicBP) {
         this.diastolicBP = diastolicBP;
     }
 
+    /***
+     * Set the value in row, column to the blood pressure table to object.
+     *
+     * @param object    The object to update the table row, column to.
+     * @param row       The row of the table.
+     * @param col       The column of the table.
+     */
     public void setBpTableValue(Object object, int row, int col) {
         this.bpTable.setValueAt(object, row, col);
     }
 
+    /***
+     * Get the blood pressure table.
+     *
+     * @return      The blood pressure table.
+     */
     public   JTable getBpTable() {
         return bpTable;
     }
 
+    /***
+     * Get the blood pressure table model.
+     *
+     * @return      The blood pressure table model.
+     */
     public DefaultTableModel getBpTableModel() {
         return bpTableModel;
     }
 
-    public void addPatientToMonitor(Patient patient) {
-        monitoredPatients.add(patient);
-    }
-
-    public void removePatientFromMonitor(Patient p) {
-        monitoredPatients.remove(p);
-    }
-
-    public ArrayList<Patient> getMonitoredPatients() {
-        return monitoredPatients;
-    }
-
+    /***
+     * Add this array of objects as a row in the blood pressure table.
+     *
+     * @param objects       The objects to add to the table.
+     */
     public void addRowToBPTable(Object[] objects) {
         this.bpTableModel.addRow(objects);
     }
 
+    /***
+     * Monitor this patient's blood pressure measurements by adding this patient to the current monitor list.
+     *
+     * @param patient       The patient to add to the current monitor list.
+     */
+    public void addPatientToMonitor(Patient patient) {
+        monitoredPatients.add(patient);
+    }
+
+    /***
+     * Remove this patient from the list of patients who are currently being monitored for their blood pressure
+     * measurements.
+     *
+     * @param p     The patient to remove.
+     */
+    public void removePatientFromMonitor(Patient p) {
+        monitoredPatients.remove(p);
+    }
+
+    /***
+     * Get the list of patients who are currently being monitored for their blood pressure measurements.
+     *
+     * @return      The list of patients who are currently being monitored for their blood pressure measurements.
+     */
+    public ArrayList<Patient> getMonitoredPatients() {
+        return monitoredPatients;
+    }
+
+    /***
+     * Update the systolic blood pressure column in the blood pressure table to be highlighted if it is above the
+     * set systolic blood pressure threshold.
+     *
+     */
     public void updateSystolicColumn() {
         bpTable.getColumnModel().getColumn(1).setCellRenderer(new SystolicBPRenderer(systolicBP));
     }
 
+    /***
+     * Update the diastolic blood pressure column in the blood pressure table to be highlighted if it is above
+     * the set diastolic blood pressure threshold.
+     *
+     */
     public void updateDiastolicColumn() {
         bpTable.getColumnModel().getColumn(2).setCellRenderer(new DiastolicBPRenderer(diastolicBP));
     }
 
+    /***
+     * Add a listener for the remove button in the view.
+     *
+     * @param listenForRemoveBtn    the listener to add for the remove button
+     */
     public void addRemoveBtnListener(ActionListener listenForRemoveBtn) {
         removeBtn.addActionListener(listenForRemoveBtn);
     }

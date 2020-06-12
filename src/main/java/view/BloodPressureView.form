@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="BPMonitor" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="1449" height="636"/>
+      <xy x="20" y="20" width="1489" height="636"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -31,7 +31,7 @@
           </grid>
         </constraints>
         <properties/>
-        <border type="none" title="Monitored Patients with High Systolic BP"/>
+        <border type="none" title="High Systolic Blood Pressure Tracker"/>
         <children>
           <grid id="195a3" binding="highSystolicBP" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
@@ -58,7 +58,7 @@
           </grid>
         </constraints>
         <properties/>
-        <border type="none" title="Monitored Patients with High Diastolic BP"/>
+        <border type="none" title="High Diastolic Blood Pressure Tracker"/>
         <children>
           <grid id="97ae8" binding="highDiastolicBP" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
