@@ -1,6 +1,7 @@
 package view;
 
 import java.util.Date;
+import java.util.List;
 
 public class Patient {
     private String id;
@@ -16,6 +17,25 @@ public class Patient {
 
     public Patient(){
     }
+
+    public List<Object[]> getSystolicBPs() {
+        return systolicBPs;
+    }
+
+    public void setSystolicBPs(List<Object[]> systolicBPs) {
+        this.systolicBPs = systolicBPs;
+    }
+
+    public List<Object[]> getDiastolicBPs() {
+        return diastolicBPs;
+    }
+
+    public void setDiastolicBPs(List<Object[]> diastolicBPs) {
+        this.diastolicBPs = diastolicBPs;
+    }
+
+    private List<Object[]> systolicBPs;
+    private List<Object[]> diastolicBPs;
 
     public String getFamilyName() {
         return familyName;

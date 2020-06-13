@@ -1,43 +1,91 @@
 package view;
 
-import database.DBModel;
-
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class PatientsView extends JFrame{
+/***
+ * Class that shows list of patients of a certain practitioner and has the required controls to monitor new patients
+ * and set query time and diastolic and systolic blood pressure thresholds.
+ *
+ */
+public class PatientsView extends JFrame {
+
+    /**
+     * The Monitor pane.
+     */
     private JTabbedPane Monitor;
+
+    /**
+     * The root panel.
+     */
     JPanel rootPanel;
-    private JPanel tabPane1;
-    private JPanel tabPane2;
-    private JPanel westPanel;
-    private JPanel northEastPanel;
-    private JPanel southEastPanel;
+
+    /**
+     * The list of patients of this practitioner.
+     */
     private JList<Patient> patientList;
-    private JTable monTable;
-    private JButton monBttn;
-    private JButton remBttn;
+
+    /**
+     * The monitor button to monitor the new patient.
+     */
+    private JButton monitorBtn;
+
+    /**
+     * The text field that contains the new query time, N, that updates patient observations every N seconds.
+     */
     private JTextField queryTimeTxt;
-    private JButton queryBttn;
-    private JLabel dob;
-    private JLabel gender;
-    private JLabel country;
-    private JLabel city;
-    private JLabel state;
-    private JButton cholesBttn;
-//    private JButton bpBttn;
+
+    /**
+     * The query button to set the new query time.
+     */
+    private JButton queryBtn;
+
+    /**
+     * The text field that contains the diastolic blood pressure measurement to monitor.
+     */
+    private JTextField diastolicBPTxt;
+
+    /**
+     * The button that sets the diastolic blood pressure threshold.
+     */
+    private JButton setDiastolicBPBtn;
+
+    /**
+     * The text field that contains the systolic blood pressure measurement to monitor.
+     */
+    private JTextField systolicBPTxt;
+
+    /**
+     * The button that sets the systolic blood pressure threshold.
+     */
+    private JButton setSystolicBPBtn;
+
+    /**
+     * The radio button to indicate whether the patient's cholesterol measurements should be monitored.
+     */
+    private JRadioButton monitorCholesterolBtn;
+
+    /**
+     * The radio button to indicate whether the patient's blood pressure measurements should be monitored.
+     */
+    private JRadioButton monitorBPBtn;
+
+    /**
+     * The patient list as a DefaultListModel.
+     */
     private DefaultListModel<Patient> defaultPatientList;
-    private DefaultTableModel tableModel;
-    private String arg;
+
+    /**
+     * The practitioner ID.
+     */
     private String hPracId;
-    private double avgCholes;
-    private int queryTime = 10;
 
-    private ArrayList<Patient> monitoredPatients;
-
+    /***
+     * Initialises all the required variables of PatientView.
+     *
+     * @param hPracId
+     */
     public PatientsView(String hPracId) {
 
         this.hPracId = hPracId;
@@ -45,143 +93,153 @@ public class PatientsView extends JFrame{
         this.setContentPane(rootPanel);
         this.pack();
 
+        // Set default patient list to a new list model.
         this.defaultPatientList = new DefaultListModel<Patient>();
-        this.tableModel = new DefaultTableModel();
-        this.monitoredPatients = new ArrayList<Patient>();
-
-        // onStart(hPracId);
-
-        monTable.setModel(tableModel);
-        tableModel.addColumn("NAME");
-        tableModel.addColumn("TOTAL CHOLESTEROL");
-        tableModel.addColumn("TIME");
-        tableModel.setRowCount(0);
-
     }
 
-    public ArrayList<Patient> getMonitoredPatients() {
-        return monitoredPatients;
+    /***
+     * Add tab pane to this view.
+     *
+     * @param tabName       the name of the tab
+     * @param newPanel      the new panel to add as a tab pane
+     */
+    public void addTabPane(String tabName, JPanel newPanel) {
+        Monitor.add(tabName, newPanel);
     }
 
-    public void addMonitoredPatient(Patient patient) {
-        this.monitoredPatients.add(patient);
+    /***
+     * Return true if the radio button to monitor cholesterol button is checked, false otherwise.
+     *
+     * @return      true if the radio button to monitor cholesterol button is checked, false otherwise
+     */
+    public boolean monitorCholesterol() {
+        return monitorCholesterolBtn.isSelected();
     }
 
-    public void removeMonitoredPatient(int position) {
-        this.monitoredPatients.remove(position);
+    /***
+     * Return true if the radio button to monitor blood pressure button is checked, false otherwise.
+     *
+     * @return      true if the radio button to monitor blood pressure button is checked, false otherwise
+     */
+    public boolean monitorBP() {
+        return monitorBPBtn.isSelected();
     }
 
-    public DefaultTableModel getTableModel() {
-        return this.tableModel;
-    }
-
+    /***
+     * Return the patient list as a DefaultListModel.
+     *
+     * @return      the patient list as a DefaultListModel
+     */
     public DefaultListModel getDefaultPatientList() {
         return this.defaultPatientList;
     }
 
-    public void updateColumnRenderer() {
-        monTable.getColumnModel().getColumn(0).setCellRenderer(new HighlightCholesRenderer(avgCholes));
-        monTable.getColumnModel().getColumn(1).setCellRenderer(new HighlightCholesRenderer(avgCholes));
-    }
-
+    /***
+     * Return the patient list as a JList.
+     *
+     * @return      the patient list as a JList
+     */
     public JList<Patient> getPatientList() {
         return this.patientList;
     }
 
-    public JTable getMonTable() {
-        return this.monTable;
-    }
-
-    public int getMonTableRowCount() {
-        return this.monTable.getRowCount();
-    }
-
-    public Object getMonTableValueAt(int row, int col) {
-        return this.monTable.getValueAt(row, col);
-    }
-
-    public void addRowToTableModel(Object[] objects) {
-        this.tableModel.addRow(objects);
-    }
-
-    public void addExtraInfo(String dob, String gender, String country, String city, String state){
-        this.dob.setText(dob);
-        this.gender.setText(gender);
-        this.country.setText(country);
-        this.city.setText(city);
-        this.state.setText(state);
-    }
-
-    public void extraInfoInitialState(){
-        this.dob.setText("Date of Birth");
-        this.gender.setText("Gender");
-        this.country.setText("Country");
-        this.city.setText("City");
-        this.state.setText("State");
-    }
-
-    void addRowSelectionInterval(int i, int j) {
-        this.monTable.addRowSelectionInterval(i, j);
-    }
-
-    void removeRowSelectionInterval(int i, int j) {
-        this.monTable.removeRowSelectionInterval(i, j);
-    }
-
-    void setTableForegroundColor(Color color) {
-        this.monTable.setForeground(color);
-    }
-
-    public void addToPutList(Patient patient) {
+    /***
+     * Add patient to patient list.
+     *
+     * @param patient       the patient to add
+     */
+    public void addToPatientList(Patient patient) {
         this.defaultPatientList.addElement(patient);
     }
 
-    public void addMonitorBtnListener(ActionListener listenForMonitorBtn) {
-        monBttn.addActionListener(listenForMonitorBtn);
-    }
-
-    public void addRemoveBtnListener(ActionListener listenForRemoveBtn) {
-        remBttn.addActionListener(listenForRemoveBtn);
-    }
-
-    public void addQueryBtnListener(ActionListener listenForQueryBtn) {
-        queryBttn.addActionListener(listenForQueryBtn);
-    }
-
-    public void addCholestrolBtnListener(ActionListener listenForCholesBtn){
-        cholesBttn.addActionListener(listenForCholesBtn);
-    }
-
-//    public void addBpBtnListener(ActionListener listenForBpBtn){
-//        bpBttn.addActionListener(listenForBpBtn);
-//    }
-
+    /***
+     * Return the practitioner ID.
+     *
+     * @return  the practitioner ID
+     */
     public String gethPracId() {
         return hPracId;
     }
 
-    public void sethPracId(String hPracId) {
-        this.hPracId = hPracId;
-    }
-
-    public void setPatientListModel(DefaultListModel model) {
+    /***
+     * Set the patient list model.
+     *
+     */
+    public void setPatientListModel() {
         this.patientList.setModel(defaultPatientList);
     }
 
-    public double getAvgCholes() {
-        return avgCholes;
-    }
-
-    public void setAvgCholes(double avgCholes) {
-        this.avgCholes = avgCholes;
-    }
-
-
+    /***
+     * Return the new query time.
+     *
+     * @return      the query time that was set by the practitioner
+     */
     public String getQueryTimeTxt() {
         return queryTimeTxt.getText();
     }
 
+    /***
+     * Return the new systolic blood pressure threshold.
+     *
+     * @return      the systolic blood pressure threshold that was set by the practitioner
+     */
+    public String getSystolicBPTxt() {
+        return systolicBPTxt.getText();
+    }
+
+    /***
+     * Return the new diastolic blood pressure threshold.
+     *
+     * @return      the diastolic blood pressure threshold that was set by the practitioner
+     */
+    public String getDiastolicBPTxt() {
+        return diastolicBPTxt.getText();
+    }
+
+    /***
+     * Add a listener for the monitor button.
+     *
+     * @param listenForMonitorBtn       the listener for the monitor button
+     */
+    public void addMonitorBtnListener(ActionListener listenForMonitorBtn) {
+        monitorBtn.addActionListener(listenForMonitorBtn);
+    }
+
+
+    /***
+     * Add a listener for the query button.
+     *
+     * @param listenForQueryBtn     the listener for the query button
+     */
+    public void addQueryBtnListener(ActionListener listenForQueryBtn) {
+        queryBtn.addActionListener(listenForQueryBtn);
+    }
+
+    /***
+     * Add a listener for the systolic blood pressure button.
+     *
+     * @param listenForSystolicBPBtn    the listener for setting the systolic blood pressure threshold
+     */
+    public void addSystolicBPBtnListener(ActionListener listenForSystolicBPBtn) {
+        setSystolicBPBtn.addActionListener(listenForSystolicBPBtn);
+    }
+
+    /***
+     * Add a listener for the diastolic blood pressure button.
+     *
+     * @param listenForDiastolicBPBtn   the listener for setting the diastolic blood pressure threshold
+     */
+    public void addDiastolicBPBtnListener(ActionListener listenForDiastolicBPBtn) {
+        setDiastolicBPBtn.addActionListener(listenForDiastolicBPBtn);
+    }
+
+    /***
+     * Display an error message to the view.
+     *
+     * @param errorMessage      the error mesage to display
+     */
     public void displayErrorMessage(String errorMessage) {
         JOptionPane.showMessageDialog(this, errorMessage);
     }
+
 }
