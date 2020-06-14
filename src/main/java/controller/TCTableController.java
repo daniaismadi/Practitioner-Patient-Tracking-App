@@ -269,13 +269,10 @@ public class TCTableController implements Observer {
          */
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                ArrayList<Patient> list = tcView.getMonitoredPatients();
-                CholestrolChartView cholChartView = new CholestrolChartView(list);
-            }
-            catch (Exception k){
-                System.out.println("No cholestrol values to show in chart.");
-            }
+
+            ArrayList<Patient> list = tcView.getMonitoredPatients();
+            CholesChartController cholesChartController = new CholesChartController(list);
+
         }
     }
 
