@@ -62,6 +62,11 @@ public class CholesterolTableView {
     private JPanel TCTableMonitor;
 
     /**
+     * The button that will generate the bar chart.
+     */
+    private JButton generateCholButton;
+
+    /**
      * The average cholesterol of all monitored patients.
      */
     private double avgCholesterol;
@@ -172,6 +177,15 @@ public class CholesterolTableView {
      */
     public void addRemoveBtnListener(ActionListener listenForRemoveBtn) {
         removeButton.addActionListener(listenForRemoveBtn);
+    }
+
+    /***
+     * Add a listener for the generate cholestrol chart button in the view.
+     *
+     * @param listenForGenerateCholBtn    the listener to add for the generate chart button
+     */
+    public void addGenerateCholBtnListener(ActionListener listenForGenerateCholBtn) {
+        generateCholButton.addActionListener(listenForGenerateCholBtn);
     }
 
     /***

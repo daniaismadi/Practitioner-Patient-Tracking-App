@@ -15,10 +15,10 @@ import javax.swing.*;
 import java.util.List;
 
 
-public class CholesChartView extends ApplicationFrame {
+public class CholestrolChartView extends ApplicationFrame {
     List<Patient> patientList;
 
-    public CholesChartView(List<Patient> patientsList){
+    public CholestrolChartView(List<Patient> patientsList){
 
         super("Cholestrol Observations of Monitored Patients");
         this.patientList = patientsList;

@@ -2,6 +2,7 @@ package controller;
 
 import database.DBModel;
 import view.CholesterolTableView;
+import view.CholestrolChartView;
 import view.Patient;
 import view.PatientsView;
 
@@ -42,6 +43,7 @@ public class TCTableController implements Observer {
      */
     private PatientUpdater patientUpdater;
 
+
     /***
      * Initialises all required variables for the cholesterol table view.
      *
@@ -61,6 +63,8 @@ public class TCTableController implements Observer {
 
         // Add remove button listener.
         this.tcView.addRemoveBtnListener(new RemoveBtnListener());
+        // Add generate button listener
+        this.tcView.addGenerateCholBtnListener(new GenCholBtnListener());
         // Add table selection listener.
         this.tcView.addTableListener(new TableSelectionListener());
     }
@@ -247,6 +251,30 @@ public class TCTableController implements Observer {
             }
             catch (Exception k){
                 System.out.println("No patient to remove.");
+            }
+        }
+    }
+
+    /***
+     * A class to listen to the generate chart button in the cholesterol table view.
+     *
+     */
+    private class GenCholBtnListener implements ActionListener {
+
+        /***
+         * Invoked when the generate chart button is clicked. Generates a bar chart with
+         * total cholestrol values
+         *
+         * @param e     the event that was performed
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                ArrayList<Patient> list = tcView.getMonitoredPatients();
+                CholestrolChartView cholChartView = new CholestrolChartView(list);
+            }
+            catch (Exception k){
+                System.out.println("No cholestrol values to show in chart.");
             }
         }
     }
