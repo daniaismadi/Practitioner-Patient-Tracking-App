@@ -15,12 +15,12 @@ import javax.swing.*;
 import java.util.List;
 
 
-public class CholestrolChartView extends ApplicationFrame {
+public class CholestrolChartView extends JDialog {
     List<Patient> patientList;
 
     public CholestrolChartView(List<Patient> patientsList){
 
-        super("Cholestrol Observations of Monitored Patients");
+//        super("Cholestrol Observations of Monitored Patients");
         this.patientList = patientsList;
         JFreeChart barChart = chart();
         ChartPanel chartPanel = new ChartPanel(barChart);
@@ -28,6 +28,7 @@ public class CholestrolChartView extends ApplicationFrame {
         BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
         br.setMaximumBarWidth(.1); // set maximum width to 35% of chart
         setContentPane(chartPanel);
+        setDefaultCloseOperation(CholestrolChartView.HIDE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
     }
