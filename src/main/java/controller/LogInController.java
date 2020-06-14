@@ -50,10 +50,10 @@ public class LogInController {
     /***
      * Listener to listen for the log in button,.
      */
-    class LogInListener implements ActionListener{
+    private class LogInListener implements ActionListener{
 
         /***
-         * Invoked when the log in button is clicked. Creates required tab panes to monitor certain charactersitics
+         * Invoked when the log in button is clicked. Creates required tab panes to monitor certain characteristics
          * and opens a new view that shows list of patients after the practitioner logs in.
          *
          * @param e     the event that was performed
@@ -105,7 +105,7 @@ public class LogInController {
          * @param patientUpdater    The concrete subject class that updates information for this view.
          * @return                  The panel that this view is attached to.
          */
-        public JPanel createCholesterolTableView(PatientsView patientsView, DBModel dbModel, PatientUpdater patientUpdater) {
+        private JPanel createCholesterolTableView(PatientsView patientsView, DBModel dbModel, PatientUpdater patientUpdater) {
             // Add new Cholesterol Table view.
             CholesterolTableView cholesterolTableView = new CholesterolTableView();
             TCTableController tcTableController = new TCTableController(cholesterolTableView, dbModel, patientUpdater);
@@ -124,7 +124,7 @@ public class LogInController {
          * @param patientUpdater    The concrete subject class that updates information for this view.
          * @return                  The panel that this view is attached to.
          */
-        public JPanel createBPTableView(PatientsView patientsView, DBModel dbModel, PatientUpdater patientUpdater) {
+        private JPanel createBPTableView(PatientsView patientsView, DBModel dbModel, PatientUpdater patientUpdater) {
             // Add new Blood Pressure view.
             BloodPressureTableView bloodPressureTableView = new BloodPressureTableView();
             BPTableController bpTableController = new BPTableController(bloodPressureTableView, LogInController.this.dbModel, patientUpdater);

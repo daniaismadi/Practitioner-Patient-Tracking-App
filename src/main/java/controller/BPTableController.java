@@ -149,7 +149,7 @@ public class BPTableController implements Observer {
      *
      * @param jTextPanes    The text pane containing the information of the patient to add.
      */
-    private void addHighSysBPObs(List<JTextPane> jTextPanes) {
+    private void addHighSystolicBPObs(List<JTextPane> jTextPanes) {
         for (JTextPane jTextPane : jTextPanes) {
             bpView.addToHighSystolicBPObs(jTextPane);
         }
@@ -290,7 +290,7 @@ public class BPTableController implements Observer {
         // clear current high systolic bp view.
         bpView.clearHighSystolicBPObs();
         // update view.
-        addHighSysBPObs(textPanes);
+        addHighSystolicBPObs(textPanes);
     }
 
     /***

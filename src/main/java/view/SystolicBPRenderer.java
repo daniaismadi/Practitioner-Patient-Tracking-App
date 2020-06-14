@@ -12,7 +12,7 @@ public class SystolicBPRenderer extends DefaultTableCellRenderer {
     /**
      * Systolic BP threshold.
      */
-    double systolicBP;
+    private double systolicBP;
 
     /***
      * Class constructor for SystolicBPRenderer. Initialises a systolic blood pressure measurement to act as

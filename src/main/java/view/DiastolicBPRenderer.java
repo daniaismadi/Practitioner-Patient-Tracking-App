@@ -12,7 +12,7 @@ public class DiastolicBPRenderer extends DefaultTableCellRenderer {
     /**
      *  Diastolic BP threshold.
      */
-    double diastolicBP;
+    private double diastolicBP;
 
     /***
      * Class constructor for DiastolicBPRenderer. Initialises a diastolic blood pressure measurement to act as
@@ -32,7 +32,7 @@ public class DiastolicBPRenderer extends DefaultTableCellRenderer {
      * @param value         the value of the cell to be rendered
      * @param isSelected    true if the cell is to be rendered with the selection highlighted; otherwise false
      * @param hasFocus      if true, render cell appropriately
-     * @param row           the row index of the cell being drawn
+     * @param row           the row index of the cell basteing drawn
      * @param column        the column index of the cell being drawn
      * @return              the component used for drawing the cell
      */
