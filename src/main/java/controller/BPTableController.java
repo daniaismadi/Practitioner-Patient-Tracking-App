@@ -174,7 +174,7 @@ public class BPTableController implements Observer {
      * @param type              The type of tracker to create text panes for.
      * @return                  The list of text panes that were created.
      */
-    private List<JTextPane> createSysBPTextPanes(List<Patient> patientList, String type) {
+    private List<JTextPane> createBPTracker(List<Patient> patientList, String type) {
         List<JTextPane> textPanes = new ArrayList<>();
 
         for (Patient p : patientList) {
@@ -286,7 +286,7 @@ public class BPTableController implements Observer {
     private void updateHighSystolicBPTracker() {
         // Update High Systolic BP Monitor.
         List<Patient> patientList = getHighSystolicBPs(bpView.getSystolicBP());
-        List<JTextPane> textPanes = createSysBPTextPanes(patientList, "systolic");
+        List<JTextPane> textPanes = createBPTracker(patientList, "systolic");
         // clear current high systolic bp view.
         bpView.clearHighSystolicBPObs();
         // update view.
@@ -301,7 +301,7 @@ public class BPTableController implements Observer {
     private void updateHighDiastolicBPTracker() {
         // Update High Diastolic BP Monitor.
         List<Patient> patientList = getHighDiastolicBPs(bpView.getDiastolicBP());
-        List<JTextPane> textPanes = createSysBPTextPanes(patientList, "diastolic");
+        List<JTextPane> textPanes = createBPTracker(patientList, "diastolic");
         // clear current high systolic bp view.
         bpView.clearHighDiastolicBPObs();
         // update view.

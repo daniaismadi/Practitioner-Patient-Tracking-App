@@ -104,6 +104,7 @@ public class ObservationRepository implements ObservationDAO {
      * @param patientId     the ID of the patient
      * @param count         the number of observations to insert
      */
+    @Override
     public void insertCholesterolObs(String patientId, int count) {
         // Retrieve cholesterol observation code.
         String code = observationCodes.get("Cholesterol");
@@ -118,6 +119,7 @@ public class ObservationRepository implements ObservationDAO {
      * @param patientId     the ID of the patient
      * @param count         the number of observations to insert
      */
+    @Override
     public void insertBPObs(String patientId, int count) {
         // Retrieve blood pressure observation code.
         String code = observationCodes.get("Blood Pressure");
@@ -134,6 +136,7 @@ public class ObservationRepository implements ObservationDAO {
      *                      descending order of Date. Date is of type Date and Cholesterol Value is of type double.
      * @throws ParseException   Occurs if there is an error in parsing the effectiveDateTIme.
      */
+    @Override
     public List<Object[]> getCholesterolObs(String patientId, int count) throws ParseException {
         // Retrieve cholesterol observation code.
         String code = observationCodes.get("Cholesterol");
@@ -194,6 +197,7 @@ public class ObservationRepository implements ObservationDAO {
      *                      double.
      * @throws ParseException   if a parse exception occurs when retrieving the date
      */
+    @Override
     public List<Object[]> getSystolicBPObs(String patientId, int count) throws ParseException {
         return getBPObs(patientId, "Systolic Blood Pressure", count);
     }
@@ -207,6 +211,7 @@ public class ObservationRepository implements ObservationDAO {
      *                      in descending order of Date. Date is of type Date and Systolic BP Value is of type double.
      * @throws ParseException   if a parse exception occurs when retrieving the date
      */
+    @Override
     public List<Object[]> getDiastolicBPObs(String patientId, int count) throws ParseException {
         return getBPObs(patientId, "Diastolic Blood Pressure", count);
     }

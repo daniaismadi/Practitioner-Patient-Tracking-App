@@ -53,7 +53,7 @@ public class PatientsController implements Observer {
         // Set patients list model.
         this.patientsView.setPatientListModel();
         // update patient list
-        ArrayList<String> patientIds = dbModel.getPatientList(this.patientsView.gethPracId());
+        ArrayList<String> patientIds = dbModel.getPatientList(this.patientsView.getHPracId());
         createPatients(patientIds);
 
         // new query timer, set to 60 seconds at first
@@ -153,9 +153,10 @@ public class PatientsController implements Observer {
         public void run() {
             System.out.println("Getting new observations.");
 
-            ListModel patients = patientsView.getPatientList().getModel();
+             ListModel<Patient> patients = patientsView.getPatientList().getModel();
+
             for (int i = 0; i < patients.getSize(); i++) {
-                Patient p = (Patient) patients.getElementAt(i);
+                Patient p = patients.getElementAt(i);
                 patientUpdater.setPatient(p);
                 patientUpdater.updatePatientCholesterol(dbModel);
                 patientUpdater.updatePatientDiastolicBP(dbModel);

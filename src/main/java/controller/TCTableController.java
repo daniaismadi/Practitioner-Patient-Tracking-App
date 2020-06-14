@@ -236,11 +236,12 @@ public class TCTableController implements Observer {
             try {
                 int row = tcView.getTcTable().getSelectedRow();
                 tcView.getTcTableModel().removeRow(row);
-                //calculateCholesAverage();
-                tcView.updateCholesterolColumn();
                 // remove monitored patient
                 Patient p = tcView.getMonitoredPatients().get(row);
                 tcView.removePatientFromMonitor(p);
+
+                calculateTCAverage();
+                tcView.updateCholesterolColumn();
                 // Reset patient info view state.
                 tcView.resetPatientInfo();
             }

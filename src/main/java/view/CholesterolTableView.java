@@ -190,7 +190,7 @@ public class CholesterolTableView {
      *
      * @return      The total cholesterol table.
      */
-    public   JTable getTcTable() {
+    public JTable getTcTable() {
         return tcTable;
     }
 
