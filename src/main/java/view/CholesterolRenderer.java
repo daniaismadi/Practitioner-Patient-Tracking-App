@@ -12,7 +12,7 @@ public class CholesterolRenderer extends DefaultTableCellRenderer {
     /**
      * Average cholesterol value of monitored patients.
      */
-    double cholesterolAvg;
+    private double cholesterolAvg;
 
     /***
      * Class constructor Cholesterol Renderer. Initialises the average cholesterol value to act as a threshold.

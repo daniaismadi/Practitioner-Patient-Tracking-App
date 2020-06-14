@@ -100,8 +100,7 @@ public class BloodPressureTableView {
         this.monitoredPatients = new ArrayList<>();
 
         highSystolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
-        highDiastolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1
-        ));
+        highDiastolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
     }
 
     /***
@@ -235,7 +234,7 @@ public class BloodPressureTableView {
      *
      * @return      The blood pressure table.
      */
-    public   JTable getBpTable() {
+    public JTable getBpTable() {
         return bpTable;
     }
 

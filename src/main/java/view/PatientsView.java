@@ -2,7 +2,6 @@ package view;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /***
  * Class that shows list of patients of a certain practitioner and has the required controls to monitor new patients
@@ -12,14 +11,14 @@ import java.util.ArrayList;
 public class PatientsView extends JFrame {
 
     /**
-     * The Monitor pane.
+     * The pane that shows all practitioner patients and settings for monitoring each patient.
      */
-    private JTabbedPane Monitor;
+    private JTabbedPane patientsMonitorSettings;
 
     /**
      * The root panel.
      */
-    JPanel rootPanel;
+    private JPanel rootPanel;
 
     /**
      * The list of patients of this practitioner.
@@ -104,7 +103,7 @@ public class PatientsView extends JFrame {
      * @param newPanel      the new panel to add as a tab pane
      */
     public void addTabPane(String tabName, JPanel newPanel) {
-        Monitor.add(tabName, newPanel);
+        patientsMonitorSettings.add(tabName, newPanel);
     }
 
     /***
@@ -157,7 +156,7 @@ public class PatientsView extends JFrame {
      *
      * @return  the practitioner ID
      */
-    public String gethPracId() {
+    public String getHPracId() {
         return hPracId;
     }
 

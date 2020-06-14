@@ -12,17 +12,17 @@ public class LogInView extends JFrame{
     /***
      * The root panel of this view.
      */
-    JPanel rootPanel;
+    private JPanel rootPanel;
 
     /**
      * The log in button.
      */
-    JButton logInButton;
+    private JButton logInButton;
 
     /**
      * The text field where the practitioner ID is entered.
      */
-    JTextField practitionerId;
+    private JTextField practitionerId;
 
     /***
      * Checkbox to indicate to fetch new encounters for this practitioner.
