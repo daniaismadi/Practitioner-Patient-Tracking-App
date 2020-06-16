@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * A class for the view that monitors blood pressure for patients.
  *
  */
-public class BloodPressureTableView {
+public class BloodPressureTableView extends Component {
 
     /**
      * The blood pressure table.
@@ -72,6 +72,7 @@ public class BloodPressureTableView {
      * State label for patient selected.
      */
     private JLabel patientState;
+    private JButton generateBpButton;
 
     /**
      * The systolic blood pressure threshold.
@@ -311,6 +312,15 @@ public class BloodPressureTableView {
         removeBtn.addActionListener(listenForRemoveBtn);
     }
 
+    /**
+     * Add a listener for the generate graph button in the view.
+     *
+     * @param listenForGenerateBplBtn the listener to add for the generate graph button
+     */
+    public void addGenerateBpBtnListener(ActionListener listenForGenerateBplBtn) {
+        generateBpButton.addActionListener(listenForGenerateBplBtn);
+    }
+
     /***
      * Add a listener for the table model.
      *
@@ -318,6 +328,15 @@ public class BloodPressureTableView {
      */
     public void addTableListener(ListSelectionListener listenForTableClick) {
         bpTable.getSelectionModel().addListSelectionListener(listenForTableClick);
+    }
+
+    /***
+     * Display error message to the view.
+     *
+     * @param errorMessage      the error message to display
+     */
+    public void displayErrorMessage(String errorMessage) {
+        JOptionPane.showMessageDialog(this, errorMessage);
     }
 
 }
