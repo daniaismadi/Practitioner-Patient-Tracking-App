@@ -8,22 +8,30 @@ import java.util.ArrayList;
 public class SBPGraphController implements Observer {
 
     private ArrayList<ArrayList<String>> data;
+    private SBPGraphView graphView = new SBPGraphView();
 
     public SBPGraphController(ArrayList<ArrayList<String>> set) {
         this.data = set;
         System.out.println(set);
-        getViews();
+        makeViews();
+        showCharts();
     }
 
-    public void getViews() {
+    public void makeViews() {
+
         for (ArrayList<String> list: data){
             ArrayList<Integer> values = new ArrayList<>();
             for (int i = 1; i<list.size(); i++){
                 values.add(Integer.valueOf(list.get(i)));
             }
-            SBPGraphView graphView = new SBPGraphView(list.get(0),values);
+            this.graphView.makeInitChart(list.get(0), values);
+//            SBPGraphView graphView = new SBPGraphView(list.get(0),values);
         }
 
+    }
+
+    public void showCharts(){
+        this.graphView.showView();
     }
 
 

@@ -8,35 +8,45 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
-import java.io.IOException;
+import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A class for the view that will show the line graph consisting monitored
  * patients' high systolic bp values.
  */
-public class SBPGraphView extends JDialog {
+public class SBPGraphView extends JFrame {
 
-    private String name;
-    private ArrayList<Integer> plotValues = new ArrayList<>();
+//    private JScrollPane scrollPane = new JScrollPane();
+    private JPanel mainPane = new JPanel();
+    private JTabbedPane tabPane = new JTabbedPane();
+    private String patientName;
+    private ArrayList<Integer> patientPlotValues = new ArrayList<>();
 
-    public SBPGraphView(String name, ArrayList<Integer> values){
+    public SBPGraphView(){
 
-        this.name = name;
-        this.plotValues = values;
+        setLayout(new FlowLayout());
+        add(mainPane);
+        mainPane.add(tabPane);
+
+    }
+
+    public void makeInitChart(String name, ArrayList<Integer> values){
+
+        this.patientName = name;
+        this.patientPlotValues = values;
         JFreeChart linegraph = chart();
         ChartPanel chartPanel = new ChartPanel(linegraph);
-        chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
-        setContentPane(chartPanel);
-        setDefaultCloseOperation(CholestrolChartView.HIDE_ON_CLOSE);
-        this.pack();
-        this.setVisible(true);
+//        chartPanel.setPreferredSize( new java.awt.Dimension( 400 , 350 ) );
+        JPanel pane = new JPanel();
+        pane.add(chartPanel);
+        tabPane.add(this.patientName, pane);
+
     }
 
     public JFreeChart chart(){
 
-        JFreeChart lineGraph = ChartFactory.createLineChart(this.name, "", "", createDataSet(), PlotOrientation.VERTICAL,false,true,false);
+        JFreeChart lineGraph = ChartFactory.createLineChart(this.patientName, "", "", createDataSet(), PlotOrientation.VERTICAL,false,true,false);
 
         return lineGraph;
     }
@@ -47,16 +57,52 @@ public class SBPGraphView extends JDialog {
      * @return an object with the values needed to plot.
      */
     public CategoryDataset createDataSet(){
+
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         Integer i = 1;
-        for (Integer value: this.plotValues) {
+
+        for (Integer value: this.patientPlotValues) {
             dataset.addValue(value,"Systolic Blood Pressure", i);
-//            dataset.addValue(value, "", i);
             i = i + 1;
-//            System.out.println(value);
         }
 
         return dataset;
+    }
+
+    public void showView(){
+
+        setDefaultCloseOperation(CholestrolChartView.HIDE_ON_CLOSE);
+        this.pack();
+        this.setVisible(true);
+
+    }
+
+    public static void main(String[] args) {
+        SBPGraphView frame = new SBPGraphView();
+        ArrayList<Integer> list1 = new ArrayList<>();
+        list1.add(22);
+        list1.add(33);
+        list1.add(99);
+        frame.makeInitChart("Junaid", list1);
+
+        ArrayList<Integer> list2 = new ArrayList<>();
+        list2.add(22);
+        list2.add(33);
+        list2.add(99);
+        frame.makeInitChart("Junaid", list2);
+
+        ArrayList<Integer> list3 = new ArrayList<>();
+        list3.add(22);
+        list3.add(33);
+        list3.add(99);
+        frame.makeInitChart("Junaid", list3);
+
+        ArrayList<Integer> list4 = new ArrayList<>();
+        list4.add(22);
+        list4.add(33);
+        list4.add(99);
+        frame.makeInitChart("Junaid", list4);
+        frame.showView();
     }
 
 
