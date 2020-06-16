@@ -15,13 +15,17 @@ import java.util.List;
  * patients' cholestrol values.
  */
 public class CholestrolChartView extends JDialog {
+
+    /**
+     * List of objects (of type Patient)
+     */
     List<Patient> patientList;
 
     /**
      * Constructor for CholestrolChartView class.
      * It uses a JFreeChart library which gives us multiple options
      * of graphs to display.
-     * @param patientsList will contain the list of patients currently being monitored.
+     * @param patientsList will contain the list of patients (Object type Patient) currently being monitored.
      */
     public CholestrolChartView(List<Patient> patientsList){
 
@@ -42,7 +46,7 @@ public class CholestrolChartView extends JDialog {
      * This method creates a bar chart using the JFreeChart library.
      * @return chart named barChart of type JFreeChart.
      */
-    public JFreeChart chart(){
+    private JFreeChart chart(){
 
         // A createDataSet method is being invoked in the arguments, to set the values to be plotted in the graph
         JFreeChart barChart = ChartFactory.createBarChart("Total Cholestrol mg/dl", "","",createDataSet(), PlotOrientation.VERTICAL,false,true,false);
@@ -55,7 +59,7 @@ public class CholestrolChartView extends JDialog {
      * to plot the graph.
      * @return an object with the values needed to plot.
      */
-    public CategoryDataset createDataSet(){
+    private CategoryDataset createDataSet(){
 
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 

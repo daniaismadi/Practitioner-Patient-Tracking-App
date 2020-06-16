@@ -17,7 +17,7 @@ public class SBPGraphController implements Observer {
         showCharts();
     }
 
-    public void makeViews() {
+    private void makeViews() {
 
         for (ArrayList<String> list: data){
             ArrayList<Integer> values = new ArrayList<>();
@@ -29,7 +29,7 @@ public class SBPGraphController implements Observer {
 
     }
 
-    public void showCharts(){
+    private void showCharts(){
         this.graphView.showView();
     }
 

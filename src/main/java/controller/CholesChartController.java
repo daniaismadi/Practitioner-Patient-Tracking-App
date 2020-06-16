@@ -28,7 +28,7 @@ public class CholesChartController implements Observer{
      * application will show the chart to the user.
      * @param list has objects of type Patient (Patients currently being monitored)
      */
-    public void initializeView(ArrayList<Patient> list){
+    private void initializeView(ArrayList<Patient> list){
         CholestrolChartView cholChartView = new CholestrolChartView(list);
     }
 
