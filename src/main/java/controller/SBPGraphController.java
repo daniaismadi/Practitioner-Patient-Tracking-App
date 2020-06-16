@@ -24,8 +24,7 @@ public class SBPGraphController implements Observer {
             for (int i = 1; i<list.size(); i++){
                 values.add(Integer.valueOf(list.get(i)));
             }
-            this.graphView.makeInitChart(list.get(0), values);
-//            SBPGraphView graphView = new SBPGraphView(list.get(0),values);
+            this.graphView.initChart(list.get(0), values);
         }
 
     }

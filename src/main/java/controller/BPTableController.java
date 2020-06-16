@@ -13,12 +13,10 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import static javax.swing.BorderFactory.createLineBorder;
@@ -51,7 +49,7 @@ public class BPTableController implements Observer {
     private PatientUpdater patientUpdater;
 
     /**
-     * This Array will contain the multiple arrays with values to be plotted in the line graph.
+     * This Array will contain multiple arrays, which will contain the High Systolic Blood Pressure Values to be plotted.
      */
     private ArrayList<ArrayList<String>> dataSet;
 
@@ -183,16 +181,28 @@ public class BPTableController implements Observer {
      * @return                  The list of text panes that were created.
      */
     private List<JTextPane> createBPTracker(List<Patient> patientList, String type) {
+
+        // initializing dataset
         this.dataSet = new ArrayList<>();
+
         List<JTextPane> textPanes = new ArrayList<>();
+
+        // Flag for Systolic Blood Pressure
         Boolean checkForSystolic = false;
 
         for (Patient p : patientList) {
 
-            ArrayList<String> person = new ArrayList<>();
+            /**
+             * This Array is the sub array that will contain the name of a patient
+             * and his/her high systolic bp values.
+             */
+            ArrayList<String> subArray = new ArrayList<>();
+
             List<Object[]> bps;
 
             if (type.equalsIgnoreCase("systolic")) {
+
+                // Setting flag to true if BP type is 'systolic'
                 checkForSystolic = true;
                 bps = p.getSystolicBPs();
             } else {
@@ -203,12 +213,18 @@ public class BPTableController implements Observer {
             JTextPane textPane = new JTextPane();
             textPane.setText("\n     "+p.toString()+"\n");
             StyledDocument doc = textPane.getStyledDocument();
-            person.add(p.toString());
+
+            // Adding name of the Patient (first element) into sub array
+            subArray.add(p.toString());
 
             for (Object[] observation : bps) {
 
+                // Checking if flag is true
                 if (checkForSystolic){
-                    person.add(String.valueOf(((Double)observation[1]).intValue()));
+
+                    // Adding Systolic BP value for the patient to the sub array (in which the name of the patient is the first element)
+                    subArray.add(String.valueOf(((Double)observation[1]).intValue()));
+
                 }
 
                 String date = "\n     Date: " + convertDateToString((Date)observation[0]);
@@ -220,7 +236,8 @@ public class BPTableController implements Observer {
                     e.printStackTrace();
                 }
             }
-            this.dataSet.add(person);
+            // Adding the sub array into the dataset
+            this.dataSet.add(subArray);
 
 
             try {
@@ -233,6 +250,7 @@ public class BPTableController implements Observer {
             textPane.setEditable(false);
             // Insert JTextPane to list.
             textPanes.add(textPane);
+            // Setting flag to false.
             checkForSystolic = false;
         }
 
@@ -432,20 +450,25 @@ public class BPTableController implements Observer {
         }
     }
 
-
+    /**
+     * A class to listen to the Generate Graph button in the BloodPressureTable View.
+     */
     private class genBpBtnListener implements ActionListener {
 
         /***
-         * Invoked when the generate graph button is clicked. Generates a line graph with
-         * high systolic bp values
+         * Invoked when the generate graph button is clicked.
+         * Initializes the Blood Pressure graph controller.
          *
          * @param e     the event that was performed
          */
         @Override
         public void actionPerformed(ActionEvent e) {
+
+            // If high Systolic Blood Pressure values exist; a controller is initiated and the values are passed as arguments
             if (dataSet.size()>0) {
                 SBPGraphController BpGraphController = new SBPGraphController(dataSet);
             }
+            // Else displays error message
             else {
                 bpView.displayErrorMessage("High Systolic Blood Pressure Monitor Empty. Kindly set Systolic BP threshold in Patients Tab.");
             }
