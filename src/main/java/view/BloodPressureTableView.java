@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * A class for the view that monitors blood pressure for patients.
  *
  */
-public class BloodPressureTableView extends Component {
+public class BloodPressureTableView extends JFrame {
 
     /**
      * The blood pressure table.
