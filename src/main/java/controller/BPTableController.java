@@ -53,7 +53,7 @@ public class BPTableController implements Observer {
     /**
      * This Array will contain the multiple arrays with values to be plotted in the line graph.
      */
-    private ArrayList<ArrayList<String>> dataSet = new ArrayList<>();
+    private ArrayList<ArrayList<String>> dataSet;
 
     /***
      * Initialises all required variables.
@@ -183,6 +183,7 @@ public class BPTableController implements Observer {
      * @return                  The list of text panes that were created.
      */
     private List<JTextPane> createBPTracker(List<Patient> patientList, String type) {
+        this.dataSet = new ArrayList<>();
         List<JTextPane> textPanes = new ArrayList<>();
         Boolean checkForSystolic = false;
 
