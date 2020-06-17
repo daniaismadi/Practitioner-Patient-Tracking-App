@@ -2,6 +2,7 @@ package controller;
 
 import observer.Observer;
 import view.Patient;
+import view.PatientsView;
 import view.SBPGraphView;
 
 import java.util.ArrayList;
