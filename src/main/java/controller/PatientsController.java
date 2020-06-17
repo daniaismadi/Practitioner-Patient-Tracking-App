@@ -62,7 +62,7 @@ public class PatientsController implements Observer {
 
         // new query timer, set to 60 seconds at first
         queryTimer = new java.util.Timer();
-        queryTimer.schedule(new QueryObs(), 0, 60*1000);
+//        queryTimer.schedule(new QueryObs(), 0, 60*1000);
 
         this.patientsView.addQueryBtnListener(new QueryBtnListener());
     }
