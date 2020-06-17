@@ -96,7 +96,7 @@ public class BloodPressureTableView extends JFrame {
     /**
      * This Array will contain multiple arrays, which will contain the High Systolic Blood Pressure Values to be plotted.
      */
-    private ArrayList<ArrayList<String>> dataSet;
+    private ArrayList<Patient> HighSystolicPatients;
 
     /**
      * The systolic blood pressure threshold.
@@ -141,10 +141,10 @@ public class BloodPressureTableView extends JFrame {
     /**
      * Set the new dataset with new patient values.
      *
-     * @param dataSet   the data set to set
+     * @param highSystolicPatients   the data set to set
      */
-    public void setDataSet(ArrayList<ArrayList<String>> dataSet) {
-        this.dataSet = dataSet;
+    public void setHighSystolicPatients(ArrayList<Patient> highSystolicPatients) {
+        this.HighSystolicPatients = highSystolicPatients;
     }
 
     /**
@@ -152,8 +152,8 @@ public class BloodPressureTableView extends JFrame {
      *
      * @return  the data set
      */
-    public ArrayList<ArrayList<String>> getDataSet() {
-        return dataSet;
+    public ArrayList<Patient> getHighSystolicPatients() {
+        return HighSystolicPatients;
     }
 
     /***

@@ -180,7 +180,7 @@ public class BPTableController implements Observer {
     private List<JTextPane> createBPTracker(List<Patient> patientList, String type) {
 
         // initializing dataset
-        bpView.setDataSet(new ArrayList<>());
+        bpView.setHighSystolicPatients(new ArrayList<>());
 
         List<JTextPane> textPanes = new ArrayList<>();
 
@@ -193,7 +193,7 @@ public class BPTableController implements Observer {
              * This Array is the sub array that will contain the name of a patient
              * and his/her high systolic bp values.
              */
-            ArrayList<String> subArray = new ArrayList<>();
+//            ArrayList<String> subArray = new ArrayList<>();
 
             List<Object[]> bps;
 
@@ -212,7 +212,7 @@ public class BPTableController implements Observer {
             StyledDocument doc = textPane.getStyledDocument();
 
             // Adding name of the Patient (first element) into sub array
-            subArray.add(p.toString());
+//            subArray.add(p.toString());
 
             for (Object[] observation : bps) {
 
@@ -220,7 +220,9 @@ public class BPTableController implements Observer {
                 if (checkForSystolic){
 
                     // Adding Systolic BP value for the patient to the sub array (in which the name of the patient is the first element)
-                    subArray.add(String.valueOf(((Double)observation[1]).intValue()));
+//                    subArray.add(String.valueOf(((Double)observation[1]).intValue()));
+                    this.bpView.getHighSystolicPatients().add(p);
+
 
                 }
 
@@ -234,7 +236,7 @@ public class BPTableController implements Observer {
                 }
             }
             // Adding the sub array into the dataset
-            bpView.getDataSet().add(subArray);
+//            bpView.getDataSet().add(subArray);
 
 
             try {
@@ -462,9 +464,9 @@ public class BPTableController implements Observer {
         public void actionPerformed(ActionEvent e) {
 
             // If high Systolic Blood Pressure values exist; a controller is initiated and the values are passed as arguments
-            if (bpView.getDataSet().size()>0) {
+            if (bpView.getHighSystolicPatients().size()>0) {
                 SBPGraphView sbpGraphView = new SBPGraphView();
-                SBPGraphController BpGraphController = new SBPGraphController(sbpGraphView, bpView.getDataSet(), patientUpdater, patientsView);
+                SBPGraphController BpGraphController = new SBPGraphController(sbpGraphView, bpView, patientUpdater, patientsView);
             }
             // Else displays error message
             else {

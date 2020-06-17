@@ -35,7 +35,7 @@ public class SBPGraphView extends JFrame {
     /**
      * Array list which will contain the values to be plotted for a particular patient.
      */
-    private ArrayList<Integer> patientPlotValues = new ArrayList<>();
+    private ArrayList<Double> patientPlotValues = new ArrayList<>();
 
     /**
      * Constructor for the class.
@@ -59,7 +59,7 @@ public class SBPGraphView extends JFrame {
      * @param name will be the name of the patient (for who the BP values belong).
      * @param values is the array list of Systolic BP values of integer type.
      */
-    public void initChart(String name, ArrayList<Integer> values){
+    public void initChart(String name, ArrayList<Double> values){
 
         this.patientName = name;
         this.patientPlotValues = values;
@@ -94,7 +94,7 @@ public class SBPGraphView extends JFrame {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         Integer i = 1;
 
-        for (Integer value: this.patientPlotValues) {
+        for (Double value: this.patientPlotValues) {
             dataset.addValue(value,"Systolic Blood Pressure", i);
             i = i + 1;
         }
