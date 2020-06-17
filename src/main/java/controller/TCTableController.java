@@ -16,7 +16,7 @@ import java.util.List;
 
 /***
  * Class that acts as a controller for CholesterolTableView. Implements Observer to observe changes in patient
- * information.
+ * information. TC stands for total cholesterol.
  */
 public class TCTableController implements Observer {
 
@@ -271,7 +271,7 @@ public class TCTableController implements Observer {
             } else {
                 // Initialise new chart view with current monitored patients.
                 CholesterolChartView chartView = new CholesterolChartView(tcView.getMonitoredPatients());
-                CholesterolChartController chartController = new CholesterolChartController(patientsView,
+                TCChartController chartController = new TCChartController(patientsView,
                         chartView, patientUpdater);
 
                 // Build the view.

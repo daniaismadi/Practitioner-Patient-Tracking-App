@@ -1,16 +1,20 @@
 package controller;
 
+import view.BloodPressureTableView;
 import view.Patient;
+import view.PatientsView;
 import view.SBPGraphView;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class SBPGraphController implements Observer {
 
     private ArrayList<ArrayList<String>> data;
-    private SBPGraphView graphView = new SBPGraphView();
+    private SBPGraphView graphView;
 
-    public SBPGraphController(ArrayList<ArrayList<String>> set) {
+    public SBPGraphController(SBPGraphView graphView, ArrayList<ArrayList<String>> set) {
+        this.graphView = graphView;
         this.data = set;
         System.out.println(set);
         makeViews();

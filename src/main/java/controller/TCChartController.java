@@ -23,7 +23,7 @@ import java.awt.*;
 /**
  * The controller class that controls the Cholesterol Chart View
  */
-public class CholesterolChartController implements Observer, ChangeListener {
+public class TCChartController implements Observer, ChangeListener {
 
     /**
      * The view this controller controls.
@@ -53,7 +53,7 @@ public class CholesterolChartController implements Observer, ChangeListener {
      * @param cholesterolChartView  the view this controller controls
      * @param patientUpdater        the concrete subject class which grabs new information about the patient
      */
-    public CholesterolChartController(PatientsView patientsView, CholesterolChartView cholesterolChartView, PatientUpdater patientUpdater){
+    public TCChartController(PatientsView patientsView, CholesterolChartView cholesterolChartView, PatientUpdater patientUpdater){
         this.cholesterolChartView = cholesterolChartView;
         this.patientUpdater = patientUpdater;
         this.patientsView = patientsView;

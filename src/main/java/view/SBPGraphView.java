@@ -78,7 +78,8 @@ public class SBPGraphView extends JFrame {
     private JFreeChart graph(){
 
         // This line invokes the createDataSet() method.
-        JFreeChart lineGraph = ChartFactory.createLineChart(this.patientName, "", "", createDataSet(), PlotOrientation.VERTICAL,false,true,false);
+        JFreeChart lineGraph = ChartFactory.createLineChart(this.patientName, "", "",
+                createDataSet(), PlotOrientation.VERTICAL,false,true,false);
 
         return lineGraph;
     }

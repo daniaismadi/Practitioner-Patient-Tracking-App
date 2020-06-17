@@ -25,8 +25,8 @@ public class PatientUpdater implements Subject {
     private Patient patient;
 
 //    For testing
-    private static int i = 100;
-//    private static double j = 100;
+    private int i = 100;
+    private double j = 100;
 //    private static double k = 100;
 
     /***
@@ -84,17 +84,17 @@ public class PatientUpdater implements Subject {
      * @param dbModel   connection to database to trigger the update of measurements and retrieve measurements
      */
     public void updatePatientCholesterol(DBModel dbModel) {
-//        // Trigger model to update cholesterol values.
-//        dbModel.updateCholesObs(patient.getId());
-//
-//        // Set latest total cholesterol values.
-//        patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patient.getId()));
-//        patient.setLatestCholesterolDate(dbModel.getPatientLatestCholesDate(patient.getId()));
+        // Trigger model to update cholesterol values.
+        dbModel.updateCholesObs(patient.getId());
+
+        // Set latest total cholesterol values.
+        patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patient.getId()));
+        patient.setLatestCholesterolDate(dbModel.getPatientLatestCholesDate(patient.getId()));
 
 //        Test
-        patient.setTotalCholesterol(i);
-        patient.setLatestCholesterolDate(new Date());
-        i += 1;
+//        patient.setTotalCholesterol(i);
+//        patient.setLatestCholesterolDate(new Date());
+//        i += 1;
 //        notifyObserver();
     }
 
@@ -110,12 +110,14 @@ public class PatientUpdater implements Subject {
         patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patient.getId(), 5));
 
 //        Test
-//        Object[] obj = new Object[]{new Date(), j};
 //        ArrayList<Object[]> lst = new ArrayList<>();
-//        lst.add(obj);
+//        for (int i = 0; i < 5; i++) {
+//            Object[] obj = new Object[]{new Date(), j};
+//            j++;
+//            lst.add(obj);
+//        }
 //
 //        patient.setSystolicBPs(lst);
-//        j += 1;
 //        notifyObserver();
     }
 

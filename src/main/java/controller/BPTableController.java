@@ -4,6 +4,7 @@ import database.DBModel;
 import view.BloodPressureTableView;
 import view.Patient;
 import view.PatientsView;
+import view.SBPGraphView;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -47,11 +48,6 @@ public class BPTableController implements Observer {
      * The subject that this class subscribes to in order to update patient measurements.
      */
     private PatientUpdater patientUpdater;
-
-    /**
-     * This Array will contain multiple arrays, which will contain the High Systolic Blood Pressure Values to be plotted.
-     */
-    private ArrayList<ArrayList<String>> dataSet;
 
     /***
      * Initialises all required variables.
@@ -183,7 +179,7 @@ public class BPTableController implements Observer {
     private List<JTextPane> createBPTracker(List<Patient> patientList, String type) {
 
         // initializing dataset
-        this.dataSet = new ArrayList<>();
+        bpView.setDataSet(new ArrayList<>());
 
         List<JTextPane> textPanes = new ArrayList<>();
 
@@ -237,7 +233,7 @@ public class BPTableController implements Observer {
                 }
             }
             // Adding the sub array into the dataset
-            this.dataSet.add(subArray);
+            bpView.getDataSet().add(subArray);
 
 
             try {
@@ -465,12 +461,14 @@ public class BPTableController implements Observer {
         public void actionPerformed(ActionEvent e) {
 
             // If high Systolic Blood Pressure values exist; a controller is initiated and the values are passed as arguments
-            if (dataSet.size()>0) {
-                SBPGraphController BpGraphController = new SBPGraphController(dataSet);
+            if (bpView.getDataSet().size()>0) {
+                SBPGraphView sbpGraphView = new SBPGraphView();
+                SBPGraphController BpGraphController = new SBPGraphController(sbpGraphView, bpView.getDataSet());
             }
             // Else displays error message
             else {
-                bpView.displayErrorMessage("High Systolic Blood Pressure Monitor Empty. Kindly set Systolic BP threshold in Patients Tab.");
+                bpView.displayErrorMessage("High Systolic Blood Pressure Monitor Empty. Kindly set Systolic BP " +
+                        "threshold in Patients Tab.");
             }
 
         }

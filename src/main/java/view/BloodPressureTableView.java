@@ -72,7 +72,16 @@ public class BloodPressureTableView extends JFrame {
      * State label for patient selected.
      */
     private JLabel patientState;
+
+    /**
+     * Button to generate high systolic blood pressure.
+     */
     private JButton generateBpButton;
+
+    /**
+     * This Array will contain multiple arrays, which will contain the High Systolic Blood Pressure Values to be plotted.
+     */
+    private ArrayList<ArrayList<String>> dataSet;
 
     /**
      * The systolic blood pressure threshold.
@@ -102,6 +111,24 @@ public class BloodPressureTableView extends JFrame {
 
         highSystolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
         highDiastolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
+    }
+
+    /**
+     * Set the new dataset with new patient values.
+     *
+     * @param dataSet   the data set to set
+     */
+    public void setDataSet(ArrayList<ArrayList<String>> dataSet) {
+        this.dataSet = dataSet;
+    }
+
+    /**
+     * Get the current data set of patients with high systolic values.
+     *
+     * @return  the data set
+     */
+    public ArrayList<ArrayList<String>> getDataSet() {
+        return dataSet;
     }
 
     /***

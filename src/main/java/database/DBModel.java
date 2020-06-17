@@ -23,10 +23,10 @@ public class DBModel {
      */
     EncounterDAO encounterDAO;
 
-    /***
-     * To retrieve and access information about monitored patients.
-     */
-    MonitorDAO monitorDAO;
+//    /***
+//     * To retrieve and access information about monitored patients.
+//     */
+//    MonitorDAO monitorDAO;
 
     /**
      * To retrieve and access information about observations.
@@ -47,7 +47,7 @@ public class DBModel {
         this.encounterDAO = new EncounterRepository();
         this.observationDAO = new ObservationRepository();
         this.practitionerDAO = new PractitionerRepository();
-        this.monitorDAO = new MonitorRepository();
+//        this.monitorDAO = new MonitorRepository();
     }
 
     /***

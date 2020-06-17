@@ -13,3 +13,5 @@ target/
 src/main/resources/.vscode/
 src/main/resources/.hypothesis
 DatabaseDriver.java
+MonitorDAO.java
+MonitorRepository.java
