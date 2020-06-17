@@ -16,7 +16,6 @@ public class SBPGraphController implements Observer {
     public SBPGraphController(SBPGraphView graphView, ArrayList<ArrayList<String>> set) {
         this.graphView = graphView;
         this.data = set;
-        System.out.println(set);
         makeViews();
         showCharts();
     }
