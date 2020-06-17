@@ -1,6 +1,7 @@
 package controller;
 
 import database.DBModel;
+import observer.Observer;
 import view.Patient;
 import view.PatientsView;
 
@@ -53,7 +54,6 @@ public class PatientsController implements Observer {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.patientsView.setSize(screenSize.width,screenSize.height);
         this.patientsView.setMinimumSize(new Dimension(screenSize.width, 1000));
-//        this.patientsView.setPreferredSize(new Dimension(1500, 800));
         // Set patients list model.
         this.patientsView.setPatientListModel();
         // update patient list

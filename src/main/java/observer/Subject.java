@@ -1,4 +1,4 @@
-package controller;
+package observer;
 
 /**
  * Interface for Subject.

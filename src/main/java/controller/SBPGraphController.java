@@ -1,11 +1,9 @@
 package controller;
 
-import view.BloodPressureTableView;
+import observer.Observer;
 import view.Patient;
-import view.PatientsView;
 import view.SBPGraphView;
 
-import javax.swing.*;
 import java.util.ArrayList;
 
 public class SBPGraphController implements Observer {
