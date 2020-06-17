@@ -155,13 +155,22 @@ public class PatientsController implements Observer {
 
              ListModel<Patient> patients = patientsView.getPatientList().getModel();
 
+             // Update in progress.
+             patientsView.setUpdateFinished(false);
+
             for (int i = 0; i < patients.getSize(); i++) {
                 Patient p = patients.getElementAt(i);
                 patientUpdater.setPatient(p);
                 patientUpdater.updatePatientCholesterol(dbModel);
                 patientUpdater.updatePatientDiastolicBP(dbModel);
                 patientUpdater.updatePatientSystolicBP(dbModel);
+
+                // Notify observers that this patient's measurements have been updated.
+                patientUpdater.notifyObserver();
             }
+            patientsView.setUpdateFinished(true);
+            // Notify observer that all patients have been updated.
+            patientUpdater.notifyObserver();
         }
     }
 }

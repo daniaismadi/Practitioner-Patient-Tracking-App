@@ -25,7 +25,7 @@ public class PatientUpdater implements Subject {
     private Patient patient;
 
 //    For testing
-//    private static int i = 100;
+    private static int i = 100;
 //    private static double j = 100;
 //    private static double k = 100;
 
@@ -84,20 +84,17 @@ public class PatientUpdater implements Subject {
      * @param dbModel   connection to database to trigger the update of measurements and retrieve measurements
      */
     public void updatePatientCholesterol(DBModel dbModel) {
-        // Trigger model to update cholesterol values.
-        dbModel.updateCholesObs(patient.getId());
-
-        // Set latest total cholesterol values.
-        patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patient.getId()));
-        patient.setLatestCholesterolDate(dbModel.getPatientLatestCholesDate(patient.getId()));
-
-        // Notify the observer.
-        notifyObserver();
+//        // Trigger model to update cholesterol values.
+//        dbModel.updateCholesObs(patient.getId());
+//
+//        // Set latest total cholesterol values.
+//        patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patient.getId()));
+//        patient.setLatestCholesterolDate(dbModel.getPatientLatestCholesDate(patient.getId()));
 
 //        Test
-//        patient.setTotalCholesterol(i);
-//        patient.setLatestCholesterolDate(new Date());
-//        i += 1;
+        patient.setTotalCholesterol(i);
+        patient.setLatestCholesterolDate(new Date());
+        i += 1;
 //        notifyObserver();
     }
 
@@ -111,9 +108,6 @@ public class PatientUpdater implements Subject {
         dbModel.updateBPObs(patient.getId());
         // Get 5 latest systolic BP measurements.
         patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patient.getId(), 5));
-
-        // Notify the observer.
-        notifyObserver();
 
 //        Test
 //        Object[] obj = new Object[]{new Date(), j};
@@ -135,9 +129,6 @@ public class PatientUpdater implements Subject {
         dbModel.updateBPObs(patient.getId());
         // Get 5 latest diastolic BP measurements.
         patient.setDiastolicBPs(dbModel.getPatientDiastolicBPs(patient.getId(), 5));
-
-        // Notify the observer.
-        notifyObserver();
 
 //        Test
 //        Object[] obj = new Object[]{new Date(), k};

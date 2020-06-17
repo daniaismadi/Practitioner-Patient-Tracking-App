@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /***
  * A class for the view that monitors cholesterol measurements for patients and displays it onto a table.
  */
-public class CholesterolTableView {
+public class CholesterolTableView extends JFrame {
 
     /**
      * The cholesterol table (tc is short for Total Cholesterol).
@@ -180,7 +180,7 @@ public class CholesterolTableView {
     }
 
     /***
-     * Add a listener for the generate cholestrol chart button in the view.
+     * Add a listener for the generate cholesterol chart button in the view.
      *
      * @param listenForGenerateCholBtn    the listener to add for the generate chart button
      */
@@ -242,5 +242,14 @@ public class CholesterolTableView {
      */
     public void addTableListener(ListSelectionListener listenForTableClick) {
         tcTable.getSelectionModel().addListSelectionListener(listenForTableClick);
+    }
+
+    /***
+     * Display an error message to the view.
+     *
+     * @param errorMessage      the error message to display
+     */
+    public void displayErrorMessage(String errorMessage) {
+        JOptionPane.showMessageDialog(this, errorMessage);
     }
 }

@@ -374,7 +374,7 @@ public class BPTableController implements Observer {
                 updateHighDiastolicBPTracker();
             }
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("No blood pressure value to update on the table.");
+//            System.out.println("No blood pressure value to update on the table.");
         }
 
         // revalidate

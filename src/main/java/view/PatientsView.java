@@ -80,6 +80,11 @@ public class PatientsView extends JFrame {
      */
     private String hPracId;
 
+    /**
+     * Indicates whether all patient measurements have been updated each time the system fetches new observations.
+     */
+    private boolean updateFinished;
+
     /***
      * Initialises all the required variables of PatientView.
      *
@@ -88,12 +93,32 @@ public class PatientsView extends JFrame {
     public PatientsView(String hPracId) {
 
         this.hPracId = hPracId;
+        this.updateFinished = false;
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(rootPanel);
         this.pack();
 
         // Set default patient list to a new list model.
         this.defaultPatientList = new DefaultListModel<Patient>();
+    }
+
+    /***
+     * Return true if all patient measurements have been updated each time the system fetches new observations.
+     *
+     * @return  True, if all patient measurements have been updated, false otherwise
+     */
+    public boolean isUpdateFinished() {
+        return updateFinished;
+    }
+
+    /***
+     * Sets updateFinished to true if all patient measurements have been updated each time the system fetches new
+     * observations, otherwise false.
+     *
+     * @param updateFinished    the parameter to set
+     */
+    public void setUpdateFinished(boolean updateFinished) {
+        this.updateFinished = updateFinished;
     }
 
     /***

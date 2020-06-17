@@ -107,7 +107,7 @@ public class SBPGraphView extends JFrame {
     public void showView(){
 
         // If frame is closed, application doesn't close.
-        setDefaultCloseOperation(CholestrolChartView.HIDE_ON_CLOSE);
+//        setDefaultCloseOperation(CholestrolChartView.HIDE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
 

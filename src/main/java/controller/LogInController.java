@@ -1,10 +1,7 @@
 package controller;
 
 import database.DBModel;
-import view.BloodPressureTableView;
-import view.CholesterolTableView;
-import view.LogInView;
-import view.PatientsView;
+import view.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -133,5 +130,6 @@ public class LogInController {
 
             return bloodPressureTableView.getBPMonitor();
         }
+
     }
 }

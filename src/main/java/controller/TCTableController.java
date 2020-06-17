@@ -1,10 +1,7 @@
 package controller;
 
 import database.DBModel;
-import view.CholesterolTableView;
-import view.CholestrolChartView;
-import view.Patient;
-import view.PatientsView;
+import view.*;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -43,7 +40,6 @@ public class TCTableController implements Observer {
      */
     private PatientUpdater patientUpdater;
 
-
     /***
      * Initialises all required variables for the cholesterol table view.
      *
@@ -64,7 +60,7 @@ public class TCTableController implements Observer {
         // Add remove button listener.
         this.tcView.addRemoveBtnListener(new RemoveBtnListener());
         // Add generate button listener
-        this.tcView.addGenerateCholBtnListener(new GenCholBtnListener());
+        this.tcView.addGenerateCholBtnListener(new GenerateCholesterolChartListener());
         // Add table selection listener.
         this.tcView.addTableListener(new TableSelectionListener());
     }
@@ -150,7 +146,7 @@ public class TCTableController implements Observer {
                 tcView.setTcTableValue(convertDateToString(patient.getLatestCholesterolDate()), i, 2);
             }
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("No cholesterol value to update on table.");
+//            System.out.println("No cholesterol value to update on table.");
         }
 
         // update table
@@ -259,20 +255,28 @@ public class TCTableController implements Observer {
      * A class to listen to the generate chart button in the cholesterol table view.
      *
      */
-    private class GenCholBtnListener implements ActionListener {
+    private class GenerateCholesterolChartListener implements ActionListener {
 
         /***
          * Invoked when the generate chart button is clicked. Generates a bar chart with
-         * total cholestrol values
+         * total cholesterol values.
          *
          * @param e     the event that was performed
          */
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            ArrayList<Patient> list = tcView.getMonitoredPatients();
-            CholesChartController cholesChartController = new CholesChartController(list);
+            if (tcView.getMonitoredPatients().size() == 0) {
+                tcView.displayErrorMessage("No patients currently being monitored for cholesterol measurements.");
+            } else {
+                // Initialise new chart view with current monitored patients.
+                CholesterolChartView chartView = new CholesterolChartView(tcView.getMonitoredPatients());
+                CholesterolChartController chartController = new CholesterolChartController(patientsView,
+                        chartView, patientUpdater);
 
+                // Build the view.
+                chartController.buildView();
+            }
         }
     }
 
