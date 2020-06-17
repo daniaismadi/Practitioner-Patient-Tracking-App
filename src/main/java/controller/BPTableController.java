@@ -179,13 +179,7 @@ public class BPTableController implements Observer {
      */
     private List<JTextPane> createBPTracker(List<Patient> patientList, String type) {
 
-        // initializing dataset
-//        bpView.setHighSystolicPatients(new ArrayList<>());
-
         List<JTextPane> textPanes = new ArrayList<>();
-
-//        // Flag for Systolic Blood Pressure
-//        Boolean checkForSystolic = false;
 
         for (Patient p : patientList) {
 
@@ -193,14 +187,11 @@ public class BPTableController implements Observer {
              * This Array is the sub array that will contain the name of a patient
              * and his/her high systolic bp values.
              */
-//            ArrayList<String> subArray = new ArrayList<>();
 
             List<Object[]> bps;
 
             if (type.equalsIgnoreCase("systolic")) {
 
-                // Setting flag to true if BP type is 'systolic'
-//                checkForSystolic = true;
                 bps = p.getSystolicBPs();
                 // initializing high systolic patients list
                 bpView.setHighSystolicPatients((ArrayList)patientList);
@@ -213,20 +204,8 @@ public class BPTableController implements Observer {
             textPane.setText("\n     "+p.toString()+"\n");
             StyledDocument doc = textPane.getStyledDocument();
 
-            // Adding name of the Patient (first element) into sub array
-//            subArray.add(p.toString());
 
             for (Object[] observation : bps) {
-
-                // Checking if flag is true
-//                if (checkForSystolic){
-//
-//                    // Adding Systolic BP value for the patient to the sub array (in which the name of the patient is the first element)
-////                    subArray.add(String.valueOf(((Double)observation[1]).intValue()));
-////                    this.bpView.getHighSystolicPatients().add(p);
-//
-//
-//                }
 
                 String date = "\n     Date: " + convertDateToString((Date)observation[0]);
                 String value = ", Value: " + observation[1] + " mmHg     ";
@@ -237,9 +216,6 @@ public class BPTableController implements Observer {
                     e.printStackTrace();
                 }
             }
-            // Adding the sub array into the dataset
-//            bpView.getDataSet().add(subArray);
-
 
             try {
                 doc.insertString(doc.getLength(), "\n", null);
@@ -251,8 +227,6 @@ public class BPTableController implements Observer {
             textPane.setEditable(false);
             // Insert JTextPane to list.
             textPanes.add(textPane);
-            // Setting flag to false.
-//            checkForSystolic = false;
         }
 
         return textPanes;
