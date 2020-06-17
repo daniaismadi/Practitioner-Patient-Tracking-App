@@ -1,11 +1,12 @@
 package controller;
 
 import database.DBModel;
+import observer.Observer;
+import observer.Subject;
 import view.Patient;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /***
  * Concrete subject class that implements Subject.

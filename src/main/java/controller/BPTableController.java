@@ -1,6 +1,7 @@
 package controller;
 
 import database.DBModel;
+import observer.Observer;
 import view.BloodPressureTableView;
 import view.Patient;
 import view.PatientsView;

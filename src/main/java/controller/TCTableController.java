@@ -1,6 +1,7 @@
 package controller;
 
 import database.DBModel;
+import observer.Observer;
 import view.*;
 
 import javax.swing.*;
