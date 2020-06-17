@@ -180,12 +180,12 @@ public class BPTableController implements Observer {
     private List<JTextPane> createBPTracker(List<Patient> patientList, String type) {
 
         // initializing dataset
-        bpView.setHighSystolicPatients(new ArrayList<>());
+//        bpView.setHighSystolicPatients(new ArrayList<>());
 
         List<JTextPane> textPanes = new ArrayList<>();
 
-        // Flag for Systolic Blood Pressure
-        Boolean checkForSystolic = false;
+//        // Flag for Systolic Blood Pressure
+//        Boolean checkForSystolic = false;
 
         for (Patient p : patientList) {
 
@@ -200,8 +200,10 @@ public class BPTableController implements Observer {
             if (type.equalsIgnoreCase("systolic")) {
 
                 // Setting flag to true if BP type is 'systolic'
-                checkForSystolic = true;
+//                checkForSystolic = true;
                 bps = p.getSystolicBPs();
+                // initializing high systolic patients list
+                bpView.setHighSystolicPatients((ArrayList)patientList);
             } else {
                 bps = p.getDiastolicBPs();
             }
@@ -217,14 +219,14 @@ public class BPTableController implements Observer {
             for (Object[] observation : bps) {
 
                 // Checking if flag is true
-                if (checkForSystolic){
-
-                    // Adding Systolic BP value for the patient to the sub array (in which the name of the patient is the first element)
-//                    subArray.add(String.valueOf(((Double)observation[1]).intValue()));
-                    this.bpView.getHighSystolicPatients().add(p);
-
-
-                }
+//                if (checkForSystolic){
+//
+//                    // Adding Systolic BP value for the patient to the sub array (in which the name of the patient is the first element)
+////                    subArray.add(String.valueOf(((Double)observation[1]).intValue()));
+////                    this.bpView.getHighSystolicPatients().add(p);
+//
+//
+//                }
 
                 String date = "\n     Date: " + convertDateToString((Date)observation[0]);
                 String value = ", Value: " + observation[1] + " mmHg     ";
@@ -250,7 +252,7 @@ public class BPTableController implements Observer {
             // Insert JTextPane to list.
             textPanes.add(textPane);
             // Setting flag to false.
-            checkForSystolic = false;
+//            checkForSystolic = false;
         }
 
         return textPanes;
