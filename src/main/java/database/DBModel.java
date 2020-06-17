@@ -23,11 +23,6 @@ public class DBModel {
      */
     EncounterDAO encounterDAO;
 
-//    /***
-//     * To retrieve and access information about monitored patients.
-//     */
-//    MonitorDAO monitorDAO;
-
     /**
      * To retrieve and access information about observations.
      */
@@ -47,7 +42,6 @@ public class DBModel {
         this.encounterDAO = new EncounterRepository();
         this.observationDAO = new ObservationRepository();
         this.practitionerDAO = new PractitionerRepository();
-//        this.monitorDAO = new MonitorRepository();
     }
 
     /***
@@ -298,23 +292,5 @@ public class DBModel {
             return new ArrayList<Object[]>(){};
         }
     }
-
-//    public void insertMonitorPatient(String hPracId, String patientId) {
-//        String hPracIdentifier = practitionerDAO.getHPracIdentifier(hPracId);
-//        monitorDAO.insertPatient(hPracId, hPracIdentifier, patientId);
-//    }
-//
-//    public void removeMonitorPatient(String hPracId, String patientId) {
-//        monitorDAO.removePatient(hPracId, patientId);
-//    }
-//
-//    public ArrayList<String> getMonitoredPatients(String hPracId) {
-//
-//        try {
-//            return monitorDAO.getMonitoredPatients(hPracId);
-//        } catch (NullPointerException ex) {
-//            return new ArrayList<>();
-//        }
-//    }
 
 }
