@@ -105,20 +105,20 @@ public class PatientUpdater implements Subject {
      */
     public void updatePatientSystolicBP(DBModel dbModel) {
         // Trigger model to update blood pressure measurements.
-        dbModel.updateBPObs(patient.getId());
-        // Get 5 latest systolic BP measurements.
-        patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patient.getId(), 5));
+//        dbModel.updateBPObs(patient.getId());
+//        // Get 5 latest systolic BP measurements.
+//        patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patient.getId(), 5));
 
 //        Test
-//        ArrayList<Object[]> lst = new ArrayList<>();
-//        for (int i = 0; i < 5; i++) {
-//            Object[] obj = new Object[]{new Date(), j};
-//            j++;
-//            lst.add(obj);
-//        }
-//
-//        patient.setSystolicBPs(lst);
-//        notifyObserver();
+        ArrayList<Object[]> lst = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Object[] obj = new Object[]{new Date(), j};
+            j++;
+            lst.add(obj);
+        }
+
+        patient.setSystolicBPs(lst);
+        notifyObserver();
     }
 
     /***

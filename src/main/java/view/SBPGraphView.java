@@ -107,9 +107,17 @@ public class SBPGraphView extends JFrame {
      */
     public void showView(){
 
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
 
     }
 
+    public void closeView(){
+        setVisible(false);
+    }
+
+    public JTabbedPane getTabPane() {
+        return tabPane;
+    }
 }

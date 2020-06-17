@@ -11,11 +11,22 @@ import java.util.ArrayList;
 public class SBPGraphController implements Observer {
 
     private ArrayList<ArrayList<String>> data;
+
     private SBPGraphView graphView;
 
-    public SBPGraphController(SBPGraphView graphView, ArrayList<ArrayList<String>> set) {
+    private PatientsView patientsView;
+
+    /**
+     * The subject that this class subscribes to in order to update patient measurements.
+     */
+    private PatientUpdater patientUpdater;
+
+    public SBPGraphController(SBPGraphView graphView, ArrayList<ArrayList<String>> set, PatientUpdater patientUpdater, PatientsView patientsView) {
         this.graphView = graphView;
         this.data = set;
+        this.patientUpdater = patientUpdater;
+        this.patientUpdater.register(this);
+        this.patientsView = patientsView;
         makeViews();
         showCharts();
     }
@@ -39,7 +50,12 @@ public class SBPGraphController implements Observer {
 
     @Override
     public void update(Patient patient) {
-        ;
+        if (patientsView.isUpdateFinished()){
+            this.graphView.closeView();
+            this.graphView.getTabPane().removeAll();
+            makeViews();
+            showCharts();
+        }
     }
 
 }

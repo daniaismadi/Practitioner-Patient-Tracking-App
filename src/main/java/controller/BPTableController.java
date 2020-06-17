@@ -463,7 +463,7 @@ public class BPTableController implements Observer {
             // If high Systolic Blood Pressure values exist; a controller is initiated and the values are passed as arguments
             if (bpView.getDataSet().size()>0) {
                 SBPGraphView sbpGraphView = new SBPGraphView();
-                SBPGraphController BpGraphController = new SBPGraphController(sbpGraphView, bpView.getDataSet());
+                SBPGraphController BpGraphController = new SBPGraphController(sbpGraphView, bpView.getDataSet(), patientUpdater, patientsView);
             }
             // Else displays error message
             else {
