@@ -79,6 +79,21 @@ public class BloodPressureTableView extends JFrame {
     private JButton generateBpButton;
 
     /**
+     * Panel for the blood pressure table.
+     */
+    private JScrollPane tablePanel;
+
+    /**
+     * Panel for the systolic tracker.
+     */
+    private JScrollPane systolicTracker;
+
+    /**
+     * Panel for the diastolic tracker.
+     */
+    private JScrollPane diastolicTracker;
+
+    /**
      * This Array will contain multiple arrays, which will contain the High Systolic Blood Pressure Values to be plotted.
      */
     private ArrayList<ArrayList<String>> dataSet;
@@ -111,6 +126,16 @@ public class BloodPressureTableView extends JFrame {
 
         highSystolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
         highDiastolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
+
+        // Setting the width for the appropriate panels.
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int tableWidth = (int) (Math.round(screenSize.width*0.40));
+        int systolicTrackerWidth = (int) (Math.round(screenSize.width*0.30));
+        int diastolicTrackerWidth = (int) (Math.round(screenSize.width*0.30));
+
+        this.tablePanel.setPreferredSize(new Dimension(tableWidth, -1));
+        this.systolicTracker.setPreferredSize(new Dimension(systolicTrackerWidth, -1));
+        this.diastolicTracker.setPreferredSize(new Dimension(diastolicTrackerWidth, -1));
     }
 
     /**

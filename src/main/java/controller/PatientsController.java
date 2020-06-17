@@ -5,6 +5,7 @@ import view.Patient;
 import view.PatientsView;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -49,7 +50,10 @@ public class PatientsController implements Observer {
         this.patientUpdater = patientUpdater;
         this.patientUpdater.register(this);
 
-        this.patientsView.setSize(1500,800);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        this.patientsView.setSize(screenSize.width,screenSize.height);
+        this.patientsView.setMinimumSize(new Dimension(screenSize.width, 1000));
+//        this.patientsView.setPreferredSize(new Dimension(1500, 800));
         // Set patients list model.
         this.patientsView.setPatientListModel();
         // update patient list
