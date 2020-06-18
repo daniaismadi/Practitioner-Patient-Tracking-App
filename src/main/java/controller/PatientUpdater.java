@@ -85,18 +85,18 @@ public class PatientUpdater implements Subject {
      * @param dbModel   connection to database to trigger the update of measurements and retrieve measurements
      */
     public void updatePatientCholesterol(DBModel dbModel) {
-//        // Trigger model to update cholesterol values.
-//        dbModel.updateCholesObs(patient.getId());
-//
-//        // Set latest total cholesterol values.
-//        patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patient.getId()));
-//        patient.setLatestCholesterolDate(dbModel.getPatientLatestCholesDate(patient.getId()));
+        // Trigger model to update cholesterol values.
+        dbModel.updateCholesObs(patient.getId());
+
+        // Set latest total cholesterol values.
+        patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patient.getId()));
+        patient.setLatestCholesterolDate(dbModel.getPatientLatestCholesDate(patient.getId()));
 
 //        Test
-        patient.setTotalCholesterol(i);
-        patient.setLatestCholesterolDate(new Date());
-        i += 1;
-        notifyObserver();
+//        patient.setTotalCholesterol(i);
+//        patient.setLatestCholesterolDate(new Date());
+//        i += 1;
+//        notifyObserver();
     }
 
     /***
@@ -106,21 +106,21 @@ public class PatientUpdater implements Subject {
      */
     public void updatePatientSystolicBP(DBModel dbModel) {
 
-//        // Trigger model to update blood pressure measurements.
-//        dbModel.updateBPObs(patient.getId());
-//        // Get 5 latest systolic BP measurements.
-//        patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patient.getId(), 5));
+        // Trigger model to update blood pressure measurements.
+        dbModel.updateBPObs(patient.getId());
+        // Get 5 latest systolic BP measurements.
+        patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patient.getId(), 5));
 
 //        Test
-        ArrayList<Object[]> lst = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Object[] obj = new Object[]{new Date(), j};
-            j++;
-            lst.add(obj);
-        }
-
-        patient.setSystolicBPs(lst);
-        notifyObserver();
+//        ArrayList<Object[]> lst = new ArrayList<>();
+//        for (int i = 0; i < 5; i++) {
+//            Object[] obj = new Object[]{new Date(), j};
+//            j++;
+//            lst.add(obj);
+//        }
+//
+//        patient.setSystolicBPs(lst);
+//        notifyObserver();
     }
 
     /***

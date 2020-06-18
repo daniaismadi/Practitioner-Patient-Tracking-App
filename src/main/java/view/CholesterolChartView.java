@@ -22,7 +22,12 @@ import java.util.List;
 /***
  * View for cholesterol chart.
  */
-public class CholesterolChartView {
+public class CholesterolChartView extends JFrame {
+
+    /**
+     * The frame that this controller creates.
+     */
+    private JFrame frame;
 
     /**
      * The scroller for this chart view.
@@ -47,12 +52,12 @@ public class CholesterolChartView {
     /**
      * The dataset for the chart.
      */
-    SlidingCategoryDataset dataset;
+    private SlidingCategoryDataset dataset;
 
     /**
      * The list of patients in the chart.
      */
-    List<Patient> patientList;
+    private List<Patient> patientList;
 
     /***
      * Initialise a new cholesterol chart with data from patients in patientList.
@@ -61,7 +66,17 @@ public class CholesterolChartView {
      */
     public CholesterolChartView(ArrayList<Patient> patientsList) {
         this.patientList = patientsList;
+        this.frame = new JFrame("Cholesterol Chart");
         scrollPanel.setLayout(new BorderLayout());
+    }
+
+    /***
+     * Return the frame that holds the chart.
+     *
+     * @return      the frame that holds the chart
+     */
+    public JFrame getFrame() {
+        return frame;
     }
 
     /***
