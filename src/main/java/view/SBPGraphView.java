@@ -17,18 +17,10 @@ import java.util.ArrayList;
  */
 public class SBPGraphView extends JFrame {
 
-    public JPanel getMainPanel() {
-        return mainPanel;
-    }
-
     /**
      * Main panel which will contain the tabbed panels.
      */
     private JPanel mainPanel = new JPanel();
-
-    public void setTabPane(JTabbedPane tabPane) {
-        this.tabPane = tabPane;
-    }
 
     /**
      * Tabbed Panel, which will contain one or more panels, within which there will be chart panels.
@@ -121,7 +113,29 @@ public class SBPGraphView extends JFrame {
 
     }
 
+    /**
+     * This method is a getter for the tabbed pane.
+     * @return tabPane which will contain all the Panels, that will contain a chart
+     */
     public JTabbedPane getTabPane() {
         return tabPane;
     }
+
+    /**
+     * This method is a getter for the main panel.
+     * @return mainPanel  which will contain all the panels within
+     */
+    public JPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    /**
+     * This method sets the a tabbed pane to this.tabPane
+     * @param tabPane  A tab pane which will contain panels (containing chart panels)
+     */
+    public void setTabPane(JTabbedPane tabPane) {
+        this.tabPane = tabPane;
+    }
+
+
 }
