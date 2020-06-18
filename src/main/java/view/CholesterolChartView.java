@@ -25,6 +25,11 @@ import java.util.List;
 public class CholesterolChartView {
 
     /**
+     * The frame that this controller creates.
+     */
+    private JFrame frame;
+
+    /**
      * The scroller for this chart view.
      */
     private JScrollBar scroller;
@@ -61,7 +66,17 @@ public class CholesterolChartView {
      */
     public CholesterolChartView(ArrayList<Patient> patientsList) {
         this.patientList = patientsList;
+        this.frame = new JFrame("Cholesterol Chart");
         scrollPanel.setLayout(new BorderLayout());
+    }
+
+    /***
+     * Return the frame that holds the chart.
+     *
+     * @return      the frame that holds the chart
+     */
+    public JFrame getFrame() {
+        return frame;
     }
 
     /***

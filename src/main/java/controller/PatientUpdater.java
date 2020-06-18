@@ -108,7 +108,7 @@ public class PatientUpdater implements Subject {
 
         // Trigger model to update blood pressure measurements.
         dbModel.updateBPObs(patient.getId());
-        // Gegnmt 5 latest systolic BP measurements.
+        // Get 5 latest systolic BP measurements.
         patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patient.getId(), 5));
 
 //        Test

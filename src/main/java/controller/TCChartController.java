@@ -37,11 +37,6 @@ public class TCChartController implements Observer, ChangeListener {
     private PatientsView patientsView;
 
     /**
-     * The frame that this controller creates.
-     */
-    private JFrame frame;
-
-    /**
      * The subject that this class subscribes to in order to update patient measurements.
      */
     private PatientUpdater patientUpdater;
@@ -58,7 +53,7 @@ public class TCChartController implements Observer, ChangeListener {
         this.cholesterolChartView = cholesterolChartView;
         this.patientUpdater = patientUpdater;
         this.patientsView = patientsView;
-        this.frame = new JFrame("Cholesterol Chart");
+//        this.frame = new JFrame("Cholesterol Chart");
 
         // Register this controller as an observer.
         this.patientUpdater.register(this);
@@ -69,20 +64,20 @@ public class TCChartController implements Observer, ChangeListener {
      *
      */
     public void buildView() {
-        frame.setDefaultCloseOperation(frame.HIDE_ON_CLOSE);
+        cholesterolChartView.getFrame().setDefaultCloseOperation(cholesterolChartView.getFrame().HIDE_ON_CLOSE);
         // Build the graph view.
         buildGraph();
-        frame.add(cholesterolChartView.getCholesterolPanel());
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        cholesterolChartView.getFrame().add(cholesterolChartView.getCholesterolPanel());
+        cholesterolChartView.getFrame().pack();
+        cholesterolChartView.getFrame().setLocationRelativeTo(null);
+        cholesterolChartView.getFrame().setVisible(true);
     }
 
     /***
      * Builds the full cholesterol chart to display.
      *
      */
-    public void buildGraph() {
+    private void buildGraph() {
         // Refresh panel.
         cholesterolChartView.getBarPanel().removeAll();
 
@@ -109,7 +104,7 @@ public class TCChartController implements Observer, ChangeListener {
      *
      * @param max   the maximum amount of data that this scroller can scroll to.
      */
-    public void buildScroller(int max) {
+    private void buildScroller(int max) {
         // Refresh scroll panel.
         cholesterolChartView.getScrollPanel().removeAll();
 
@@ -127,7 +122,7 @@ public class TCChartController implements Observer, ChangeListener {
      * @param dataset   the dataset to display in the chart
      * @return          the cholesterol chart
      */
-    public JFreeChart createChart(CategoryDataset dataset){
+    private JFreeChart createChart(CategoryDataset dataset){
 
         // A createDataSet method is being invoked in the arguments, to set the values to be plotted in the graph
         JFreeChart barChart = ChartFactory.createBarChart(
@@ -160,7 +155,7 @@ public class TCChartController implements Observer, ChangeListener {
      *
      * @return an object with the values needed to plot.
      */
-    public CategoryDataset createDataSet(){
+    private CategoryDataset createDataSet(){
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (Patient patient: cholesterolChartView.getPatientList()) {
             if (!(patient.getTotalCholesterol() == 0)) {
@@ -176,7 +171,7 @@ public class TCChartController implements Observer, ChangeListener {
      *
      * @return  the amount of patients with valid cholesterol measurements
      */
-    public int countValidData() {
+    private int countValidData() {
         int count = 0;
 
         for (Patient patient : cholesterolChartView.getPatientList()) {
@@ -196,7 +191,7 @@ public class TCChartController implements Observer, ChangeListener {
     public void update() {
         if (patientsView.isUpdateFinished()) {
             buildGraph();
-            SwingUtilities.updateComponentTreeUI(frame);
+            SwingUtilities.updateComponentTreeUI(cholesterolChartView.getFrame());
         }
     }
 
