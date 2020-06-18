@@ -53,7 +53,6 @@ public class TCChartController implements Observer, ChangeListener {
         this.cholesterolChartView = cholesterolChartView;
         this.patientUpdater = patientUpdater;
         this.patientsView = patientsView;
-//        this.frame = new JFrame("Cholesterol Chart");
 
         // Register this controller as an observer.
         this.patientUpdater.register(this);
