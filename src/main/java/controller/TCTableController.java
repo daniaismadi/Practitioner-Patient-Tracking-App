@@ -105,8 +105,13 @@ public class TCTableController implements Observer {
      * @return      the date as a string
      */
     private String convertDateToString(Date date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        return dateFormat.format(date);
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            return dateFormat.format(date);
+        }
+        catch (Exception e){
+            return "";
+        }
     }
 
     /***
