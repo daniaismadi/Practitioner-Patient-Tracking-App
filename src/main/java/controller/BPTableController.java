@@ -441,7 +441,7 @@ public class BPTableController implements Observer {
         public void actionPerformed(ActionEvent e) {
 
             // If high Systolic Blood Pressure values exist; a controller is initiated and the values are passed as arguments
-            if (bpView.getHighSystolicPatients().size()>0) {
+            if (!(bpView.getHighSystolicPatients() == null)) {
                 SBPGraphView sbpGraphView = new SBPGraphView();
                 SBPGraphController BpGraphController = new SBPGraphController(sbpGraphView, bpView, patientUpdater, patientsView);
             }
