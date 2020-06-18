@@ -105,10 +105,9 @@ public class PatientsController implements Observer {
     /***
      * Update patient measurements.
      *
-     * @param patient   the patient to update
      */
     @Override
-    public void update(Patient patient) {
+    public void update() {
         ;
     }
 

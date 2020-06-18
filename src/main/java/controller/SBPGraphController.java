@@ -86,10 +86,9 @@ public class SBPGraphController implements Observer {
 
     /**
      * Updates graph view when patient's high systolic bp values are updated.
-     * @param patient   the patient to update
      */
     @Override
-    public void update(Patient patient) {
+    public void update() {
 
         if (patientsView.isUpdateFinished()){
 

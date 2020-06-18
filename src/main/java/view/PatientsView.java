@@ -88,7 +88,7 @@ public class PatientsView extends JFrame {
     /***
      * Initialises all the required variables of PatientView.
      *
-     * @param hPracId
+     * @param hPracId       the ID of the practitioner that has logged in
      */
     public PatientsView(String hPracId) {
 

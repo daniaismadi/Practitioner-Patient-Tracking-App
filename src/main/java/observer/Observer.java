@@ -11,10 +11,9 @@ import java.util.ArrayList;
 public interface Observer {
 
     /***
-     * Updates patient with new measurements.
+     * Notifies all observers that there has been a change.
      *
-     * @param patient   the patient to update
      */
-    void update(Patient patient);
+    void update();
 
 }

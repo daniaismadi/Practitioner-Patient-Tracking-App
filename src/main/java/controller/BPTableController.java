@@ -67,7 +67,7 @@ public class BPTableController implements Observer {
         bpView.setSystolicBP(Double.POSITIVE_INFINITY);
 
         this.bpView.addRemoveBtnListener(new RemoveBtnListener());
-        this.bpView.addGenerateBpBtnListener(new genBpBtnListener());
+        this.bpView.addGenerateBpBtnListener(new GenerateSBPBtnListener());
         this.bpView.addTableListener(new TableSelectionListener());
     }
 
@@ -324,32 +324,33 @@ public class BPTableController implements Observer {
 
     /***
      * Overridden from the Observer interface method. Updates the view (blood pressure table and high blood pressure
-     * tracker) with this patient's new values.
+     * tracker) with patient's new values.
      *
-     * @param patient   The patient to update values in the table for.
      */
     @Override
-    public void update(Patient patient) {
+    public void update() {
 
-        // get the position of this patient in the monitor list
-        int i = bpView.getMonitoredPatients().indexOf(patient);
+        for (int i = 0; i < bpView.getMonitoredPatients().size(); i++) {
+            // Get patient
+            Patient patient = bpView.getMonitoredPatients().get(i);
 
-        // update table values
-        try {
-            bpView.setBpTableValue(patient.getSystolicBPs().get(0)[1] + " mmHg", i, 1);
-            bpView.setBpTableValue(patient.getDiastolicBPs().get(0)[1] + " mmHg", i, 2);
-            bpView.setBpTableValue(convertDateToString((Date)patient.getSystolicBPs().get(0)[0]), i, 3);
+            // update table values
+            try {
+                bpView.setBpTableValue(patient.getSystolicBPs().get(0)[1] + " mmHg", i, 1);
+                bpView.setBpTableValue(patient.getDiastolicBPs().get(0)[1] + " mmHg", i, 2);
+                bpView.setBpTableValue(convertDateToString((Date)patient.getSystolicBPs().get(0)[0]), i, 3);
 
-            // update text pane
-            if ((double) patient.getSystolicBPs().get(0)[1] > bpView.getSystolicBP()) {
-                updateHighSystolicBPTracker();
+                // update text pane
+                if ((double) patient.getSystolicBPs().get(0)[1] > bpView.getSystolicBP()) {
+                    updateHighSystolicBPTracker();
+                }
+
+                if ((double) patient.getDiastolicBPs().get(0)[1] > bpView.getDiastolicBP()) {
+                    updateHighDiastolicBPTracker();
+                }
+            } catch (IndexOutOfBoundsException e) {
+                ;
             }
-
-            if ((double) patient.getDiastolicBPs().get(0)[1] > bpView.getDiastolicBP()) {
-                updateHighDiastolicBPTracker();
-            }
-        } catch (IndexOutOfBoundsException e) {
-//            System.out.println("No blood pressure value to update on the table.");
         }
 
         // revalidate
@@ -428,7 +429,7 @@ public class BPTableController implements Observer {
     /**
      * A class to listen to the Generate Graph button in the BloodPressureTable View.
      */
-    private class genBpBtnListener implements ActionListener {
+    private class GenerateSBPBtnListener implements ActionListener {
 
         /***
          * Invoked when the generate graph button is clicked.

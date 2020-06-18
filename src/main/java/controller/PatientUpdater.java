@@ -66,7 +66,7 @@ public class PatientUpdater implements Subject {
     @Override
     public void notifyObserver() {
         for (Observer observer : observers) {
-            observer.update(patient);
+            observer.update();
         }
     }
 
@@ -108,7 +108,7 @@ public class PatientUpdater implements Subject {
 
         // Trigger model to update blood pressure measurements.
         dbModel.updateBPObs(patient.getId());
-        // Get 5 latest systolic BP measurements.
+        // Gegnmt 5 latest systolic BP measurements.
         patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patient.getId(), 5));
 
 //        Test

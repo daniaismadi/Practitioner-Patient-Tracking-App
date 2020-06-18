@@ -126,28 +126,28 @@ public class TCTableController implements Observer {
     }
 
     /***
-     * Overridden from the Observer interface method. Updates the view (cholesterol table) with this patient's
+     * Overridden from the Observer interface method. Updates the view (cholesterol table) with patient's
      * new values.
      *
-     * @param patient   The patient to update values in the table for.
      */
     @Override
-    public void update(Patient patient) {
+    public void update() {
         // calculate new average
         calculateTCAverage();
-        System.out.println(tcView.getAvgCholesterol());
 
-        // Get patient position in monitor list if they are on the monitor list
-        int i = tcView.getMonitoredPatients().indexOf(patient);
+        for (int i = 0; i < tcView.getMonitoredPatients().size(); i++) {
+            Patient patient = tcView.getMonitoredPatients().get(i);
 
-        // change value in cholesterol column
-        try {
-            if (patient.getTotalCholesterol() > 0) {
-                tcView.setTcTableValue(patient.getTotalCholesterol() + " mg/dL", i, 1);
-                tcView.setTcTableValue(convertDateToString(patient.getLatestCholesterolDate()), i, 2);
-            }
-        } catch (IndexOutOfBoundsException e) {
+            // change value in cholesterol column
+            try {
+                if (patient.getTotalCholesterol() > 0) {
+                    tcView.setTcTableValue(patient.getTotalCholesterol() + " mg/dL", i, 1);
+                    tcView.setTcTableValue(convertDateToString(patient.getLatestCholesterolDate()), i, 2);
+                }
+            } catch (IndexOutOfBoundsException e) {
 //            System.out.println("No cholesterol value to update on table.");
+            }
+
         }
 
         // update table

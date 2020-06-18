@@ -191,10 +191,9 @@ public class TCChartController implements Observer, ChangeListener {
     /***
      * Updates the chart view when all patient measurements have been updated.
      *
-     * @param patient   the patient that is being updated
      */
     @Override
-    public void update(Patient patient) {
+    public void update() {
         if (patientsView.isUpdateFinished()) {
             buildGraph();
             SwingUtilities.updateComponentTreeUI(frame);

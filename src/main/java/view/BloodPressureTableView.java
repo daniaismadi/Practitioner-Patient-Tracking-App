@@ -189,7 +189,7 @@ public class BloodPressureTableView extends JFrame {
     /***
      * Add a new text pane to the high systolic blood pressure tracker.
      *
-     * @param textPane
+     * @param textPane      the text pane to add to the high systolic blood pressure tracker
      */
     public void addToHighSystolicBPObs(JTextPane textPane) {
         highSystolicBP.add(textPane);
@@ -198,7 +198,7 @@ public class BloodPressureTableView extends JFrame {
     /***
      * Add a new text pane to the high diastolic blood pressure tracker.
      *
-     * @param textPane
+     * @param textPane      the text pane to add to the high diastolic blood pressure tracker
      */
     public void addToHighDiastolicBPObs(JTextPane textPane) {
         highDiastolicBP.add(textPane);
