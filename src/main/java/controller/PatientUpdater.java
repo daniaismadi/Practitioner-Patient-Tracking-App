@@ -26,8 +26,8 @@ public class PatientUpdater implements Subject {
     private Patient patient;
 
 //    For testing
-    private int i = 100;
-    private double j = 100;
+//    private int i = 100;
+//    private double j = 100;
 //    private static double k = 100;
 
     /***
