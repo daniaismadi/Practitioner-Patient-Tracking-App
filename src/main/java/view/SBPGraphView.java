@@ -63,10 +63,15 @@ public class SBPGraphView extends JFrame {
 
         this.patientName = name;
         this.patientPlotValues = values;
+
         JFreeChart linegraph = graph();
+        // putting the graph into the chart panel
         ChartPanel chartPanel = new ChartPanel(linegraph);
+        // making a new panel, to add the chart panel into
         JPanel pane = new JPanel();
+        // adding the chart panel into the new panel
         pane.add(chartPanel);
+        // adding the new panel into the tabbed panel
         tabPane.add(this.patientName, pane);
 
     }

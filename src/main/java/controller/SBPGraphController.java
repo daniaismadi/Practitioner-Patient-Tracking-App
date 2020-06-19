@@ -54,7 +54,7 @@ public class SBPGraphController implements Observer {
     }
 
     /**
-     * This method will take eache Patient object from Bp table view and store the
+     * This method will take each Patient object from Bp table view and store the
      * systolic bp values in an array list (of type Double).
      * For each patient, init chart in graph view is invoked to make a chart for that patient
      */
