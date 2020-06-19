@@ -93,7 +93,7 @@ public class PatientsView extends JFrame {
     public PatientsView(String hPracId) {
 
         this.hPracId = hPracId;
-        this.updateFinished = false;
+        this.updateFinished = true;
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(rootPanel);
         this.pack();

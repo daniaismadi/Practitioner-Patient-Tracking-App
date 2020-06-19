@@ -69,6 +69,8 @@ public class BPTableController implements Observer {
         this.bpView.addRemoveBtnListener(new RemoveBtnListener());
         this.bpView.addGenerateBpBtnListener(new GenerateSBPBtnListener());
         this.bpView.addTableListener(new TableSelectionListener());
+        this.bpView.addMonitorHighSystolicListener(new HighSystolicTrackerListener());
+        this.bpView.addMonitorHighDiastolicListener(new HighDiastolicTrackerListener());
     }
 
     /***
@@ -137,8 +139,7 @@ public class BPTableController implements Observer {
      * @param patient   the patient to check for
      * @return          true if patient has already been added to the blood monitor list, false otherwise
      */
-    private boolean checkPatientAdded(Patient patient) {
-        List<Patient> patients = bpView.getMonitoredPatients();
+    private boolean checkPatientAdded(Patient patient, List<Patient> patients) {
         for (Patient p : patients) {
             if (p.equals(patient)) {
                 return true;
@@ -193,8 +194,6 @@ public class BPTableController implements Observer {
             if (type.equalsIgnoreCase("systolic")) {
 
                 bps = p.getSystolicBPs();
-                // initializing high systolic patients list
-                bpView.setHighSystolicPatients((ArrayList)patientList);
             } else {
                 bps = p.getDiastolicBPs();
             }
@@ -233,73 +232,13 @@ public class BPTableController implements Observer {
     }
 
     /***
-     * Get the list of patients who are above a certain systolic blood pressure threshold from those who are
-     * currently being monitored for their blood pressure.
-     *
-     * @param systolicBPThreshold   the systolic blood pressure measurement threshold
-     * @return                      The list of patients who are above the systolic blood pressure threshold.
-     */
-    private List<Patient> getHighSystolicBPs(double systolicBPThreshold) {
-        List<Patient> patientList = new ArrayList<>();
-        ArrayList<Patient> monitoredPatients = bpView.getMonitoredPatients();
-
-        for (Patient p : monitoredPatients) {
-            // get latest systolic blood pressure measurements
-            List<Object[]> systolicBPs = p.getSystolicBPs();
-
-            // ensure patient has at least one systolic blood pressure measurement
-            if (systolicBPs.size() > 0) {
-                // get latest observation
-                double systolicBP = (double)systolicBPs.get(0)[1];
-
-                // if latestVal is higher then threshold, this person has high systolic BP
-                if (systolicBP > systolicBPThreshold) {
-                    patientList.add(p);
-                }
-            }
-        }
-
-        return patientList;
-    }
-
-    /***
-     * Get the list of patients who are above a certain diastolic blood pressure threshold from those who are currently
-     * being monitored for their blood pressure.
-     *
-     * @param diastolicBPThreshold  The diastolic blood pressure measurement threshold
-     * @return                      The list of patients who are above the diastolic blood pressure threshold.
-     */
-    private List<Patient> getHighDiastolicBPs(double diastolicBPThreshold) {
-        List<Patient> patientList = new ArrayList<>();
-        ArrayList<Patient> monitoredPatients = bpView.getMonitoredPatients();
-
-        for (Patient p : monitoredPatients) {
-            // get latest systolic blood pressure measurements
-            List<Object[]> diastolicBPs = p.getDiastolicBPs();
-
-            // ensure patient has at least one systolic blood pressure measurement
-            if (diastolicBPs.size() > 0) {
-                // get latest observation
-                double diastolicBP = (double)diastolicBPs.get(0)[1];
-
-                // if latestVal is higher then threshold, this person has high systolic BP
-                if (diastolicBP > diastolicBPThreshold) {
-                    patientList.add(p);
-                }
-            }
-        }
-
-        return patientList;
-    }
-
-    /***
      * Update the blood pressure view to include patients who have systolic blood pressure measurements that are above
      * the currently set systolic blood pressure threshold.
      *
      */
     private void updateHighSystolicBPTracker() {
         // Update High Systolic BP Monitor.
-        List<Patient> patientList = getHighSystolicBPs(bpView.getSystolicBP());
+        List<Patient> patientList = bpView.getHighSystolicPatients();
         List<JTextPane> textPanes = createBPTracker(patientList, "systolic");
         // clear current high systolic bp view.
         bpView.clearHighSystolicBPObs();
@@ -314,7 +253,7 @@ public class BPTableController implements Observer {
      */
     private void updateHighDiastolicBPTracker() {
         // Update High Diastolic BP Monitor.
-        List<Patient> patientList = getHighDiastolicBPs(bpView.getDiastolicBP());
+        List<Patient> patientList = bpView.getHighDiastolicPatients();
         List<JTextPane> textPanes = createBPTracker(patientList, "diastolic");
         // clear current high systolic bp view.
         bpView.clearHighDiastolicBPObs();
@@ -340,14 +279,20 @@ public class BPTableController implements Observer {
                 bpView.setBpTableValue(patient.getDiastolicBPs().get(0)[1] + " mmHg", i, 2);
                 bpView.setBpTableValue(convertDateToString((Date)patient.getSystolicBPs().get(0)[0]), i, 3);
 
-                // update text pane
-                if ((double) patient.getSystolicBPs().get(0)[1] > bpView.getSystolicBP()) {
-                    updateHighSystolicBPTracker();
+                // Check if patient does not have high systolic BP anymore- remove from tracker accordingly.
+                if (checkPatientAdded(patient, bpView.getHighSystolicPatients()) &&
+                        (double) patient.getSystolicBPs().get(0)[1] < bpView.getSystolicBP()) {
+                    bpView.getHighSystolicPatients().remove(patient);
                 }
+                updateHighSystolicBPTracker();
 
-                if ((double) patient.getDiastolicBPs().get(0)[1] > bpView.getDiastolicBP()) {
-                    updateHighDiastolicBPTracker();
+                // Check if patient does not have high diastolic BP anymore- remove from tracker accordingly.
+                if (checkPatientAdded(patient, bpView.getHighDiastolicPatients()) &&
+                        (double) patient.getDiastolicBPs().get(0)[1] < bpView.getDiastolicBP()) {
+                    bpView.getHighDiastolicPatients().remove(patient);
                 }
+                updateHighDiastolicBPTracker();
+
             } catch (IndexOutOfBoundsException e) {
                 ;
             }
@@ -378,17 +323,13 @@ public class BPTableController implements Observer {
                 List<Patient> p = patientsView.getPatientList().getSelectedValuesList();
                 List<Patient> newPatientsToMonitor = new ArrayList<>();
                 for (Patient patient : p) {
-                    if (!checkPatientAdded(patient)) {
+                    if (!checkPatientAdded(patient, bpView.getMonitoredPatients())) {
                         bpView.addPatientToMonitor(patient);
                         newPatientsToMonitor.add(patient);
                     }
                 }
                 // Add new patients to the blood pressure table.
                 addToBPTable(newPatientsToMonitor);
-                // Update the high systolic blood pressure tracker.
-                updateHighSystolicBPTracker();
-                // Update the high diastolic blood pressure tracker.
-                updateHighDiastolicBPTracker();
             }
         }
     }
@@ -413,6 +354,20 @@ public class BPTableController implements Observer {
                 // remove monitored patient
                 Patient p = bpView.getMonitoredPatients().get(row);
                 bpView.removePatientFromMonitor(p);
+
+                // Remove from high systolic and high diastolic patient list if they exist.
+                bpView.getHighSystolicPatients().remove(p);
+                bpView.getHighDiastolicPatients().remove(p);
+
+                // Notify observers that view has changed.
+                if (!patientsView.isUpdateFinished()) {
+                    patientsView.setUpdateFinished(true);
+                    patientUpdater.notifyObserver();
+                    patientsView.setUpdateFinished(false);
+                } else {
+                    patientUpdater.notifyObserver();
+                }
+
                 updateHighSystolicBPTracker();
                 updateHighDiastolicBPTracker();
                 bpView.getBPMonitor().revalidate();
@@ -441,7 +396,7 @@ public class BPTableController implements Observer {
         public void actionPerformed(ActionEvent e) {
 
             // If high Systolic Blood Pressure values exist; a controller is initiated and the values are passed as arguments
-            if (!(bpView.getHighSystolicPatients() == null)) {
+            if ((bpView.getHighSystolicPatients().size() > 0)) {
                 SBPGraphView sbpGraphView = new SBPGraphView();
                 SBPGraphController BpGraphController = new SBPGraphController(sbpGraphView, bpView, patientUpdater, patientsView);
             }
@@ -473,6 +428,25 @@ public class BPTableController implements Observer {
                 bpView.setSystolicBP(systolicBP);
                 bpView.updateSystolicColumn();
 
+                // Remove patients that do not satisfy this new blood pressure requirement for high systolic list.
+                ArrayList<Patient> highSystolicPatients = new ArrayList<>();
+                for (Patient patient : bpView.getHighSystolicPatients()) {
+                    if ((double)patient.getSystolicBPs().get(0)[1] > bpView.getSystolicBP()) {
+                        highSystolicPatients.add(patient);
+                    }
+                }
+                bpView.setHighSystolicPatients(highSystolicPatients);
+
+                // Notify observers that view has changed.
+                if (!patientsView.isUpdateFinished()) {
+                    patientsView.setUpdateFinished(true);
+                    patientUpdater.notifyObserver();
+                    patientsView.setUpdateFinished(false);
+                } else {
+                    patientUpdater.notifyObserver();
+                }
+
+                // Update tracker view.
                 updateHighSystolicBPTracker();
 
             } catch (NumberFormatException ex) {
@@ -500,6 +474,16 @@ public class BPTableController implements Observer {
                 bpView.setDiastolicBP(diastolicBP);
                 bpView.updateDiastolicColumn();
 
+                // Remove patients that do not satisfy this new blood pressure requirement for high diastolic list.
+                ArrayList<Patient> highDiastolicPatients = new ArrayList<>();
+                for (Patient patient : bpView.getHighDiastolicPatients()) {
+                    if ((double)patient.getDiastolicBPs().get(0)[1] > bpView.getDiastolicBP()) {
+                        highDiastolicPatients.add(patient);
+                    }
+                }
+                bpView.setHighDiastolicPatients(highDiastolicPatients);
+
+                // Update BP Tracker.
                 updateHighDiastolicBPTracker();
 
             } catch (NumberFormatException ex) {
@@ -535,6 +519,98 @@ public class BPTableController implements Observer {
                 }
             } catch (Exception ex) {
                 System.out.println("No patient selected.");
+            }
+        }
+    }
+
+    /***
+     * A class to listen to the monitor high systolic patient button in BloodPressureTableView.
+     *
+     */
+    private class HighSystolicTrackerListener implements ActionListener {
+
+        /***
+         * Adds new patient to high systolic blood pressure tracker, if any and updates views accordingly.
+         *
+         * @param e     the event that was performed
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                int row = bpView.getBpTable().getSelectedRow();
+                // get monitored patient
+                Patient p = bpView.getMonitoredPatients().get(row);
+
+                if (p.getSystolicBPs().size() > 0 && (double)p.getSystolicBPs().get(0)[1] > bpView.getSystolicBP()) {
+                    if (!checkPatientAdded(p, bpView.getHighSystolicPatients())) {
+                        // Add patient to high systolic patients list.
+                        bpView.getHighSystolicPatients().add(p);
+
+                        // Notify views that something has changed.
+                        if (!patientsView.isUpdateFinished()) {
+                            patientsView.setUpdateFinished(true);
+                            patientUpdater.notifyObserver();
+                            patientsView.setUpdateFinished(false);
+                        } else {
+                            patientUpdater.notifyObserver();
+                        }
+
+                    } else {
+                        bpView.displayErrorMessage("Patient has already been added to monitor.");
+                    }
+                } else {
+                    bpView.displayErrorMessage("Patient does not have high systolic blood pressure measurement and" +
+                            " cannot be added to the monitor.");
+                }
+
+                // Refresh view.
+                updateHighSystolicBPTracker();
+                bpView.getBPMonitor().revalidate();
+                bpView.getBPMonitor().repaint();
+            }
+            catch (Exception k){
+                System.out.println("No patient to add to high systolic tracker.");
+            }
+        }
+    }
+
+    /***
+     * A class to listen to the monitor high diastolic patient button in BloodPressureTableView.
+     *
+     */
+    private class HighDiastolicTrackerListener implements ActionListener {
+
+        /***
+         * Adds new patient to high diastolic blood pressure tracker, if any and updates views accordingly.
+         *
+         * @param e     the event that was performed
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                int row = bpView.getBpTable().getSelectedRow();
+                // get monitored patient
+                Patient p = bpView.getMonitoredPatients().get(row);
+
+                if (p.getDiastolicBPs().size() > 0 && (double)p.getDiastolicBPs().get(0)[1] > bpView.getDiastolicBP()) {
+                    if (!checkPatientAdded(p, bpView.getHighDiastolicPatients())) {
+                        // Add patient to high systolic patients list.
+                        bpView.getHighDiastolicPatients().add(p);
+                    } else{
+                        bpView.displayErrorMessage("Patient has already been added to monitor.");
+                    }
+                } else {
+                    bpView.displayErrorMessage("Patient does not have high diastolic blood pressure measurement and " +
+                            "cannot be added to the monitor.");
+                }
+
+                // Refresh view.
+                updateHighDiastolicBPTracker();
+                bpView.getBPMonitor().revalidate();
+                bpView.getBPMonitor().repaint();
+            }
+            catch (Exception k){
+                System.out.println("No patient to add to high diastolic tracker.");
             }
         }
     }

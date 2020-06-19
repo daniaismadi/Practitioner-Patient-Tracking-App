@@ -91,7 +91,6 @@ public class SBPGraphController implements Observer {
     public void update() {
 
         if (patientsView.isUpdateFinished()){
-
             // remove old tab pane
             this.graphView.getMainPanel().remove(this.graphView.getTabPane());
             // set new tab pane

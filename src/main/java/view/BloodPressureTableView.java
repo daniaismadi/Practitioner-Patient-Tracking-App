@@ -94,9 +94,24 @@ public class BloodPressureTableView extends JFrame {
     private JScrollPane diastolicTracker;
 
     /**
-     * This Array will contain multiple arrays, which will contain the High Systolic Blood Pressure Values to be plotted.
+     * Button to monitor high systolic patients.
+     */
+    private JButton monitorHighSystolic;
+
+    /**
+     * Button to monitor high diastolic patients.
+     */
+    private JButton monitorHighDiastolic;
+
+    /**
+     * Array of high systolic patients to monitor.
      */
     private ArrayList<Patient> highSystolicPatients;
+
+    /**
+     * Array of high diastolic patients to monitor.
+     */
+    private ArrayList<Patient> highDiastolicPatients;
 
     /**
      * The systolic blood pressure threshold.
@@ -123,6 +138,8 @@ public class BloodPressureTableView extends JFrame {
         bpTableModel.setRowCount(0);
 
         this.monitoredPatients = new ArrayList<>();
+        this.highSystolicPatients = new ArrayList<>();
+        this.highDiastolicPatients = new ArrayList<>();
 
         highSystolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
         highDiastolicBP.setLayout(new GridLayout(monitoredPatients.size(), 1));
@@ -154,6 +171,24 @@ public class BloodPressureTableView extends JFrame {
      */
     public ArrayList<Patient> getHighSystolicPatients() {
         return highSystolicPatients;
+    }
+
+    /**
+     * Get the current data set of patients with high diastolic values.
+     *
+     * @return  the data set
+     */
+    public ArrayList<Patient> getHighDiastolicPatients() {
+        return highDiastolicPatients;
+    }
+
+    /**
+     * Set the new dataset with new patient values.
+     *
+     * @param highDiastolicPatients   the data set to set
+     */
+    public void setHighDiastolicPatients(ArrayList<Patient> highDiastolicPatients) {
+        this.highDiastolicPatients = highDiastolicPatients;
     }
 
     /***
@@ -380,6 +415,24 @@ public class BloodPressureTableView extends JFrame {
      */
     public void addTableListener(ListSelectionListener listenForTableClick) {
         bpTable.getSelectionModel().addListSelectionListener(listenForTableClick);
+    }
+
+    /***
+     * Add a listener to monitor high systolic patients.
+     *
+     * @param listenForHighSystolicTrackerBtn   the listener to add for the monitor high systolic button
+     */
+    public void addMonitorHighSystolicListener(ActionListener listenForHighSystolicTrackerBtn) {
+        monitorHighSystolic.addActionListener(listenForHighSystolicTrackerBtn);
+    }
+
+    /***
+     * Add a listener to monitor high diastolic patients.
+     *
+     * @param listenForHighDiastolicTrackerBtn  the listener to add for the monitor high diastolic button
+     */
+    public void addMonitorHighDiastolicListener(ActionListener listenForHighDiastolicTrackerBtn) {
+        monitorHighDiastolic.addActionListener(listenForHighDiastolicTrackerBtn);
     }
 
     /***
