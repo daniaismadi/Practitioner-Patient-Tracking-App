@@ -102,7 +102,7 @@ public class BPTableController implements Observer {
             try {
                 systolicBP = (double)patient.getSystolicBPs().get(0)[1] + " mmHg";
             } catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
+                ;
             }
 
             // add latest diastolic blood pressure value
@@ -110,7 +110,7 @@ public class BPTableController implements Observer {
                 diastolicBP = (double)patient.getDiastolicBPs().get(0)[1] + " mmHg";
                 bpDate = convertDateToString((Date)patient.getDiastolicBPs().get(0)[0]);
             } catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
+                ;
             }
 
             bpView.addRowToBPTable(new Object[]{patient.toString(), systolicBP, diastolicBP, bpDate});
@@ -213,14 +213,14 @@ public class BPTableController implements Observer {
                 try {
                     doc.insertString(doc.getLength(), date + value, null);
                 } catch (BadLocationException e) {
-                    e.printStackTrace();
+                    ;
                 }
             }
 
             try {
                 doc.insertString(doc.getLength(), "\n", null);
             } catch (BadLocationException e) {
-                e.printStackTrace();
+                ;
             }
 
             textPane.setBorder(createLineBorder(Color.BLACK));

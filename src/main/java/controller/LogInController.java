@@ -72,11 +72,11 @@ public class LogInController {
 
                 JPanel cholesterolTableView = createCholesterolTableView(patientsView, dbModel, patientUpdater);
                 // Add to tab pane of original view.
-                patientsView.addTabPane("Cholesterol Table", cholesterolTableView);
+                patientsView.addTabPane("Cholesterol Monitor", cholesterolTableView);
 
                 JPanel bloodPressureTableView = createBPTableView(patientsView, dbModel, patientUpdater);
                 // Add to tab pane of original view.
-                patientsView.addTabPane("Blood Pressure Table", bloodPressureTableView);
+                patientsView.addTabPane("Blood Pressure Monitor", bloodPressureTableView);
 
                 // Initialise new Patients Controller.
                 PatientsController patientsController = new PatientsController(patientsView, dbModel, patientUpdater);

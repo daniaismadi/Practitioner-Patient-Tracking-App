@@ -105,13 +105,8 @@ public class TCTableController implements Observer {
      * @return      the date as a string
      */
     private String convertDateToString(Date date) {
-        try {
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-            return dateFormat.format(date);
-        }
-        catch (Exception e){
-            return "";
-        }
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        return dateFormat.format(date);
     }
 
     /***
@@ -183,7 +178,7 @@ public class TCTableController implements Observer {
                 cholesterolDate = convertDateToString(patient.getLatestCholesterolDate());
             } catch (NullPointerException ex) {
                 cholesterol = "-";
-                ex.printStackTrace();
+                ;
             }
 
             tcView.addRowToTcTable(new Object[]{patient.toString(), cholesterol, cholesterolDate});

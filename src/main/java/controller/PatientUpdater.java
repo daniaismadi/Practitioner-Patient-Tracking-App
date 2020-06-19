@@ -96,7 +96,6 @@ public class PatientUpdater implements Subject {
 //        patient.setTotalCholesterol(i);
 //        patient.setLatestCholesterolDate(new Date());
 //        i += 1;
-//        notifyObserver();
     }
 
     /***
@@ -120,7 +119,6 @@ public class PatientUpdater implements Subject {
 //        }
 //
 //        patient.setSystolicBPs(lst);
-//        notifyObserver();
     }
 
     /***
