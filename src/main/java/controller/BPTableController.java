@@ -134,9 +134,10 @@ public class BPTableController implements Observer {
     }
 
     /***
-     * Return true if patient has already been added to the blood pressure monitor list.
+     * Return true if patient has already been added patients.
      *
      * @param patient   the patient to check for
+     * @param patients  the list of patients to check
      * @return          true if patient has already been added to the blood monitor list, false otherwise
      */
     private boolean checkPatientAdded(Patient patient, List<Patient> patients) {
