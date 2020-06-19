@@ -20,49 +20,91 @@ import static com.mongodb.client.model.Indexes.ascending;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.orderBy;
 
+/***
+ * A class to retrieve Encounter information from the server, insert observation information into the database
+ * and query information about observations from the database. Implements the EncounterDAO interface.
+ *
+ */
 public class EncounterRepository implements  EncounterDAO {
 
+    /**
+     * Root URL of the server.
+     */
     private String rootUrl = "https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/";
-    private MongoDatabase db = Mongo.db;
-    private MongoCollection<Document> encounters;
 
+    /***
+     * Instance of local MongoDB database.
+     */
+    private MongoDatabase db;
+
+    /***
+     * Class constructor for EncounterRepository. Initialises a reference to the local MongoDB database.
+     *
+     */
     public EncounterRepository() {
+        this.db = Mongo.db;
     }
 
+    /***
+     * Get all patients of all the practitioners in hPracIds.
+     *
+     * @param hPracIds      list of practitioner IDs to retrieve patient IDs from
+     * @return              list of patient IDs of these practitioners
+     */
     @Override
     public ArrayList<String> getPatientsByHPracId(ArrayList<String> hPracIds) {
+        // Access Encounter collection.
         MongoCollection<Document> encounters = db.getCollection("Encounter");
         ArrayList<String> patientIds = new ArrayList<>();
 
+        // Find all the documents of the encounters of these practitioners.
         Bson filter = in("participant.individual.reference", hPracIds);
         FindIterable<Document> results = encounters.find(filter, Document.class)
                 .projection(fields(include("subject.reference"), excludeId()));
 
         for (Document doc : results) {
+            // Get the patient ID from the document.
             Document subject = doc.get("subject", Document.class);
             String patientId = subject.get("reference", String.class);
             patientId = patientId.replace("Patient/", "");
+
             if (!patientIds.contains(patientId)) {
+                // Add the patient ID to the array list.
                 patientIds.add(patientId);
             }
         }
+
+        // Return the list of patient IDs.
         return patientIds;
     }
 
+    /***
+     * Insert Encounter information into this database.
+     *
+     * @param encounterId       The Encounter ID of this encounter.
+     */
     @Override
     public void insertEncounter(String encounterId) {
+        // Access Encounter collection.
         MongoCollection<Document> encounters = db.getCollection("Encounter");
+
+        // URL of this encounter.
         String encounterUrl = rootUrl + "/Encounter/" + encounterId + "?_format=json";
+
         JSONObject json = null;
         try {
+            // Read JSON resource document of this encounter.
             json = JsonReader.readJsonFromUrl(encounterUrl);
         } catch (JSONException | IOException e) {
-            e.printStackTrace();
+            // URL is not valid.
+            ;
         }
 
         if (json != null) {
+            // Parse JSON document into Bson document.
             Document doc = Document.parse(json.toString());
 
+            // Insert/update encounter information with this encounter ID.
             Bson filter = Filters.eq("id", encounterId);
             Bson update = new Document("$set", doc);
             UpdateOptions options = new UpdateOptions().upsert(true);
@@ -72,9 +114,19 @@ public class EncounterRepository implements  EncounterDAO {
 
     }
 
+    /***
+     * Insert all encounters of this practitioner, as specified by identifier. Also insert patient and practitioner
+     * documents into the database as encounters are found.
+     *
+     * @param identifier        The identifier of the practitioner.
+     * @param patientDAO        PatientDAO needed to insert patient information into the database.
+     * @param practitionerDAO   PractitionerDAO needed to insert practitioner information into the database.
+     * @throws IOException      Occurs when there is an error in reading the JSON document from the URL given.
+     * @throws JSONException    Occurs when there is an error in reading the JSON document from the URL given.
+     */
     @Override
-    public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO,
-                                       ObservationDAO observationDAO) throws IOException, JSONException {
+    public void insertEncountersByPrac(String identifier, PatientDAO patientDAO, PractitionerDAO practitionerDAO)
+            throws IOException, JSONException {
         MongoCollection<Document> encounters = db.getCollection("Encounter");
 
         String encountersUrl = rootUrl + "Encounter?_include=Encounter.participant.individual&_include=Encounter" +
@@ -131,8 +183,6 @@ public class EncounterRepository implements  EncounterDAO {
                     if (!patientsInserted.contains(patientID)){
                         // Add patient.
                         patientDAO.insertPatient(patientID);
-                        // Insert all observation values of patient.
-                        observationDAO.insertLatestCholesObs(patientID);
                         patientsInserted.add(patientID);
                     }
 

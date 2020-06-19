@@ -1,88 +1,78 @@
 package controller;
 
 import database.DBModel;
+import observer.Observer;
 import view.Patient;
 import view.PatientsView;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.TimerTask;
 
-public class PatientsController{
+/***
+ * The controller class that controls PatientsView.
+ */
+public class PatientsController implements Observer {
 
-    private PatientsView theView;
-    private DBModel theModel;
+    /**
+     * The view this controller controls.
+     */
+    private PatientsView patientsView;
+
+    /**
+     * The model class that this controller communicates with.
+     */
+    private DBModel dbModel;
+
+    /**
+     * The query timer that will allow new observations to be updated automatically.
+     */
     private java.util.Timer queryTimer;
-    private java.util.Timer autosave;
 
+    /**
+     * The subject that this class subscribes to in order to update patient measurements.
+     */
+    private PatientUpdater patientUpdater;
 
-    public PatientsController(PatientsView theView, DBModel theModel) {
-        this.theView = theView;
-        this.theModel = theModel;
+    /***
+     * Initialises all required variables for the Patients View.
+     *
+     * @param patientsView      the view that this controller controls
+     * @param dbModel           the model that provides the view with information
+     * @param patientUpdater    the concrete subject class which grabs new information about the patient
+     */
+    public PatientsController(PatientsView patientsView, DBModel dbModel, PatientUpdater patientUpdater) {
+        this.patientsView = patientsView;
+        this.dbModel = dbModel;
+        this.patientUpdater = patientUpdater;
+        this.patientUpdater.register(this);
 
-        this.theView.setSize(400,300);
-
-        this.theView.addMonitorBtnListener(new MonitorBtnListener());
-        this.theView.addRemoveBtnListener(new RemoveBtnListener());
-        this.theView.addQueryBtnListener(new QueryBtnListener());
-    }
-
-    public void onStart(String hPracId) {
-
-        theView.setAvgCholes(Double.POSITIVE_INFINITY);
-        theView.setPatientListModel(theView.getDefaultPatientList());
-
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        this.patientsView.setSize(screenSize.width,screenSize.height);
+        this.patientsView.setMinimumSize(new Dimension(screenSize.width, 1000));
+        // Set patients list model.
+        this.patientsView.setPatientListModel();
         // update patient list
-        ArrayList<String> patientIds = theModel.getPatientList(hPracId);
+        ArrayList<String> patientIds = dbModel.getPatientList(this.patientsView.getHPracId());
         createPatients(patientIds);
 
-        // update monitored table
-        List<Patient> monitoredPatients = theView.getMonitoredPatients();
-        addToMonitoredPatientTable(monitoredPatients);
-
-        // new autosave timer, save every 5 minutes
-        autosave = new java.util.Timer();
-        autosave.schedule(new AutoSave(), 0, 5*10000);
-
-        // new query timer, set to 30 seconds at first
+        // new query timer, set to 60 seconds at first
         queryTimer = new java.util.Timer();
-        queryTimer.schedule(new QueryObs(), 0, 30*1000);
-        setTableListener();
+//        queryTimer.schedule(new QueryObs(), 0, 60*1000);
+
+        this.patientsView.addQueryBtnListener(new QueryBtnListener());
     }
 
-    private void setTableListener(){
-        ListSelectionModel model = theView.getMonTable().getSelectionModel();
-        model.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!model.isSelectionEmpty()){
-                    JTable table = theView.getMonTable();
-                    int row = table.getSelectedRow();
-                    Object name = table.getValueAt(row,0);
-                    String nameStr = name.toString();
-                    List<Patient> patients = theView.getMonitoredPatients();
-                    for (Patient p : patients) {
-                        if (p.toString().equals(nameStr)){
-                            theView.addExtraInfo(p.getBirthDate(),p.getGender(),p.getCountry(),p.getCity(),p.getState());
-                        }
-                    }
-
-
-                }
-            }
-        });
-    }
-
+    /***
+     * Create patient objects for this list of patients.
+     *
+     * @param patientIds    the IDs of the patients to create
+     */
     private void createPatients(List<String> patientIds) {
-        ArrayList<String> monitoredIds = theModel.getMonitoredPatients(theView.gethPracId());
 
         for (int i = 0; i < patientIds.size(); i++) {
             String patientId = patientIds.get(i);
@@ -92,134 +82,46 @@ public class PatientsController{
 
             // Set variables.
             patient.setId(patientId);
-            patient.setGivenName(theModel.getPatientFName(patientId));
-            patient.setFamilyName(theModel.getPatientLName(patientId));
-            patient.setBirthDate(theModel.getPatientBirthdate(patientId));
-            patient.setGender(theModel.getPatientGender(patientId));
-            patient.setCountry(theModel.getPatientAddressCountry(patientId));
-            patient.setCity(theModel.getPatientAddressCity(patientId));
-            patient.setState(theModel.getPatientAddressState(patientId));
-            patient.setTotalCholesterol(theModel.getPatientLatestCholes(patientId));
-            patient.setLatestCholesterolDate(theModel.getPatientLatestCholesDate(patientId));
+            patient.setGivenName(dbModel.getPatientFName(patientId));
+            patient.setFamilyName(dbModel.getPatientLName(patientId));
+            patient.setBirthDate(dbModel.getPatientBirthdate(patientId));
+            patient.setGender(dbModel.getPatientGender(patientId));
+            patient.setCountry(dbModel.getPatientAddressCountry(patientId));
+            patient.setCity(dbModel.getPatientAddressCity(patientId));
+            patient.setState(dbModel.getPatientAddressState(patientId));
+            patient.setTotalCholesterol(dbModel.getPatientLatestCholes(patientId));
+            patient.setLatestCholesterolDate(dbModel.getPatientLatestCholesDate(patientId));
+
+            // set latest 5 systolic blood pressure measurements
+            patient.setSystolicBPs(dbModel.getPatientSystolicBPs(patientId, 5));
+            // set latest 5 diastolic blood pressure measurements
+            patient.setDiastolicBPs(dbModel.getPatientDiastolicBPs(patientId, 5));
 
             // Add to default model list.
-            theView.addToPutList(patient);
-
-            // if id is in monitored list, add to monitored list
-            if (monitoredIds.contains(patientId) && !checkPatientAdded(patient)) {
-                theView.addMonitoredPatient(patient);
-            }
+            patientsView.addToPatientList(patient);
         }
     }
 
-    private void calculateCholesAverage() {
-        int size = theView.getMonTableRowCount();
-
-        int totalPatients = 0;
-        double totalCholes = 0;
-
-        // iterate through people already on the monitored list
-        for (int i = 0; i < size; i++) {
-            String cholesStr = (String) theView.getMonTableValueAt(i, 1);
-
-            try {
-                double choles = Double.valueOf(cholesStr);
-                totalPatients += 1;
-                totalCholes += choles;
-
-            } catch (NumberFormatException ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        // calculate total cholesterol
-        if (totalPatients > 1) {
-            theView.setAvgCholes(totalCholes/totalPatients);
-        } else {
-            theView.setAvgCholes(Double.POSITIVE_INFINITY);
-        }
+    /***
+     * Update patient measurements.
+     *
+     */
+    @Override
+    public void update() {
+        ;
     }
 
-    private boolean checkPatientAdded(Patient patient) {
-        // Return true if patient has already been added to the monitor list.
-        List<Patient> patients = theView.getMonitoredPatients();
-        for (Patient p : patients) {
-            if (p.equals(patient)) {
-                return true;
-            }
-        }
-        return false;
-
-    }
-
-    private void addToMonitoredPatientTable(List<Patient> p) {
-        String choles;
-        String strDate = "No Value Collected Yet";
-
-        for (int i = 0; i < p.size(); i++) {
-            Patient patient = p.get(i);
-            try {
-                choles = String.valueOf(patient.getTotalCholesterol());
-
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
-                Date cholesDate = patient.getLatestCholesterolDate();
-                strDate = dateFormat.format(cholesDate);
-            } catch (NullPointerException ex) {
-                ex.printStackTrace();
-                choles = "No Value Collected Yet";
-            }
-
-            theView.addRowToTableModel(new Object[]{patient.toString(), choles, strDate});
-            // Reset Date to "No Value Collected Yet".
-            strDate = "No Value Collected Yet";
-        }
-        calculateCholesAverage();
-        theView.updateColumnRenderer();
-    }
-
-
-
-    private class MonitorBtnListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-
-            // Update the view.
-            List<Patient> p = theView.getPatientList().getSelectedValuesList();
-            List<Patient> toAdd = new ArrayList<>();
-            for (Patient patient : p) {
-                if (!checkPatientAdded(patient)) {
-                    theView.addMonitoredPatient(patient);
-                    toAdd.add(patient);
-                }
-            }
-            System.out.println(theView.getMonitoredPatients());
-            addToMonitoredPatientTable(toAdd);
-        }
-    }
-
-    private class RemoveBtnListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                int row = theView.getMonTable().getSelectedRow();
-                theView.getTableModel().removeRow(row);
-                calculateCholesAverage();
-                theView.updateColumnRenderer();
-                // remove monitored patient
-                Patient p = theView.getMonitoredPatients().get(row);
-                theView.removeMonitoredPatient(row);
-                theModel.removeMonitorPatient(theView.gethPracId(), p.getId());
-                theView.extraInfoInitialState();
-            }
-            catch (Exception k){
-            }
-        }
-    }
-
+    /***
+     * THe listener for the query button.
+     */
     private class QueryBtnListener implements ActionListener {
 
+        /***
+         * Invoked when the query button is clicked. Will set the new query time to the time set by the practitioner.
+         * The patients will then be updated automatically based on this new query time.
+         *
+         * @param e     the event that was performed
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             // cancel previous time
@@ -227,77 +129,51 @@ public class PatientsController{
             queryTimer = new java.util.Timer();
 
             try {
-                int n = Integer.valueOf(theView.getQueryTimeTxt());
+                int n = Integer.parseInt(patientsView.getQueryTimeTxt());
 
                 // update time
                 queryTimer.schedule(new QueryObs(), 0, n*1000);
 
             } catch (NumberFormatException ex){
-                theView.displayErrorMessage("Please enter a valid input for query time.");
+                patientsView.displayErrorMessage("Please enter a valid input for query time.");
             }
 
         }
 
     }
 
+    /***
+     * Class that will allow patient observations to be updated automatically.
+     */
     private class QueryObs extends TimerTask {
 
+        /***
+         * Invoked every N seconds (based on the value of query timer set by the practitioner). Calls upon
+         * patientUpdater to update observations for every one of the practitioner's patients.
+         *
+         */
         @Override
         public void run() {
             System.out.println("Getting new observations.");
-            ListModel patients = theView.getPatientList().getModel();
+
+             ListModel<Patient> patients = patientsView.getPatientList().getModel();
+
+             // Update in progress.
+             patientsView.setUpdateFinished(false);
+
             for (int i = 0; i < patients.getSize(); i++) {
-                Patient p = (Patient) patients.getElementAt(i);
+                Patient p = patients.getElementAt(i);
+                patientUpdater.setPatient(p);
+                patientUpdater.updatePatientCholesterol(dbModel);
+                patientUpdater.updatePatientDiastolicBP(dbModel);
+                patientUpdater.updatePatientSystolicBP(dbModel);
 
-                String patientId = p.getId();
-
-                // update observations
-                theModel.updateCholesObs(patientId);
-
-                // update latest cholesterol value
-                double latestCholes = theModel.getPatientLatestCholes(patientId);
-                p.setTotalCholesterol(latestCholes);
-
-                // update latest cholesterol date
-                Date latestDate = theModel.getPatientLatestCholesDate(patientId);
-                p.setLatestCholesterolDate(latestDate);
+                // Notify observers that this patient's measurements have been updated.
+                patientUpdater.notifyObserver();
             }
-            // calculate new average
-            calculateCholesAverage();
-
-            // update table
-            theView.updateColumnRenderer();
-        }
-    }
-
-    private class AutoSave extends TimerTask {
-
-        @Override
-        public void run() {
-            System.out.println("Autosave executed");
-            ArrayList<Patient> monitorPatients = theView.getMonitoredPatients();
-            ArrayList<String> monitorIds = new ArrayList<>();
-
-            // find unique patients to add
-            ArrayList<String> toAdd = new ArrayList<>();
-            for (Patient p : monitorPatients) {
-                monitorIds.add(p.getId());
-
-                if (!toAdd.contains(p.getId())) {
-                    toAdd.add(p.getId());
-                    theModel.insertMonitorPatient(theView.gethPracId(), p.getId());
-                }
-            }
-
-            ArrayList<String> patientsInDB = theModel.getMonitoredPatients(theView.gethPracId());
-
-            // remove patients
-            for (String p : patientsInDB) {
-                if (!monitorIds.contains(p)) {
-                    theModel.removeMonitorPatient(theView.gethPracId(), p);
-                }
-            }
-
+            patientsView.setUpdateFinished(true);
+            // Notify observer that all patients have been updated.
+            patientUpdater.notifyObserver();
         }
     }
 }

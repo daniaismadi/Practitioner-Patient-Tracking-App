@@ -15,9 +15,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
+/***
+ * A class to facilitate reading JSON resource documents.
+ */
 public class JsonReader {
 
+    /***
+     * Reads the JSON document.
+     *
+     * @param rd            The reader.
+     * @return              The JSON document as a string.
+     * @throws IOException  Occurs if there is an error in reading the JSON document.
+     */
     static String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();
         int cp;
@@ -27,6 +36,14 @@ public class JsonReader {
         return sb.toString();
     }
 
+    /***
+     * Read the JSON resource document from URL.
+     *
+     * @param url               The URL of this JSON resource document.
+     * @return                  The JSON resource document online as a JSON object.
+     * @throws IOException      Occurs if there is an error in reading the JSON document.
+     * @throws JSONException    Occurs if there is an error in reading the JSON document.
+     */
     static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         InputStream is = new URL(url).openStream();
         try {
