@@ -1,6 +1,4 @@
-# Project
-
-FIT3077 Project Repository
+# Practitioner-Patient Tracking App
 
 Please use Intelli-J to run the application.
 1. In order to run the application, you have to install the relevant dependencies as specified in pom.xml (MongoDB 
